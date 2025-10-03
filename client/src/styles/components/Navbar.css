@@ -1,0 +1,101 @@
+/* Navbar general */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #8B5E3C; /* color madera cálido */
+  padding: 1rem 3rem;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 4px solid #D9A066; /* detalle decorativo */
+}
+
+/* Logo */
+.navbar .logo {
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.3s;
+}
+
+.navbar .logo:hover {
+  transform: scale(1.05);
+}
+
+/* Menú de links */
+.navbar .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2.5rem;
+  font-weight: 500;
+}
+
+.navbar .nav-links li {
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.navbar .nav-links li::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 0%;
+  background: #D9A066; /* línea decorativa */
+  transition: width 0.3s;
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+}
+
+.navbar .nav-links li:hover {
+  color: #F5E1C1;
+}
+
+.navbar .nav-links li:hover::after {
+  width: 100%;
+}
+
+/* Botón del carrito */
+.navbar .carrito-btn {
+  background-color: #D9A066;
+  color: #8B5E3C;
+  border: none;
+  border-radius: 50px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.navbar .carrito-btn:hover {
+  background-color: #F5E1C1;
+  transform: scale(1.1);
+  color: #8B5E3C;
+}
+
+/* Responsive (opcional) */
+@media screen and (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .nav-links {
+    gap: 1.5rem;
+    margin: 0.5rem 0;
+  }
+}
