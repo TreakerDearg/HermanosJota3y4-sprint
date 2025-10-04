@@ -1,65 +1,88 @@
 import "../styles/components/Destacados.css";
 
 function Destacados({ productos, verDetalle }) {
-  // Filtrar solo productos destacados
+  // Filtramos los productos destacados
   const productosDestacados = productos.filter((p) => p.destacado);
 
   return (
-    <section className="destacados" aria-label="Productos Destacados">
-      <h2 className="destacados-title">Productos Destacados</h2>
+    <section className="destacados" aria-labelledby="destacados-titulo">
+      <header className="destacados-header">
+        <h2 id="destacados-titulo" className="destacados-title">
+          Productos Destacados
+        </h2>
+        <p className="destacados-subtitle">
+          Elegidos por nuestros clientes por su calidad y diseño superior.
+        </p>
+      </header>
+
       <div className="productos-grid">
-        {productosDestacados.map((producto) => (
-          <article key={producto.id} className="producto-card">
-            <div className="flip-card-inner">
-
-              {/* Cara frontal */}
-              <div className="flip-card-front">
-                <figure className="producto-imagen">
-                  <img
-                    src={`http://localhost:5000${producto.imagen}`}
-                    alt={producto.nombre}
-                    loading="lazy"
-                  />
-                </figure>
-                <div className="producto-info">
-                  <h3>{producto.nombre}</h3>
-                </div>
-              </div>
-
-              {/* Cara trasera */}
-              <div className="flip-card-back">
-                <div className="overlay-content">
-                  <p className="precio">AR$ {producto.precio.toLocaleString()}</p>
-                  <p className="mini-desc">{producto.descripcion}</p>
-
-                  <div className="benefits-icons">
-                    <div className="benefit" title="Envío gratis">
-                      <i className="fas fa-truck" aria-hidden="true"></i>
-                      <span>Envío gratis</span>
-                    </div>
-                    <div className="benefit" title="3 cuotas sin interés">
-                      <i className="fas fa-credit-card" aria-hidden="true"></i>
-                      <span>3 cuotas sin interés</span>
-                    </div>
-                    <div className="benefit" title="Garantía 1 año">
-                      <i className="fas fa-tools" aria-hidden="true"></i>
-                      <span>Garantía 1 año</span>
-                    </div>
+        {productosDestacados.length > 0 ? (
+          productosDestacados.map((producto) => (
+            <article
+              key={producto.id}
+              className="producto-card"
+              aria-label={`Producto destacado: ${producto.nombre}`}
+            >
+              <div className="flip-card-inner">
+                {/* --- Cara Frontal --- */}
+                <div className="flip-card-front">
+                  <figure className="producto-imagen">
+                    <img
+                      src={`http://localhost:5000${producto.imagen}`}
+                      alt={`Imagen de ${producto.nombre}`}
+                      loading="lazy"
+                      draggable="false"
+                    />
+                  </figure>
+                  <div className="producto-info">
+                    <h3 className="producto-nombre">{producto.nombre}</h3>
                   </div>
+                </div>
 
-                  <button
-                    className="btn-detalle"
-                    onClick={() => verDetalle(producto)}
-                    aria-label={`Ver detalle de ${producto.nombre}`}
-                  >
-                    🔍 Ver Detalle
-                  </button>
+                {/* --- Cara Trasera --- */}
+                <div className="flip-card-back">
+                  <div className="producto-detalle">
+                    <h4 className="precio">
+                      {new Intl.NumberFormat("es-AR", {
+                        style: "currency",
+                        currency: "ARS",
+                        minimumFractionDigits: 0,
+                      }).format(producto.precio)}
+                    </h4>
+
+                    <p className="mini-desc">{producto.descripcion}</p>
+
+                    <ul className="benefits-icons" aria-label="Beneficios del producto">
+                      <li className="benefit" title="Envío gratis">
+                        <i className="fas fa-truck" aria-hidden="true"></i>
+                        <span>Envío gratis</span>
+                      </li>
+                      <li className="benefit" title="3 cuotas sin interés">
+                        <i className="fas fa-credit-card" aria-hidden="true"></i>
+                        <span>3 cuotas sin interés</span>
+                      </li>
+                      <li className="benefit" title="Garantía 1 año">
+                        <i className="fas fa-tools" aria-hidden="true"></i>
+                        <span>Garantía 1 año</span>
+                      </li>
+                    </ul>
+
+                    <button
+                      type="button"
+                      className="btn-detalle"
+                      onClick={() => verDetalle(producto)}
+                      aria-label={`Ver detalles del producto ${producto.nombre}`}
+                    >
+                      🔍 Ver Detalle
+                    </button>
+                  </div>
                 </div>
               </div>
-
-            </div>
-          </article>
-        ))}
+            </article>
+          ))
+        ) : (
+          <p className="no-productos">No hay productos destacados disponibles.</p>
+        )}
       </div>
     </section>
   );

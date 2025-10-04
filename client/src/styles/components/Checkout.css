@@ -1,9 +1,10 @@
+/* Checkout Container */
 .checkout {
   background: linear-gradient(145deg, #fff8f0, #f5f2ee);
   border-radius: 20px;
   border: 1px solid #e2dcd5;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-  max-width: 600px;
+  max-width: 700px;
   margin: 2rem auto;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,22 +16,34 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 }
 
-.checkout-title {
+/* Header */
+.checkout-header h2 {
   text-align: center;
   font-size: 2rem;
   color: #6b4226;
+  margin-bottom: 0.3rem;
+}
+
+.checkout-header p {
+  text-align: center;
+  color: #555;
+  font-size: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.vacio {
+/* Empty Cart */
+.checkout-empty {
   text-align: center;
   font-size: 1.2rem;
   color: #333;
 }
 
-/* Lista de productos */
+/* Product List */
 .checkout-list {
-  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 350px;
   overflow-y: auto;
   margin-bottom: 1.5rem;
 }
@@ -48,48 +61,66 @@
   background: transparent;
 }
 
-.checkout-item {
-  margin-bottom: 1rem;
-}
-
-.producto-card {
-  background: #fffefc;
-  border-radius: 15px;
-  border: 1px solid #e2dcd5;
+/* Card */
+.checkout-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: #fffefc;
+  border-radius: 15px;
+  border: 1px solid #e2dcd5;
   padding: 0.8rem 1rem;
+  gap: 1rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.producto-card:hover {
+.checkout-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
-.imagen-producto {
-  font-size: 2rem;
-  margin-right: 1rem;
+/* Left: Image */
+.checkout-card-left img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
-.detalle-producto {
+/* Center: Name & Description */
+.checkout-card-center {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
-.detalle-producto .nombre {
+.checkout-name {
   font-weight: 600;
   color: #6b4226;
-  display: block;
 }
 
-.detalle-producto .precio {
-  font-weight: 500;
+.checkout-desc {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.2;
+}
+
+/* Right: Price & Remove */
+.checkout-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.checkout-price {
+  font-weight: 700;
   color: #f2c94c;
+  font-size: 1.1rem;
 }
 
-/* Botones */
-.eliminar-btn {
+.checkout-remove-btn {
   background: #ff6b6b;
   color: #fff;
   border: none;
@@ -99,29 +130,35 @@
   transition: all 0.3s ease;
 }
 
-.eliminar-btn:hover {
+.checkout-remove-btn:hover {
   background: #ff4c4c;
   transform: scale(1.1);
 }
 
-.total-container {
+/* Footer: Total & Buttons */
+.checkout-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.checkout-total {
   display: flex;
   justify-content: space-between;
   font-weight: 700;
   font-size: 1.3rem;
-  margin-bottom: 1rem;
   color: #1a1a1a;
 }
 
-.checkout-buttons {
+.checkout-actions {
   display: flex;
   justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.finalizar-btn,
-.vaciar-btn {
+.btn-finalizar,
+.btn-vaciar {
   padding: 0.7rem 1.5rem;
   border-radius: 12px;
   border: none;
@@ -130,45 +167,50 @@
   transition: all 0.3s ease, box-shadow 0.3s ease;
 }
 
-.finalizar-btn {
+.btn-finalizar {
   background: linear-gradient(135deg, #f2c94c, #e6b800);
   color: #1a1a1a;
 }
 
-.finalizar-btn:hover {
+.btn-finalizar:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.25);
 }
 
-.vaciar-btn {
+.btn-vaciar {
   background: #6b4226;
   color: #fff;
 }
 
-.vaciar-btn:hover {
+.btn-vaciar:hover {
   background: #5a361d;
   transform: scale(1.05);
 }
 
 /* Responsivo */
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .checkout {
     padding: 1.5rem;
   }
 
-  .checkout-buttons {
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .producto-card {
+  .checkout-card {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
 
-  .total-container {
+  .checkout-card-right {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .checkout-total {
     flex-direction: column;
     gap: 0.4rem;
+  }
+
+  .checkout-actions {
+    flex-direction: column;
+    gap: 0.8rem;
   }
 }

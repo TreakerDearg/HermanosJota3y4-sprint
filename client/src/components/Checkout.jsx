@@ -1,7 +1,8 @@
 import "../styles/components/Checkout.css";
 
-function Checkout({ carrito = [], vaciarCarrito = () => {}, eliminarProducto = () => {} }) {
-  const total = carrito.reduce((acc, item) => acc + item.precio, 0);
+function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = () => {} }) {
+  // Calculamos total considerando cantidad
+  const total = carrito.reduce((acc, item) => acc + item.precio * (item.cantidad || 1), 0);
 
   const handleFinalizar = () => {
     if (carrito.length === 0) return;
@@ -11,57 +12,66 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, eliminarProducto = (
 
   return (
     <section className="checkout">
-      <h2 className="checkout-title">
-        <i className="fa-solid fa-cart-shopping"></i> Checkout
-      </h2>
+      {/* Header */}
+      <header className="checkout-header">
+        <h2>
+          <i className="fa-solid fa-cart-shopping"></i> Checkout
+        </h2>
+        <p>Revisa tus productos antes de finalizar la compra.</p>
+      </header>
 
+      {/* Carrito vacío */}
       {carrito.length === 0 ? (
-        <p className="vacio">Tu carrito está vacío 😢</p>
+        <p className="checkout-empty">Tu carrito está vacío</p>
       ) : (
         <>
-          <div className="checkout-list">
-            {carrito.map((item, index) => (
-              <div key={index} className="checkout-item">
-                <div className="producto-card">
-                  {/* Icono del producto */}
-                  <div className="imagen-producto">
-                    <i className="fa-solid fa-chair"></i>
-                  </div>
-
-                  {/* Detalles del producto */}
-                  <div className="detalle-producto">
-                    <span className="nombre">{item.nombre}</span>
-                    <span className="precio">${item.precio.toFixed(2)}</span>
-                  </div>
-
-                  {/* Botón eliminar */}
-                  <button
-                    className="eliminar-btn"
-                    onClick={() => eliminarProducto(index)}
-                    title="Eliminar producto"
-                  >
-                    <i className="fa-solid fa-trash"></i>
-                  </button>
+          {/* Lista de productos */}
+          <ul className="checkout-list">
+            {carrito.map((item) => (
+              <li key={item.id} className="checkout-card">
+                <div className="checkout-card-left">
+                  <img
+                    src={`http://localhost:5000${item.imagen}`}
+                    alt={item.nombre}
+                    className="checkout-img"
+                  />
                 </div>
-              </div>
+
+                <div className="checkout-card-center">
+                  <h3 className="checkout-name">{item.nombre}</h3>
+                  <p className="checkout-desc">{item.descripcion}</p>
+                  {item.cantidad > 1 && (
+                    <span className="checkout-cantidad">{item.cantidad}x</span>
+                  )}
+                </div>
+
+                <div className="checkout-card-right">
+                  <span className="checkout-price">
+                    {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(item.precio * (item.cantidad || 1))}
+                  </span>
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
-          {/* Total */}
-          <div className="total-container">
-            <span>Total:</span>
-            <span className="total">${total.toFixed(2)}</span>
-          </div>
+          {/* Footer con total y botones */}
+          <footer className="checkout-footer">
+            <div className="checkout-total">
+              <span>Total:</span>
+              <span className="total-amount">
+                {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(total)}
+              </span>
+            </div>
 
-          {/* Botones de acción */}
-          <div className="checkout-buttons">
-            <button className="finalizar-btn" onClick={handleFinalizar}>
-              <i className="fa-solid fa-flag-checkered"></i> Finalizar Compra
-            </button>
-            <button className="vaciar-btn" onClick={vaciarCarrito}>
-              <i className="fa-solid fa-trash-can"></i> Vaciar Carrito
-            </button>
-          </div>
+            <div className="checkout-actions">
+              <button className="btn-finalizar" onClick={handleFinalizar}>
+                <i className="fa-solid fa-flag-checkered"></i> Finalizar Compra
+              </button>
+              <button className="btn-vaciar" onClick={vaciarCarrito}>
+                <i className="fa-solid fa-trash-can"></i> Vaciar Carrito
+              </button>
+            </div>
+          </footer>
         </>
       )}
     </section>

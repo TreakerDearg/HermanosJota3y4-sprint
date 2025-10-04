@@ -1,7 +1,7 @@
 import "../styles/components/SobreNosotros.css";
 import calidadImg from "../assets/Mesa de Noche Aconcagua.png"; // Ejemplo de imagen
 import confortImg from "../assets/Escritorio Costa.png";
-import diseñoImg from "../assets/Escritorio Costa.png";
+import diseñoImg from "../assets/Sillas Cordoba.png";
 
 function SobreNosotros() {
   const valores = [
