@@ -11,7 +11,9 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, eliminarProducto = (
 
   return (
     <section className="checkout">
-      <h2 className="checkout-title">🛒 Checkout</h2>
+      <h2 className="checkout-title">
+        <i className="fa-solid fa-cart-shopping"></i> Checkout
+      </h2>
 
       {carrito.length === 0 ? (
         <p className="vacio">Tu carrito está vacío 😢</p>
@@ -21,8 +23,10 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, eliminarProducto = (
             {carrito.map((item, index) => (
               <div key={index} className="checkout-item">
                 <div className="producto-card">
-                  {/* Imagen / ícono */}
-                  <div className="imagen-producto">🪑</div>
+                  {/* Icono del producto */}
+                  <div className="imagen-producto">
+                    <i className="fa-solid fa-chair"></i>
+                  </div>
 
                   {/* Detalles del producto */}
                   <div className="detalle-producto">
@@ -30,13 +34,13 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, eliminarProducto = (
                     <span className="precio">${item.precio.toFixed(2)}</span>
                   </div>
 
-                  {/* Botón eliminar con protección */}
+                  {/* Botón eliminar */}
                   <button
                     className="eliminar-btn"
-                    onClick={() => eliminarProducto?.(index)}
+                    onClick={() => eliminarProducto(index)}
                     title="Eliminar producto"
                   >
-                    ❌
+                    <i className="fa-solid fa-trash"></i>
                   </button>
                 </div>
               </div>
@@ -52,10 +56,10 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, eliminarProducto = (
           {/* Botones de acción */}
           <div className="checkout-buttons">
             <button className="finalizar-btn" onClick={handleFinalizar}>
-              🏁 Finalizar Compra
+              <i className="fa-solid fa-flag-checkered"></i> Finalizar Compra
             </button>
             <button className="vaciar-btn" onClick={vaciarCarrito}>
-              🗑 Vaciar Carrito
+              <i className="fa-solid fa-trash-can"></i> Vaciar Carrito
             </button>
           </div>
         </>

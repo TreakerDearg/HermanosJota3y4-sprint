@@ -38,13 +38,13 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
               className="btn-agregar"
               onClick={() => agregarAlCarrito(producto)}
             >
-              🛒 Añadir al Carrito
+               Añadir al Carrito
             </button>
             <button 
               className="btn-volver"
               onClick={volver}
             >
-              🔙 Volver al Catálogo
+               Volver al Catálogo
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "../styles/components/ContactForm.css";
 
 function ContactForm() {
@@ -10,64 +10,93 @@ function ContactForm() {
 
   const [enviado, setEnviado] = useState(false);
 
-  // Actualiza el estado cuando el usuario escribe
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Maneja el submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Datos del formulario:", formData);
+
+    // Validación básica adicional
+    if (!formData.nombre || !formData.email || !formData.mensaje) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
+
+    // Simula envío
+    console.log("Datos enviados:", formData);
     setEnviado(true);
-    // Limpiar formulario si quieres
+
+    // Limpiar formulario
     setFormData({ nombre: "", email: "", mensaje: "" });
-    // El mensaje de éxito se puede ocultar después de unos segundos
-    setTimeout(() => setEnviado(false), 5000);
+
+    // Ocultar mensaje después de 4 segundos
+    setTimeout(() => setEnviado(false), 4000);
   };
 
   return (
-    <div className="contact-form">
-      <h2>Contacto</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Nombre:
+    <section className="contact-form">
+      <h2 className="form-title">
+        <i className="fa-solid fa-envelope"></i> Contáctanos
+      </h2>
+
+      <form onSubmit={handleSubmit} className="form-content">
+        <div className="input-group">
+          <label htmlFor="nombre">
+            <i className="fa-solid fa-user"></i> Nombre
+          </label>
           <input
+            id="nombre"
             type="text"
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
+            placeholder="Tu nombre completo"
             required
           />
-        </label>
+        </div>
 
-        <label>
-          Email:
+        <div className="input-group">
+          <label htmlFor="email">
+            <i className="fa-solid fa-envelope-open-text"></i> Email
+          </label>
           <input
+            id="email"
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
+            placeholder="tucorreo@ejemplo.com"
             required
           />
-        </label>
+        </div>
 
-        <label>
-          Mensaje:
+        <div className="input-group">
+          <label htmlFor="mensaje">
+            <i className="fa-solid fa-comment"></i> Mensaje
+          </label>
           <textarea
+            id="mensaje"
             name="mensaje"
             value={formData.mensaje}
             onChange={handleChange}
+            placeholder="Escribe tu mensaje aquí..."
             required
-          />
-        </label>
+          ></textarea>
+        </div>
 
-        <button type="submit">Enviar</button>
+        <button type="submit" className="submit-btn">
+          <i className="fa-solid fa-paper-plane"></i> Enviar
+        </button>
       </form>
 
-      {enviado && <p className="exito">¡Formulario enviado con éxito!</p>}
-    </div>
+      {enviado && (
+        <p className="mensaje-exito">
+          <i className="fa-solid fa-circle-check"></i> ¡Tu mensaje fue enviado con éxito!
+        </p>
+      )}
+    </section>
   );
 }
 

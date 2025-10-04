@@ -1,39 +1,119 @@
 .contact-form {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  border: 1px solid #ccc;
+  background: #fff8f0;
+  border-radius: 18px;
+  padding: 2.5rem;
+  max-width: 550px;
+  margin: 3rem auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-form:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+}
+
+.form-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #6b4226;
+  margin-bottom: 2rem;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #6b4226;
+  margin-bottom: 0.4rem;
+}
+
+.input-group i {
+  margin-right: 6px;
+  color: #e6b800;
+}
+
+.input-group input,
+.input-group textarea {
+  border: 1.5px solid #d4b483;
   border-radius: 10px;
+  padding: 0.7rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.contact-form h2 {
-  text-align: center;
-  margin-bottom: 1rem;
+.input-group input:focus,
+.input-group textarea:focus {
+  border-color: #f2c94c;
+  box-shadow: 0 0 6px rgba(242, 201, 76, 0.5);
 }
 
-.contact-form label {
-  display: block;
-  margin-bottom: 0.8rem;
+textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
-.contact-form input,
-.contact-form textarea {
-  width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.3rem;
-  margin-bottom: 1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.contact-form button {
-  padding: 0.5rem 1rem;
+.submit-btn {
+  background: linear-gradient(135deg, #f2c94c, #e6b800);
+  border: none;
+  color: #1a1a1a;
+  font-weight: 700;
+  padding: 0.9rem 1.5rem;
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.contact-form .exito {
-  color: green;
-  font-weight: bold;
+.submit-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.mensaje-exito {
   text-align: center;
-  margin-top: 1rem;
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  animation: aparecer 0.5s ease;
+}
+
+.mensaje-exito i {
+  margin-right: 6px;
+  color: #4caf50;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 500px) {
+  .contact-form {
+    padding: 1.8rem;
+  }
+
+  .form-title {
+    font-size: 1.7rem;
+  }
 }
