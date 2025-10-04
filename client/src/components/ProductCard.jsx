@@ -7,11 +7,21 @@ function ProductCard({ producto, verDetalle }) {
         {/* Cara frontal */}
         <div className="flip-card-front">
           <div className="producto-imagen">
-            <span role="img" aria-label={producto.nombre}>🪑</span>
+            {producto.imagen ? (
+              <img
+                src={producto.imagen}
+                alt={producto.nombre}
+                className="img-producto"
+              />
+            ) : (
+              <span role="img" aria-label={producto.nombre}>
+                🪑
+              </span>
+            )}
           </div>
           <div className="producto-info">
             <h3>{producto.nombre}</h3>
-            <span className="product-category">{producto.categoria}</span>
+            {producto.categoria && <span className="product-category">{producto.categoria}</span>}
             <p className="precio">${producto.precio}</p>
           </div>
         </div>
@@ -34,7 +44,10 @@ function ProductCard({ producto, verDetalle }) {
                 <span>Garantía 1 año</span>
               </div>
             </div>
-            <button className="btn-detalle" onClick={() => verDetalle(producto)}>
+            <button
+              className="btn-detalle"
+              onClick={() => verDetalle(producto)}
+            >
               🔍 Ver Detalle
             </button>
           </div>

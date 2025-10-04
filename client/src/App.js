@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import ProductList from "./components/ProductList";
 import ProductDetail from "./components/ProductDetail";
@@ -10,109 +10,146 @@ import HeroBanner from "./components/HeroBanner";
 import Destacados from "./components/Destacados";
 import SobreNosotros from "./components/SobreNosotros";
 import Newsletter from "./components/Newsletter";
-
 import "./styles/App.css";
 
 function App() {
-  const productosMock = [
-    { id: 1, nombre: "Silla de madera", precio: 2000, descripcion: "Cómoda y resistente" },
-    { id: 2, nombre: "Mesa de comedor", precio: 5000, descripcion: "Madera maciza" },
-    { id: 3, nombre: "Estantería", precio: 3500, descripcion: "Perfecta para libros" },
-  ];
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [productos] = useState(productosMock);
   const [carrito, setCarrito] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-  const [vista, setVista] = useState("inicio"); // "inicio", "catalogo", "contacto", "checkout"
+  const [vista, setVista] = useState("inicio");
   const [modalCarrito, setModalCarrito] = useState(false);
 
-  // Agregar producto al carrito
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch("http://localhost:5000/api/productos");
+        if (!res.ok) throw new Error("Error al cargar los productos");
+
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("Datos de productos inválidos");
+
+        setProductos(data);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Error desconocido");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+
   const agregarAlCarrito = (producto) => {
-    setCarrito([...carrito, producto]);
+    if (!producto) return;
+    setCarrito((prev) => [...prev, producto]);
   };
 
-  // Eliminar un producto específico del carrito
   const eliminarProducto = (index) => {
-    const nuevoCarrito = [...carrito];
-    nuevoCarrito.splice(index, 1);
-    setCarrito(nuevoCarrito);
+    setCarrito((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Finalizar compra y llevar a checkout
+  const vaciarCarrito = () => setCarrito([]);
+
   const finalizarCompra = () => {
     setVista("checkout");
     setModalCarrito(false);
   };
 
-  // Ver detalle de producto
   const verDetalle = (producto) => {
+    if (!producto) return;
     setProductoSeleccionado(producto);
+    setVista("catalogo");
   };
 
-  // Volver al catálogo
-  const volverAlCatalogo = () => {
-    setProductoSeleccionado(null);
-  };
+  const volverAlCatalogo = () => setProductoSeleccionado(null);
 
-  // Cambiar vista principal
   const cambiarVista = (vistaNueva) => {
     setVista(vistaNueva);
     setProductoSeleccionado(null);
   };
 
-  // Mostrar / ocultar modal carrito
-  const mostrarCarrito = () => {
-    setModalCarrito(!modalCarrito);
-  };
+  const mostrarCarrito = () => setModalCarrito((prev) => !prev);
 
-  return (
-    <div className="App">
-      <Navbar 
-        carritoCount={carrito.length} 
-        mostrarCarrito={mostrarCarrito} 
-        cambiarVista={cambiarVista} 
-      />
+  const renderContenido = () => {
+    if (loading)
+      return (
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Cargando productos...</p>
+        </div>
+      );
 
-      {/* Modal Carrito */}
-      {modalCarrito && (
-        <ModalCarrito 
-          carrito={carrito} 
-          cerrarModal={mostrarCarrito} 
-          finalizarCompra={finalizarCompra} 
-          eliminarProducto={eliminarProducto}
-        />
-      )}
+    if (error)
+      return (
+        <div className="error-msg">
+          <p>Error: {error}</p>
+          <button onClick={() => window.location.reload()}>Reintentar</button>
+        </div>
+      );
 
-      {/* Vistas */}
-{vista === "inicio" && (
-  <>
-    <HeroBanner cambiarVista={cambiarVista} />
-    <Destacados productos={productos} verDetalle={verDetalle} />
-    <SobreNosotros />
-    <Newsletter />
-  </>
-)}
+    const productosArray = Array.isArray(productos) ? productos : [];
 
+    switch (vista) {
+      case "inicio":
+        return (
+          <>
+            <HeroBanner cambiarVista={cambiarVista} />
+            <Destacados
+              productos={productosArray.filter((p) => p.destacado)}
+              verDetalle={verDetalle}
+            />
+            <SobreNosotros />
+            <Newsletter />
+          </>
+        );
 
-      {vista === "catalogo" && (
-        productoSeleccionado ? (
+      case "catalogo":
+        return productoSeleccionado ? (
           <ProductDetail
             producto={productoSeleccionado}
             agregarAlCarrito={agregarAlCarrito}
             volver={volverAlCatalogo}
           />
         ) : (
-          <ProductList productos={productos} verDetalle={verDetalle} />
-        )
+          <ProductList productos={productosArray} verDetalle={verDetalle} />
+        );
+
+      case "contacto":
+        return <ContactForm />;
+
+      case "checkout":
+        return <Checkout carrito={carrito} vaciarCarrito={vaciarCarrito} />;
+
+      default:
+        return <p className="info-msg">Vista no encontrada</p>;
+    }
+  };
+
+  return (
+    <div className="App">
+      <Navbar
+        carritoCount={carrito.length}
+        mostrarCarrito={mostrarCarrito}
+        cambiarVista={cambiarVista}
+      />
+
+      {modalCarrito && (
+        <ModalCarrito
+          carrito={carrito}
+          cerrarModal={mostrarCarrito}
+          finalizarCompra={finalizarCompra}
+          eliminarProducto={eliminarProducto}
+        />
       )}
 
-      {vista === "contacto" && <ContactForm />}
-
-      {vista === "checkout" && (
-        <Checkout carrito={carrito} vaciarCarrito={() => setCarrito([])} />
-      )}
-
-
+      {renderContenido()}
 
       <Footer cambiarVista={cambiarVista} />
     </div>

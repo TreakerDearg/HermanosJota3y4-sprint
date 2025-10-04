@@ -11,13 +11,16 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// Logger mejorado que usa req
+
 app.use(logger);
+
+// Servir imágenes estáticas desde backend/public/images
+app.use("/images", express.static("public/images"));
 
 // Ruta raíz
 app.get("/", (req, res) => {
-  // Aquí usamos req para mostrar información opcional
-  console.log(`[INFO] ${req.method} ${req.originalUrl} accedida`);
+  // Usamos req para mostrar información opcional
+  console.log(`[INFO] ${req.method} ${req.originalUrl} accedida desde ${req.ip}`);
   res.status(200).json({ estado: "success", mensaje: "API de Hermanos Jota funcionando 🚀" });
 });
 

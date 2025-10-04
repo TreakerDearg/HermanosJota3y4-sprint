@@ -4,13 +4,7 @@ import { obtenerProductos, obtenerProductoPorId } from "../controllers/productos
 
 const router = express.Router();
 
-// Middleware wrapper para capturar errores async
-const asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
-
-// Rutas de productos
-router.get("/", asyncHandler(obtenerProductos));
-router.get("/:id", asyncHandler(obtenerProductoPorId));
+router.get("/", obtenerProductos);
+router.get("/:id", obtenerProductoPorId);
 
 export default router;

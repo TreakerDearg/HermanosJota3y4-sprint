@@ -4,9 +4,13 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
   return (
     <section className="product-detail">
       <div className="detail-container">
-        {/* Imagen del producto con efecto cristalino */}
+        {/* Imagen del producto desde backend */}
         <div className="detail-imagen">
-          <span role="img" aria-label={producto.nombre}>🪑</span>
+          <img 
+            src={`http://localhost:5000${producto.imagen}`} 
+            alt={producto.nombre} 
+            loading="lazy"
+          />
         </div>
 
         {/* Información principal */}
@@ -15,7 +19,7 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
 
           {/* Precio con badge */}
           <div className="detail-price-tag">
-            <span className="detail-price">${producto.precio}</span>
+            <span className="detail-price">${producto.precio.toLocaleString()}</span>
           </div>
 
           {/* Descripción */}
