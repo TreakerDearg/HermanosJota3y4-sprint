@@ -1,60 +1,66 @@
-import "../styles/components/ProductCard.css";
+import { useState } from "react";
+import ProductCard from "./ProductCard";
+import "../styles/components/ProductList.css";
 
-function ProductCard({ producto, verDetalle }) {
+function ProductList({ productos = [], verDetalle, titulo = "Nuestros Productos" }) {
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
+
+  // Asegurarse de que productos es un array y que categoria existe
+  const productosValidos = Array.isArray(productos) ? productos : [];
+
+  // Obtener categorías únicas
+  const categorias = [
+    "Todos",
+    ...new Set(
+      productosValidos
+        .map((p) => p.categoria)
+        .filter((c) => c) // eliminar undefined o null
+    )
+  ];
+
+  // Filtrar productos por categoría
+  const productosFiltrados =
+    categoriaSeleccionada === "Todos"
+      ? productosValidos
+      : productosValidos.filter((p) => p.categoria === categoriaSeleccionada);
+
   return (
-    <div className="producto-card">
-      <div className="flip-card-inner">
-        {/* Cara frontal */}
-        <div className="flip-card-front">
-          <div className="producto-imagen">
-            {producto.imagen ? (
-              <img
-                src={producto.imagen}
-                alt={producto.nombre}
-                className="img-producto"
-              />
-            ) : (
-              <span role="img" aria-label={producto.nombre}>
-                🪑
-              </span>
-            )}
-          </div>
-          <div className="producto-info">
-            <h3>{producto.nombre}</h3>
-            {producto.categoria && <span className="product-category">{producto.categoria}</span>}
-            <p className="precio">${producto.precio}</p>
-          </div>
-        </div>
-
-        {/* Cara trasera */}
-        <div className="flip-card-back">
-          <div className="overlay-content">
-            <p className="mini-desc">{producto.descripcion}</p>
-            <div className="benefits-icons">
-              <div className="benefit" title="Envío gratis">
-                <i className="fas fa-truck"></i>
-                <span>Envío gratis</span>
-              </div>
-              <div className="benefit" title="3 cuotas sin interés">
-                <i className="fas fa-credit-card"></i>
-                <span>3 cuotas sin interés</span>
-              </div>
-              <div className="benefit" title="Garantía 1 año">
-                <i className="fas fa-tools"></i>
-                <span>Garantía 1 año</span>
-              </div>
-            </div>
-            <button
-              className="btn-detalle"
-              onClick={() => verDetalle(producto)}
-            >
-              🔍 Ver Detalle
-            </button>
-          </div>
-        </div>
+    <section className="product-list-section">
+      {/* Título de la sección */}
+      <div className="section-header">
+        <h2 className="product-list-title">{titulo}</h2>
+        <p className="product-count">{productosFiltrados.length} productos disponibles</p>
       </div>
-    </div>
+
+      {/* Filtros de categoría */}
+      <div className="category-filters">
+        {categorias.map((c) => (
+          <button
+            key={c}
+            className={`category-btn ${c === categoriaSeleccionada ? "active" : ""}`}
+            onClick={() => setCategoriaSeleccionada(c)}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* Mensaje si no hay productos */}
+      {productosFiltrados.length === 0 ? (
+        <p className="no-products">No hay productos disponibles en esta categoría.</p>
+      ) : (
+        <div className="product-list-grid">
+          {productosFiltrados.map((producto) => (
+            <ProductCard
+              key={producto.id}
+              producto={producto}
+              verDetalle={verDetalle}
+            />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
-export default ProductCard;
+export default ProductList;

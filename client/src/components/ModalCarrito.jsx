@@ -1,6 +1,19 @@
 import "../styles/components/ModalCarrito.css";
 
 function ModalCarrito({ carrito, cerrarModal, finalizarCompra, eliminarProducto }) {
+  // Agrupar productos por id
+  const productosAgrupados = carrito.reduce((acc, item) => {
+    if (acc[item.id]) {
+      acc[item.id].cantidad += 1;
+      acc[item.id].precioTotal += item.precio;
+    } else {
+      acc[item.id] = { ...item, cantidad: 1, precioTotal: item.precio };
+    }
+    return acc;
+  }, {});
+
+  const productosList = Object.values(productosAgrupados);
+
   const total = carrito.reduce((acc, item) => acc + item.precio, 0);
 
   return (
@@ -11,21 +24,29 @@ function ModalCarrito({ carrito, cerrarModal, finalizarCompra, eliminarProducto 
           <button className="cerrar-btn" onClick={cerrarModal}>✖</button>
         </div>
 
-        {carrito.length === 0 ? (
+        {productosList.length === 0 ? (
           <p className="vacio">Tu carrito está vacío</p>
         ) : (
           <>
             <div className="productos">
-              {carrito.map((item, index) => (
-                <div className="producto" key={index}>
-                  <div className="mini-imagen">🪑</div>
+              {productosList.map((item) => (
+                <div className="producto" key={item.id}>
+                  <div className="mini-imagen">
+                    <img 
+                      src={`http://localhost:5000${item.imagen}`} 
+                      alt={item.nombre} 
+                      loading="lazy"
+                    />
+                  </div>
                   <div className="info">
-                    <p className="nombre">{item.nombre}</p>
-                    <p className="precio">${item.precio.toFixed(2)}</p>
+                    <p className="nombre">
+                      {item.nombre} {item.cantidad > 1 && `x${item.cantidad}`}
+                    </p>
+                    <p className="precio">AR$ {item.precioTotal.toLocaleString()}</p>
                   </div>
                   <button 
                     className="eliminar-btn" 
-                    onClick={() => eliminarProducto(index)}
+                    onClick={() => eliminarProducto(item.id)}
                   >
                     ❌
                   </button>
@@ -35,7 +56,7 @@ function ModalCarrito({ carrito, cerrarModal, finalizarCompra, eliminarProducto 
 
             <div className="total">
               <span>Total:</span>
-              <strong>${total.toFixed(2)}</strong>
+              <strong>AR$ {total.toLocaleString()}</strong>
             </div>
 
             <button className="finalizar-btn" onClick={finalizarCompra}>

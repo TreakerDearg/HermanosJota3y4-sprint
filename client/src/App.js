@@ -22,7 +22,9 @@ function App() {
   const [vista, setVista] = useState("inicio");
   const [modalCarrito, setModalCarrito] = useState(false);
 
+  // ===== Fetch productos =====
   useEffect(() => {
+    console.log("[App] Iniciando fetch de productos...");
     const fetchProductos = async () => {
       try {
         setLoading(true);
@@ -32,72 +34,111 @@ function App() {
         if (!res.ok) throw new Error("Error al cargar los productos");
 
         const data = await res.json();
+        console.log("[App] Datos recibidos del backend:", data);
+
         if (!Array.isArray(data)) throw new Error("Datos de productos inválidos");
 
         setProductos(data);
+        console.log("[App] Productos seteados correctamente");
       } catch (err) {
-        console.error(err);
+        console.error("[App] Error fetchProductos:", err);
         setError(err.message || "Error desconocido");
       } finally {
         setLoading(false);
+        console.log("[App] Loading finalizado");
       }
     };
 
     fetchProductos();
   }, []);
 
+  // ===== Carrito =====
   const agregarAlCarrito = (producto) => {
     if (!producto) return;
+    console.log("[App] Agregando al carrito:", producto.nombre);
     setCarrito((prev) => [...prev, producto]);
   };
 
-  const eliminarProducto = (index) => {
-    setCarrito((prev) => prev.filter((_, i) => i !== index));
+  const eliminarProducto = (id) => {
+   setCarrito((prevCarrito) => {
+    // Buscamos la primera coincidencia
+    const index = prevCarrito.findIndex(item => item.id === id);
+    if (index === -1) return prevCarrito;
+
+    const nuevoCarrito = [...prevCarrito];
+
+    // Si hay más de 1 del mismo producto, eliminamos solo una unidad
+    nuevoCarrito.splice(index, 1);
+
+    return nuevoCarrito;
+  });
+};
+
+  const vaciarCarrito = () => {
+    console.log("[App] Vaciando carrito");
+    setCarrito([]);
   };
 
-  const vaciarCarrito = () => setCarrito([]);
-
   const finalizarCompra = () => {
+    console.log("[App] Finalizando compra");
     setVista("checkout");
     setModalCarrito(false);
   };
 
+  // ===== Navegación =====
   const verDetalle = (producto) => {
     if (!producto) return;
+    console.log("[App] Ver detalle de producto:", producto.nombre);
     setProductoSeleccionado(producto);
     setVista("catalogo");
   };
 
-  const volverAlCatalogo = () => setProductoSeleccionado(null);
+  const volverAlCatalogo = () => {
+    console.log("[App] Volviendo al catálogo");
+    setProductoSeleccionado(null);
+    setVista("catalogo");
+  };
 
   const cambiarVista = (vistaNueva) => {
+    console.log("[App] Cambiando vista a:", vistaNueva);
     setVista(vistaNueva);
     setProductoSeleccionado(null);
   };
 
-  const mostrarCarrito = () => setModalCarrito((prev) => !prev);
+  const mostrarCarrito = () => {
+    console.log("[App] Toggle modal carrito:", !modalCarrito);
+    setModalCarrito((prev) => !prev);
+  };
 
+  // ===== Render condicional =====
   const renderContenido = () => {
-    if (loading)
+    console.log("[App] Renderizando contenido para vista:", vista);
+    if (loading) {
+      console.log("[App] Loading activo, mostrando spinner");
       return (
         <div className="loading-spinner">
           <div className="spinner"></div>
           <p>Cargando productos...</p>
         </div>
       );
+    }
 
-    if (error)
+    if (error) {
+      console.log("[App] Error encontrado:", error);
       return (
         <div className="error-msg">
           <p>Error: {error}</p>
           <button onClick={() => window.location.reload()}>Reintentar</button>
         </div>
       );
+    }
 
     const productosArray = Array.isArray(productos) ? productos : [];
+    console.log("[App] Productos a renderizar:", productosArray.length);
 
     switch (vista) {
       case "inicio":
+        console.log("[App] Renderizando vista Inicio");
         return (
           <>
             <HeroBanner cambiarVista={cambiarVista} />
@@ -111,6 +152,7 @@ function App() {
         );
 
       case "catalogo":
+        console.log("[App] Renderizando vista Catálogo");
         return productoSeleccionado ? (
           <ProductDetail
             producto={productoSeleccionado}
@@ -122,12 +164,15 @@ function App() {
         );
 
       case "contacto":
+        console.log("[App] Renderizando vista Contacto");
         return <ContactForm />;
 
       case "checkout":
+        console.log("[App] Renderizando vista Checkout");
         return <Checkout carrito={carrito} vaciarCarrito={vaciarCarrito} />;
 
       default:
+        console.log("[App] Vista desconocida:", vista);
         return <p className="info-msg">Vista no encontrada</p>;
     }
   };

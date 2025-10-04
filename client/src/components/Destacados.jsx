@@ -2,48 +2,47 @@ import "../styles/components/Destacados.css";
 
 function Destacados({ productos, verDetalle }) {
   // Filtrar solo productos destacados
-  const productosDestacados = productos.filter(p => p.destacado);
+  const productosDestacados = productos.filter((p) => p.destacado);
 
   return (
-    <section className="destacados">
+    <section className="destacados" aria-label="Productos Destacados">
       <h2 className="destacados-title">Productos Destacados</h2>
       <div className="productos-grid">
         {productosDestacados.map((producto) => (
-          <div key={producto.id} className="producto-card">
-            {/* Contenedor de flip-card */}
+          <article key={producto.id} className="producto-card">
             <div className="flip-card-inner">
 
               {/* Cara frontal */}
               <div className="flip-card-front">
-                <div className="producto-imagen">
-                  <img 
-                    src={`http://localhost:5000${producto.imagen}`} 
-                    alt={producto.nombre} 
+                <figure className="producto-imagen">
+                  <img
+                    src={`http://localhost:5000${producto.imagen}`}
+                    alt={producto.nombre}
                     loading="lazy"
                   />
-                </div>
+                </figure>
                 <div className="producto-info">
                   <h3>{producto.nombre}</h3>
                 </div>
               </div>
 
-              {/* Cara trasera con overlay */}
+              {/* Cara trasera */}
               <div className="flip-card-back">
                 <div className="overlay-content">
-                  <p className="precio">${producto.precio.toLocaleString()}</p>
+                  <p className="precio">AR$ {producto.precio.toLocaleString()}</p>
                   <p className="mini-desc">{producto.descripcion}</p>
 
                   <div className="benefits-icons">
                     <div className="benefit" title="Envío gratis">
-                      <i className="fas fa-truck"></i>
+                      <i className="fas fa-truck" aria-hidden="true"></i>
                       <span>Envío gratis</span>
                     </div>
                     <div className="benefit" title="3 cuotas sin interés">
-                      <i className="fas fa-credit-card"></i>
+                      <i className="fas fa-credit-card" aria-hidden="true"></i>
                       <span>3 cuotas sin interés</span>
                     </div>
                     <div className="benefit" title="Garantía 1 año">
-                      <i className="fas fa-tools"></i>
+                      <i className="fas fa-tools" aria-hidden="true"></i>
                       <span>Garantía 1 año</span>
                     </div>
                   </div>
@@ -51,6 +50,7 @@ function Destacados({ productos, verDetalle }) {
                   <button
                     className="btn-detalle"
                     onClick={() => verDetalle(producto)}
+                    aria-label={`Ver detalle de ${producto.nombre}`}
                   >
                     🔍 Ver Detalle
                   </button>
@@ -58,7 +58,7 @@ function Destacados({ productos, verDetalle }) {
               </div>
 
             </div>
-          </div>
+          </article>
         ))}
       </div>
     </section>

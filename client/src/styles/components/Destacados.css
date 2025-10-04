@@ -1,6 +1,6 @@
-/* Destacados general */
+/* Contenedor general de destacados */
 .destacados {
-  padding: 6rem 1.5rem 4rem 1.5rem;
+  padding: 6rem 1.5rem 4rem;
   max-width: 1200px;
   margin: auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -9,6 +9,7 @@
   z-index: 1;
 }
 
+/* Título de la sección */
 .destacados-title {
   text-align: center;
   font-size: 2.5rem;
@@ -37,9 +38,10 @@
 
 /* Flip card container */
 .producto-card {
-  perspective: 1000px;
+  perspective: 1200px;
   position: relative;
-  height: 350px; /* altura consistente */
+  height: 360px;
+  transition: transform 0.3s ease;
 }
 
 .flip-card-inner {
@@ -54,7 +56,7 @@
   transform: rotateY(180deg);
 }
 
-/* Cara frontal */
+/* Cara frontal y trasera */
 .flip-card-front,
 .flip-card-back {
   position: absolute;
@@ -67,32 +69,36 @@
 
 .flip-card-front {
   background: #fff;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .flip-card-front:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
 /* Imagen del producto */
 .producto-imagen {
-  background: linear-gradient(135deg, #f3f3f3, #e6e6e6);
   height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  background: linear-gradient(135deg, #f3f3f3, #e6e6e6);
   transition: transform 0.4s ease;
 }
 
-.producto-imagen span {
-  transition: transform 0.5s ease;
+.producto-imagen img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-.flip-card-front:hover .producto-imagen span {
-  transform: scale(1.3) rotate(-5deg);
+.producto-card:hover .producto-imagen img {
+  transform: scale(1.05);
 }
 
 /* Información frontal */
@@ -105,7 +111,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   color: #1a1a1a;
-  margin: 0;
+  margin: 0.3rem 0;
   transition: color 0.3s ease;
 }
 
@@ -124,23 +130,24 @@
   align-items: center;
   padding: 20px;
   border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* Contenido de la cara trasera */
+/* Contenido trasero */
 .flip-card-back .precio {
   font-size: 1.3rem;
   font-weight: 700;
   color: #ffd700;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .flip-card-back .mini-desc {
   font-size: 0.95rem;
   margin-bottom: 12px;
   text-align: center;
+  line-height: 1.3;
 }
 
-/* Beneficios */
 .flip-card-back .benefits-icons {
   display: flex;
   justify-content: center;
@@ -183,7 +190,7 @@
 
 .btn-detalle:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* Responsivo */
@@ -194,11 +201,49 @@
 
   .producto-imagen {
     height: 160px;
-    font-size: 2.5rem;
   }
 
   .flip-card-back .benefits-icons {
     flex-direction: column;
     gap: 8px;
+  }
+
+  .producto-card {
+    height: 320px;
+  }
+
+  .producto-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .flip-card-back .precio {
+    font-size: 1.15rem;
+  }
+
+  .flip-card-back .mini-desc {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .producto-card {
+    height: 300px;
+  }
+
+  .flip-card-front,
+  .flip-card-back {
+    border-radius: 12px;
+  }
+
+  .producto-info h3 {
+    font-size: 1rem;
+  }
+
+  .flip-card-back .precio {
+    font-size: 1.1rem;
+  }
+
+  .flip-card-back .mini-desc {
+    font-size: 0.85rem;
   }
 }
