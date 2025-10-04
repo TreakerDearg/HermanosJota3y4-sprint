@@ -1,0 +1,145 @@
+.hero-banner {
+  position: relative;
+  background: url('../assets/fondomadera.jpg') center/cover no-repeat;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.hero-banner .overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.6) 100%);
+  z-index: 1;
+}
+
+.hero-container {
+  position: relative;
+  text-align: center;
+  max-width: 1000px;
+  z-index: 2;
+  animation: fadeInUp 1s ease-in-out;
+}
+
+.hero-header {
+  margin-bottom: 30px;
+}
+
+.hero-logo {
+  width: 120px;
+  margin-bottom: 15px;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+  animation: logoBounce 1.2s ease-in-out;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 15px rgba(0,0,0,0.7);
+}
+
+.hero-slogan {
+  font-size: 1.3rem;
+  font-style: italic;
+  margin-bottom: 30px;
+  color: #f0f0f0;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 35px;
+}
+
+.btn {
+  padding: 14px 30px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: #ffd700;
+  color: #1a1a1a;
+}
+
+.btn-primary:hover {
+  background-color: #e6c200;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid #ffd700;
+  color: #ffd700;
+}
+
+.btn-secondary:hover {
+  background-color: #ffd700;
+  color: #1a1a1a;
+  transform: scale(1.05);
+}
+
+.hero-benefits {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+}
+
+.benefit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 18px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.benefit:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.benefit i {
+  font-size: 1.6rem;
+  color: #ffd700;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logoBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Responsivo */
+@media (max-width: 1024px) {
+  .hero-title { font-size: 2.5rem; }
+  .hero-slogan { font-size: 1.1rem; }
+}
+
+@media (max-width: 768px) {
+  .hero-title { font-size: 2rem; }
+  .hero-slogan { font-size: 1rem; }
+  .hero-actions { flex-direction: column; gap: 15px; }
+  .hero-benefits { flex-direction: column; gap: 15px; }
+}

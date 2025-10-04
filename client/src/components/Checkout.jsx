@@ -1,7 +1,6 @@
-import React from "react";
 import "../styles/components/Checkout.css";
 
-function Checkout({ carrito, vaciarCarrito, eliminarProducto }) {
+function Checkout({ carrito = [], vaciarCarrito = () => {}, eliminarProducto = () => {} }) {
   const total = carrito.reduce((acc, item) => acc + item.precio, 0);
 
   const handleFinalizar = () => {
@@ -11,8 +10,8 @@ function Checkout({ carrito, vaciarCarrito, eliminarProducto }) {
   };
 
   return (
-    <div className="checkout">
-      <h2>Checkout</h2>
+    <section className="checkout">
+      <h2 className="checkout-title">🛒 Checkout</h2>
 
       {carrito.length === 0 ? (
         <p className="vacio">Tu carrito está vacío 😢</p>
@@ -21,31 +20,47 @@ function Checkout({ carrito, vaciarCarrito, eliminarProducto }) {
           <div className="checkout-list">
             {carrito.map((item, index) => (
               <div key={index} className="checkout-item">
-                <div className="producto-info">
-                  {/* Imagen placeholder, reemplazable por imagen real */}
+                <div className="producto-card">
+                  {/* Imagen / ícono */}
                   <div className="imagen-producto">🪑</div>
+
+                  {/* Detalles del producto */}
                   <div className="detalle-producto">
                     <span className="nombre">{item.nombre}</span>
-                    <span className="precio">${item.precio}</span>
+                    <span className="precio">${item.precio.toFixed(2)}</span>
                   </div>
+
+                  {/* Botón eliminar con protección */}
+                  <button
+                    className="eliminar-btn"
+                    onClick={() => eliminarProducto?.(index)}
+                    title="Eliminar producto"
+                  >
+                    ❌
+                  </button>
                 </div>
-                <button className="eliminar-btn" onClick={() => eliminarProducto(index)}>❌</button>
               </div>
             ))}
           </div>
 
+          {/* Total */}
           <div className="total-container">
             <span>Total:</span>
-            <span className="total">${total}</span>
+            <span className="total">${total.toFixed(2)}</span>
           </div>
 
-          <div className="checkout-botones">
-            <button className="finalizar-btn" onClick={handleFinalizar}>Finalizar Compra</button>
-            <button className="vaciar-btn" onClick={vaciarCarrito}>Vaciar Carrito</button>
+          {/* Botones de acción */}
+          <div className="checkout-buttons">
+            <button className="finalizar-btn" onClick={handleFinalizar}>
+              🏁 Finalizar Compra
+            </button>
+            <button className="vaciar-btn" onClick={vaciarCarrito}>
+              🗑 Vaciar Carrito
+            </button>
           </div>
         </>
       )}
-    </div>
+    </section>
   );
 }
 

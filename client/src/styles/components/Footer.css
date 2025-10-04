@@ -1,11 +1,234 @@
+/* Footer general */
 .footer {
-  background-color: #6b4226;
-  color: #fff;
+  background: linear-gradient(135deg, #111, #1f1f1f);
+  color: #f0f0f0;
+  padding: 4rem 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
+/* Contenedor principal */
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  max-width: 1300px;
+  margin: auto;
+  gap: 2rem;
+}
+
+/* Logo y eslogan */
+.footer-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: 1rem 0;
-  font-family: 'Segoe UI', sans-serif;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.3);
+}
+
+.footer-logo img {
+  width: 100px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.footer-logo img:hover {
+  transform: scale(1.08) rotate(-2deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+.footer-logo h2 {
+  font-size: 1.7rem;
+  color: #ffd700;
+  margin: 5px 0 5px 0;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.footer-slogan {
+  font-size: 1rem;
+  color: #ccc;
+  font-style: italic;
+  max-width: 180px;
+  line-height: 1.4;
+}
+
+/* Secciones de enlaces, contacto, newsletter y redes sociales */
+.footer-links,
+.footer-contact,
+.footer-newsletter,
+.footer-socials {
+  flex: 1;
+  min-width: 200px;
+  transition: transform 0.3s ease;
+}
+
+.footer-links:hover,
+.footer-contact:hover,
+.footer-newsletter:hover,
+.footer-socials:hover {
+  transform: translateY(-2px);
+}
+
+/* Títulos de secciones */
+.footer-links h3,
+.footer-contact h3,
+.footer-newsletter h3,
+.footer-socials h3 {
+  font-size: 1.4rem;
+  color: #ffd700;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Links rápidos */
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin: 10px 0;
+}
+
+.footer-links button {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.footer-links button:hover {
+  color: #ffd700;
+  transform: translateX(5px);
+}
+
+/* Contacto */
+.footer-contact p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+.footer-contact a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s, transform 0.3s;
+}
+
+.footer-contact a:hover {
+  color: #ffd700;
+  transform: scale(1.05);
+}
+
+/* Newsletter */
+.footer-newsletter p {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.footer-newsletter form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer-newsletter input[type="email"] {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  width: 90%;
+  max-width: 250px;
+  transition: box-shadow 0.3s ease;
+}
+
+.footer-newsletter input[type="email"]:focus {
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+}
+
+.footer-newsletter button {
+  padding: 10px 18px;
+  background-color: #ffd700;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+.footer-newsletter button:hover {
+  background-color: #e6c200;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+/* Redes sociales */
+.footer-socials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.footer-socials .social-icons {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.footer-socials .social-icons a {
+  color: #ccc;
+  font-size: 2rem;
+  transition: all 0.3s ease;
+}
+
+.footer-socials .social-icons a:hover {
+  color: #ffd700;
+  transform: scale(1.3) rotate(5deg);
+}
+
+/* Separador */
+.footer-separator {
+  border: 0;
+  border-top: 1px solid #444;
+  margin: 30px 0 18px 0;
+}
+
+/* Derechos reservados */
+.footer-bottom {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-links,
+  .footer-contact,
+  .footer-newsletter,
+  .footer-socials {
+    margin-top: 25px;
+  }
+
+  .footer-newsletter input[type="email"] {
+    width: 90%;
+  }
+
+  .footer-newsletter button {
+    width: 60%;
+  }
 }

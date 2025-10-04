@@ -7,7 +7,7 @@ function ModalCarrito({ carrito, cerrarModal, finalizarCompra, eliminarProducto 
     <div className="modal-overlay" onClick={cerrarModal}>
       <div className="modal-carrito" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>🛒 Carrito de Compras</h2>
+          <h2>🛒 Tu Carrito</h2>
           <button className="cerrar-btn" onClick={cerrarModal}>✖</button>
         </div>
 
@@ -21,20 +21,25 @@ function ModalCarrito({ carrito, cerrarModal, finalizarCompra, eliminarProducto 
                   <div className="mini-imagen">🪑</div>
                   <div className="info">
                     <p className="nombre">{item.nombre}</p>
-                    <p className="precio">${item.precio}</p>
+                    <p className="precio">${item.precio.toFixed(2)}</p>
                   </div>
-                  <button className="eliminar-btn" onClick={() => eliminarProducto(index)}>❌</button>
+                  <button 
+                    className="eliminar-btn" 
+                    onClick={() => eliminarProducto(index)}
+                  >
+                    ❌
+                  </button>
                 </div>
               ))}
             </div>
 
             <div className="total">
               <span>Total:</span>
-              <strong>${total}</strong>
+              <strong>${total.toFixed(2)}</strong>
             </div>
 
             <button className="finalizar-btn" onClick={finalizarCompra}>
-              Finalizar Compra
+              🛒 Finalizar Compra
             </button>
           </>
         )}

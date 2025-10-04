@@ -1,0 +1,123 @@
+/* Sobre Nosotros - Sección principal */
+.sobre-nosotros {
+  padding: 4rem 1.5rem;
+  background: #fff8f2;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Contenedor interno */
+.sobre-nosotros .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: auto;
+  flex-wrap: wrap;
+}
+
+/* Texto principal */
+.sobre-nosotros .texto {
+  flex: 1;
+  min-width: 280px;
+}
+
+.sobre-nosotros .titulo {
+  font-size: 2.5rem;
+  color: #b5651d;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.sobre-nosotros .titulo::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #ffd700;
+  margin-top: 10px;
+  border-radius: 2px;
+}
+
+.sobre-nosotros .texto p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Botón principal */
+.btn-sobre {
+  padding: 10px 25px;
+  background: linear-gradient(135deg, #ffd700, #e6c200);
+  border: none;
+  border-radius: 8px;
+  color: #1a1a1a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-sobre:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+/* Valores destacados */
+.valores {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  min-width: 280px;
+}
+
+.valor-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 20px;
+  text-align: center;
+  flex: 1 1 120px;
+  max-width: 180px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.valor-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.15);
+}
+
+.valor-icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.valor-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #b5651d;
+}
+
+.valor-card p {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .sobre-nosotros .container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .valores {
+    flex-direction: row;
+    gap: 15px;
+  }
+}

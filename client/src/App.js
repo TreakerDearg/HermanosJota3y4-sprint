@@ -6,6 +6,10 @@ import ContactForm from "./components/ContactForm";
 import Footer from "./components/Footer";
 import Checkout from "./components/Checkout";
 import ModalCarrito from "./components/ModalCarrito";
+import HeroBanner from "./components/HeroBanner";
+import Destacados from "./components/Destacados";
+import SobreNosotros from "./components/SobreNosotros";
+import Newsletter from "./components/Newsletter";
 
 import "./styles/App.css";
 
@@ -34,12 +38,11 @@ function App() {
     setCarrito(nuevoCarrito);
   };
 
-// Finalizar compra y llevar a checkout
-const finalizarCompra = () => {
-  setVista("checkout");   // Cambiamos la vista al checkout
-  setModalCarrito(false); // Cerramos el modal
-};
-
+  // Finalizar compra y llevar a checkout
+  const finalizarCompra = () => {
+    setVista("checkout");
+    setModalCarrito(false);
+  };
 
   // Ver detalle de producto
   const verDetalle = (producto) => {
@@ -80,8 +83,16 @@ const finalizarCompra = () => {
         />
       )}
 
-      {/* Renderizado condicional según vista */}
-      {vista === "inicio" && <h2>Bienvenido a Mueblería Hermanos Jota</h2>}
+      {/* Vistas */}
+{vista === "inicio" && (
+  <>
+    <HeroBanner cambiarVista={cambiarVista} />
+    <Destacados productos={productos} verDetalle={verDetalle} />
+    <SobreNosotros />
+    <Newsletter />
+  </>
+)}
+
 
       {vista === "catalogo" && (
         productoSeleccionado ? (
@@ -101,7 +112,9 @@ const finalizarCompra = () => {
         <Checkout carrito={carrito} vaciarCarrito={() => setCarrito([])} />
       )}
 
-      <Footer />
+
+
+      <Footer cambiarVista={cambiarVista} />
     </div>
   );
 }
