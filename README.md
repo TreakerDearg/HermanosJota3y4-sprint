@@ -1,6 +1,10 @@
-Mueblería Hermanos Jota
+#  Mueblería Hermanos Jota
 
-Proyecto de **e-commerce de muebles**, construido con **React** en el frontend y **Node.js + Express** en el backend. El proyecto incluye catálogo de productos, detalle de productos, carrito de compras, checkout, formulario de contacto y rutas de backend para productos.
+[![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js\&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-61DAFB?logo=react\&logoColor=black)](https://reactjs.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+
+Proyecto de **e-commerce de muebles**, desarrollado con **React** en el frontend y **Node.js + Express** en el backend. Permite ver catálogo de productos, detalle de cada producto, agregar al carrito, realizar checkout y enviar mensajes de contacto.
 
 ---
 
@@ -9,38 +13,24 @@ Proyecto de **e-commerce de muebles**, construido con **React** en el frontend y
 ```
 muebleria-hermanos-jota/
 ├── backend/
-│   ├── controllers/
-│   │   └── productosController.js
-│   ├── data/
-│   │   └── products.js
-│   ├── routes/
-│   │   └── productos.js
-│   ├── .env
-│   ├── index.js
+│   ├── controllers/       # Lógica de negocio y controladores
+│   ├── data/              # Datos de ejemplo (productos)
+│   ├── middleware/        # Middlewares personalizados
+│   ├── public/images/     # Imágenes servidas por la API
+│   ├── routes/            # Rutas de API
+│   ├── .env               # Variables de entorno
+│   ├── index.js           # Entrada del servidor
 │   └── package.json
-├── client/
-│   ├── public/
-│   │   └── images/       # Imágenes de productos
+├── client/                # Frontend React
+│   ├── public/images/     # Imágenes de productos
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Checkout.jsx
-│   │   │   ├── ContactForm.jsx
-│   │   │   ├── Destacados.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   ├── HeroBanner.jsx
-│   │   │   ├── ModalCarrito.jsx
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── ProductCard.jsx
-│   │   │   ├── ProductDetail.jsx
-│   │   │   ├── ProductList.jsx
-│   │   │   ├── SobreNosotros.jsx
-│   │   │   └── Newsletter.jsx
-│   │   ├── styles/
-│   │   │   └── *.css
+│   │   ├── assets/        # Recursos estáticos
+│   │   ├── components/    # Componentes React
+│   │   ├── styles/        # Estilos globales y por componente
 │   │   ├── App.jsx
 │   │   └── index.js
-│   ├── package.json
-├── README.md
+│   └── package.json
+└── README.md
 ```
 
 ---
@@ -50,7 +40,7 @@ muebleria-hermanos-jota/
 * **Frontend:** React, CSS3, Hooks (`useState`), Fetch API
 * **Backend:** Node.js, Express, CORS
 * **Herramientas:** Nodemon, dotenv
-* **Otros:** Fuentes de iconos (FontAwesome o emojis como fallback)
+* **Otros:** FontAwesome o emojis como fallback
 
 ---
 
@@ -62,7 +52,7 @@ muebleria-hermanos-jota/
 npm install express cors dotenv nodemon
 ```
 
-### 3.2. Scripts de backend (`package.json`)
+### 3.2. Scripts (`backend/package.json`)
 
 ```json
 "scripts": {
@@ -71,15 +61,22 @@ npm install express cors dotenv nodemon
 }
 ```
 
-### 3.3. Endpoints implementados
+### 3.3. Endpoints
 
-| Método | Ruta                 | Descripción                    |
-| ------ | -------------------- | ------------------------------ |
-| GET    | `/`                  | Mensaje de bienvenida          |
-| GET    | `/api/productos`     | Listado de todos los productos |
-| GET    | `/api/productos/:id` | Producto específico por id     |
+| Método | Ruta                 | Descripción                        |
+| ------ | -------------------- | ---------------------------------- |
+| GET    | `/`                  | Mensaje de bienvenida              |
+| GET    | `/api/productos`     | Listado de todos los productos     |
+| GET    | `/api/productos/:id` | Obtener producto específico por id |
 
-### 3.4. Correr backend
+### 3.4. Variables de entorno (`backend/.env`)
+
+```env
+PORT=5000
+CORS_ORIGIN=http://localhost:3000
+```
+
+### 3.5. Levantar backend
 
 ```bash
 cd backend
@@ -87,26 +84,23 @@ npm install
 npm run dev
 ```
 
-> El backend correrá en `http://localhost:5000` por defecto (puede configurarse en `.env`).
+> Se ejecutará en `http://localhost:5000`.
 
 ---
 
 ## 4. Frontend
 
-### 4.1. Dependencias
+### 4.1. Instalación de dependencias
 
 ```bash
+cd client
 npm install
 ```
 
-* React (creado con `create-react-app`)
-* CSS puro con módulos por componente
-* (Opcional) FontAwesome para iconos
-
-### 4.2. Scripts de frontend (`package.json`)
+### 4.2. Scripts (`client/package.json`)
 
 ```bash
-npm start       # Levanta el frontend en http://localhost:3000
+npm start       # Levanta frontend en http://localhost:3000
 npm build       # Genera build de producción
 ```
 
@@ -127,28 +121,21 @@ npm build       # Genera build de producción
 | `SobreNosotros` | Información sobre la empresa                             |
 | `Newsletter`    | Suscripción a newsletter                                 |
 
-### 4.4. Funcionalidades del frontend
+---
+
+## 5. Funcionalidades
 
 * Mostrar productos destacados y todo el catálogo
 * Ver detalle de producto
 * Agregar/eliminar productos del carrito
 * Modal de carrito con total y botones de acción
 * Checkout con total y opción de vaciar carrito
-* Formulario de contacto con validación básica y mensaje de éxito
+* Formulario de contacto con validación y mensaje de éxito
 * Navegación entre vistas (`inicio`, `catálogo`, `contacto`, `checkout`)
 
 ---
 
-## 5. Variables de entorno (`backend/.env`)
-
-```env
-PORT=5000
-CORS_ORIGIN=http://localhost:3000
-```
-
----
-
-## 6. Cómo levantar todo el proyecto
+## 6. Cómo levantar el proyecto completo
 
 1. **Backend:**
 
@@ -172,11 +159,27 @@ npm start
 
 ## 7. Notas importantes
 
-* Actualmente el backend utiliza un **array en memoria** para productos (`data/products.js`).
-* Las imágenes de productos deben estar en `client/public/images/`.
-* El frontend y backend están separados; CORS está habilitado para `localhost:3000`.
-* La persistencia de carrito aún se maneja **solo en frontend**.
-* Para integrar envío de formulario al backend, se puede agregar endpoint `POST /api/contacto`.
+* El backend actualmente usa un **array en memoria** (`data/products.js`).
+* Imágenes de productos en `client/public/images/` o `backend/public/images/`.
+* Frontend y backend separados; CORS habilitado para `localhost:3000`.
+* Persistencia de carrito **solo en frontend**.
+* Para integrar envío de formulario al backend, se puede agregar `POST /api/contacto`.
 
 ---
+
+## 8. Despliegue en GitHub Pages (opcional)
+
+* Ejecutar `npm run build` en `client`.
+* Configurar GitHub Pages para servir la carpeta `client/build`.
+* Asegurarse de que las rutas de la API apunten al backend desplegado.
+
+---
+
+## 9. Alumnos
+
+| Nombre         |
+| Alexis Coronel
+| Leandro Ferreira    
+---
+
 
