@@ -43,5 +43,5 @@ const productos = [
   }
 ];
 
-// Exportamos para poder usarlo en el servidor
+
 export default productos;
