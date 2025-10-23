@@ -1,66 +1,56 @@
-import { useState } from "react";
-import ProductCard from "./ProductCard";
-import "../styles/components/ProductList.css";
+import "../styles/components/ProductCard.css";
 
-function ProductList({ productos = [], verDetalle, titulo = "Nuestros Productos" }) {
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
+function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
+  const handleClickCard = () => {
+    if (verDetalle) verDetalle(producto);
+  };
 
-  // Asegurarse de que productos es un array y que categoria existe
-  const productosValidos = Array.isArray(productos) ? productos : [];
-
-  // Obtener categorías únicas
-  const categorias = [
-    "Todos",
-    ...new Set(
-      productosValidos
-        .map((p) => p.categoria)
-        .filter((c) => c) // eliminar undefined o null
-    )
-  ];
-
-  // Filtrar productos por categoría
-  const productosFiltrados =
-    categoriaSeleccionada === "Todos"
-      ? productosValidos
-      : productosValidos.filter((p) => p.categoria === categoriaSeleccionada);
+  const handleAgregarAlCarrito = (e) => {
+    e.stopPropagation(); // Evita que el clic navegue al detalle
+    if (agregarAlCarrito) agregarAlCarrito(producto);
+  };
 
   return (
-    <section className="product-list-section">
-      {/* Título de la sección */}
-      <div className="section-header">
-        <h2 className="product-list-title">{titulo}</h2>
-        <p className="product-count">{productosFiltrados.length} productos disponibles</p>
+    <div
+      className="producto-card"
+      onClick={handleClickCard}
+      role="button"
+      tabIndex={0}
+      onKeyPress={(e) => { if (e.key === "Enter") handleClickCard(); }}
+      aria-label={`Ver detalles de ${producto.nombre}`}
+    >
+      <div className="producto-imagen">
+        <img
+          src={producto.imagen ? `http://localhost:5000${producto.imagen}` : "/images/placeholder.png"}
+          alt={producto.nombre || "Producto"}
+          className="producto-img"
+          loading="lazy"
+        />
       </div>
 
-      {/* Filtros de categoría */}
-      <div className="category-filters">
-        {categorias.map((c) => (
+      <div className="producto-info">
+        <span className="producto-categoria">{producto.categoria || "Sin categoría"}</span>
+        <h3 className="producto-nombre">{producto.nombre || "Producto"}</h3>
+        <p className="producto-precio">
+          {new Intl.NumberFormat("es-AR", {
+            style: "currency",
+            currency: "ARS",
+            minimumFractionDigits: 0,
+          }).format(producto.precio || 0)}
+        </p>
+
+        {agregarAlCarrito && (
           <button
-            key={c}
-            className={`category-btn ${c === categoriaSeleccionada ? "active" : ""}`}
-            onClick={() => setCategoriaSeleccionada(c)}
+            className="add-to-cart-btn"
+            onClick={handleAgregarAlCarrito}
+            aria-label={`Agregar ${producto.nombre} al carrito`}
           >
-            {c}
+            🛒 Agregar al carrito
           </button>
-        ))}
+        )}
       </div>
-
-      {/* Mensaje si no hay productos */}
-      {productosFiltrados.length === 0 ? (
-        <p className="no-products">No hay productos disponibles en esta categoría.</p>
-      ) : (
-        <div className="product-list-grid">
-          {productosFiltrados.map((producto) => (
-            <ProductCard
-              key={producto.id}
-              producto={producto}
-              verDetalle={verDetalle}
-            />
-          ))}
-        </div>
-      )}
-    </section>
+    </div>
   );
 }
 
-export default ProductList;
+export default ProductCard;

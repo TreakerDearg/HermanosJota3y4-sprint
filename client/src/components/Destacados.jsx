@@ -1,7 +1,6 @@
 import "../styles/components/Destacados.css";
 
-function Destacados({ productos, verDetalle }) {
-  // Filtramos los productos destacados
+function Destacados({ productos, verDetalle, agregarAlCarrito }) {
   const productosDestacados = productos.filter((p) => p.destacado);
 
   return (
@@ -19,7 +18,7 @@ function Destacados({ productos, verDetalle }) {
         {productosDestacados.length > 0 ? (
           productosDestacados.map((producto) => (
             <article
-              key={producto.id}
+              key={producto._id}
               className="producto-card"
               aria-label={`Producto destacado: ${producto.nombre}`}
             >
@@ -67,14 +66,16 @@ function Destacados({ productos, verDetalle }) {
                       </li>
                     </ul>
 
-                    <button
-                      type="button"
-                      className="btn-detalle"
-                      onClick={() => verDetalle(producto)}
-                      aria-label={`Ver detalles del producto ${producto.nombre}`}
-                    >
-                      🔍 Ver Detalle
-                    </button>
+                    <div className="destacados-actions">
+                      <button
+                        type="button"
+                        className="btn-detalle"
+                        onClick={() => verDetalle(producto)}
+                        aria-label={`Ver detalles del producto ${producto.nombre}`}
+                      >
+                        🔍 Ver Detalle
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

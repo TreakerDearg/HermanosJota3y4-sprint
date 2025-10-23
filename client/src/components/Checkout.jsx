@@ -1,18 +1,17 @@
 import "../styles/components/Checkout.css";
 
 function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = () => {} }) {
-  // Calculamos total considerando cantidad
   const total = carrito.reduce((acc, item) => acc + item.precio * (item.cantidad || 1), 0);
 
   const handleFinalizar = () => {
     if (carrito.length === 0) return;
     alert("¡Compra realizada con éxito!");
     vaciarCarrito();
+    finalizarCompra(); // opcional, si quieres ejecutar lógica extra
   };
 
   return (
     <section className="checkout">
-      {/* Header */}
       <header className="checkout-header">
         <h2>
           <i className="fa-solid fa-cart-shopping"></i> Checkout
@@ -20,12 +19,10 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
         <p>Revisa tus productos antes de finalizar la compra.</p>
       </header>
 
-      {/* Carrito vacío */}
       {carrito.length === 0 ? (
-        <p className="checkout-empty">Tu carrito está vacío</p>
+        <p className="checkout-empty" role="status">Tu carrito está vacío</p>
       ) : (
         <>
-          {/* Lista de productos */}
           <ul className="checkout-list">
             {carrito.map((item) => (
               <li key={item.id} className="checkout-card">
@@ -54,7 +51,6 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
             ))}
           </ul>
 
-          {/* Footer con total y botones */}
           <footer className="checkout-footer">
             <div className="checkout-total">
               <span>Total:</span>
@@ -64,10 +60,21 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
             </div>
 
             <div className="checkout-actions">
-              <button className="btn-finalizar" onClick={handleFinalizar}>
+              <button
+                className="btn-finalizar"
+                onClick={handleFinalizar}
+                disabled={carrito.length === 0}
+                aria-label="Finalizar compra"
+              >
                 <i className="fa-solid fa-flag-checkered"></i> Finalizar Compra
               </button>
-              <button className="btn-vaciar" onClick={vaciarCarrito}>
+
+              <button
+                className="btn-vaciar"
+                onClick={vaciarCarrito}
+                disabled={carrito.length === 0}
+                aria-label="Vaciar carrito"
+              >
                 <i className="fa-solid fa-trash-can"></i> Vaciar Carrito
               </button>
             </div>

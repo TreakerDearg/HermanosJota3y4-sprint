@@ -1,5 +1,5 @@
 import "../styles/components/SobreNosotros.css";
-import calidadImg from "../assets/Mesa de Noche Aconcagua.png"; // Ejemplo de imagen
+import calidadImg from "../assets/Mesa de Noche Aconcagua.png";
 import confortImg from "../assets/Escritorio Costa.png";
 import diseñoImg from "../assets/Sillas Cordoba.png";
 
@@ -10,29 +10,42 @@ function SobreNosotros() {
     { icon: diseñoImg, title: "Diseño", desc: "Estilo moderno que se adapta a tu hogar." },
   ];
 
+  const handleVerCatalogo = () => {
+    const catalogo = document.getElementById("catalogo");
+    if (catalogo) {
+      catalogo.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
-    <section className="sobre-nosotros">
+    <section className="sobre-nosotros" aria-labelledby="sobre-nosotros-titulo">
       <div className="container">
         <div className="texto">
-          <h2 className="titulo">Sobre Nosotros</h2>
+          <h2 id="sobre-nosotros-titulo" className="titulo">Sobre Nosotros</h2>
           <p>
             En Hermanos Jota fabricamos muebles de calidad con pasión por el diseño y la comodidad.
             Cada pieza refleja nuestra dedicación y amor por el detalle.
           </p>
-          <button className="btn-sobre" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <button
+            className="btn-sobre"
+            onClick={handleVerCatalogo}
+            aria-label="Ver el catálogo de productos"
+          >
             Ver Catálogo
           </button>
         </div>
 
-        <div className="valores">
+        <ul className="valores" role="list">
           {valores.map((v, i) => (
-            <div key={i} className="valor-card">
+            <li key={i} className="valor-card">
               <img src={v.icon} alt={v.title} className="valor-icon" />
               <h3>{v.title}</h3>
               <p>{v.desc}</p>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

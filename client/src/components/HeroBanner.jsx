@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import "../styles/HeroBanner.css";
 import logo from "../assets/logo.png";
 
-const HeroBanner = ({ cambiarVista }) => {
+const HeroBanner = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="hero-banner" aria-label="Sección principal">
       {/* Overlay con efecto degradado */}
@@ -19,14 +22,14 @@ const HeroBanner = ({ cambiarVista }) => {
         <nav className="hero-actions" aria-label="Acciones principales">
           <button 
             className="btn btn-primary" 
-            onClick={() => cambiarVista("catalogo")}
+            onClick={() => navigate("/productos")}
             aria-label="Ver catálogo"
           >
             Ver catálogo
           </button>
           <button 
             className="btn btn-secondary" 
-            onClick={() => cambiarVista("contacto")}
+            onClick={() => navigate("/contacto")}
             aria-label="Contáctanos"
           >
             Contáctanos

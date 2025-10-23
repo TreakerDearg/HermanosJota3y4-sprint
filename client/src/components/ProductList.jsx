@@ -1,29 +1,23 @@
 import { useState } from "react";
+import ProductCard from "./ProductCard";
 import "../styles/components/ProductList.css";
 
-function ProductList({ productos = [], verDetalle, titulo = "Nuestros Productos" }) {
+function ProductList({ productos = [], agregarAlCarrito, verDetalle, titulo = "Nuestros Productos" }) {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
   const [precioSeleccionado, setPrecioSeleccionado] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
 
   const productosValidos = Array.isArray(productos) ? productos : [];
-
-  // Categorías fijas
   const categorias = ["Todos", "Mesas", "Sillas", "Estantes", "Escritorios"];
-
-  // Rangos de precio
   const rangosPrecio = ["Todos", "Hasta $10000", "$10000 - $20000", "Más de $20000"];
 
-  // Filtrado seguro
   const productosFiltrados = productosValidos.filter((p) => {
     const categoria = p.categoria || "";
     const nombre = p.nombre || "";
 
-    // Filtrado por categoría
     const matchCategoria =
       categoriaSeleccionada === "Todos" || categoria.toLowerCase() === categoriaSeleccionada.toLowerCase();
 
-    // Filtrado por precio
     let matchPrecio = true;
     switch (precioSeleccionado) {
       case "Hasta $10000":
@@ -39,38 +33,35 @@ function ProductList({ productos = [], verDetalle, titulo = "Nuestros Productos"
         matchPrecio = true;
     }
 
-    // Filtrado por búsqueda
     const matchBusqueda = nombre.toLowerCase().includes(busqueda.toLowerCase());
-
     return matchCategoria && matchPrecio && matchBusqueda;
   });
 
   return (
     <section className="product-list-section">
-      {/* Título */}
       <div className="section-header">
         <h2 className="product-list-title">{titulo}</h2>
         <p className="product-count">{productosFiltrados.length} productos disponibles</p>
       </div>
 
-      {/* Buscador */}
       <div className="search-bar">
         <input
           type="text"
           placeholder="Buscar productos..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
+          aria-label="Buscar productos"
         />
       </div>
 
-      {/* Filtros */}
       <div className="filters-container">
-        <div className="category-filters">
+        <div className="category-filters" role="group" aria-label="Filtrar por categoría">
           {categorias.map((c) => (
             <button
               key={c}
               className={`category-btn ${c === categoriaSeleccionada ? "active" : ""}`}
               onClick={() => setCategoriaSeleccionada(c)}
+              aria-pressed={c === categoriaSeleccionada}
             >
               {c}
             </button>
@@ -93,32 +84,17 @@ function ProductList({ productos = [], verDetalle, titulo = "Nuestros Productos"
         </div>
       </div>
 
-      {/* Productos */}
       {productosFiltrados.length === 0 ? (
         <p className="no-products">No hay productos disponibles con los filtros seleccionados.</p>
       ) : (
         <div className="product-list-grid">
           {productosFiltrados.map((producto) => (
-            <div
-              key={producto.id}
-              className="producto-card"
-              onClick={() => verDetalle(producto)}
-            >
-              <div className="producto-imagen">
-                <img
-                  src={producto.imagen ? `http://localhost:5000${producto.imagen}` : "/images/placeholder.png"}
-                  alt={producto.nombre || "Producto"}
-                  className="producto-img"
-                />
-              </div>
-              <div className="producto-info">
-                <span className="producto-categoria">{producto.categoria || "Sin categoría"}</span>
-                <h3 className="producto-nombre">{producto.nombre || "Producto"}</h3>
-                <p className="producto-precio">
-                  AR$ {producto.precio ? producto.precio.toLocaleString() : "0"}
-                </p>
-              </div>
-            </div>
+            <ProductCard
+              key={producto._id}
+              producto={producto}
+              agregarAlCarrito={typeof agregarAlCarrito === "function" ? agregarAlCarrito : () => {}}
+              verDetalle={typeof verDetalle === "function" ? verDetalle : () => {}}
+            />
           ))}
         </div>
       )}
