@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ModalCarrito from "./components/ModalCarrito";
+import EliminarProducto from "./pages/EliminarProducto";
+
 
 import Home from "./pages/Home";
 import Catalogo from "./pages/Catalogo";
@@ -67,6 +69,7 @@ function App() {
   const vaciarCarrito = useCallback(() => setCarrito([]), []);
   const mostrarCarrito = useCallback(() => setModalCarrito((prev) => !prev), []);
 
+
   return (
     <Router>
       <div className="App">
@@ -96,6 +99,7 @@ function App() {
           />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/checkout" element={<CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} />} />
+          <Route path="/eliminar-producto" element={<EliminarProducto />} />
         </Routes>
 
         <Footer />

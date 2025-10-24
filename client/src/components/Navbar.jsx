@@ -14,6 +14,7 @@ function Navbar({ carritoCount = 0, mostrarCarrito }) {
     setMenuAbierto(false); // Cierra el menú al seleccionar
   };
 
+
   return (
     <nav className="navbar" role="navigation" aria-label="Menú principal">
       {/* Logo */}
