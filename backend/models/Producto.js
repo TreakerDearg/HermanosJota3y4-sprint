@@ -5,7 +5,7 @@ const productoSchema = new mongoose.Schema(
     nombre: { type: String, required: true },
     descripcion: { type: String },
     precio: { type: Number, required: true },
-    imagen: { type: String }, // ruta o URL de imagen
+    imagenUrl: { type: String }, // usamos imagenUrl para mantener consistencia con frontend
     destacado: { type: Boolean, default: false },
     categoria: { type: String, required: true },
     stock: { type: Number, required: true, min: 0 }
