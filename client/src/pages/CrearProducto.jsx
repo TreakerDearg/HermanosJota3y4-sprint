@@ -1,18 +1,15 @@
-// src/pages/CrearProducto.jsx
 import { useState } from "react";
-import axios from "axios";
-import "../styles/pages/CrearProducto.css";
 
-function CrearProducto() {
+const CrearProducto = () => {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
     precio: "",
     imagen: "",
     destacado: false,
+    categoria: "",
+    stock: "",
   });
-
-  const [mensaje, setMensaje] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -24,48 +21,81 @@ function CrearProducto() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const response = await axios.post("http://localhost:5000/api/productos", formData);
-      setMensaje("✅ Producto creado correctamente");
-      console.log("Producto creado:", response.data);
+      const res = await fetch("http://localhost:5000/api/productos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error("Error al crear el producto");
+
+      alert("✅ Producto creado con éxito");
       setFormData({
         nombre: "",
         descripcion: "",
         precio: "",
         imagen: "",
         destacado: false,
+        categoria: "",
+        stock: "",
       });
-    } catch (error) {
-      console.error("Error al crear producto:", error);
-      setMensaje("❌ Error al crear el producto");
+    } catch (err) {
+      alert("❌ " + err.message);
     }
   };
 
   return (
-    <section className="crear-producto">
-      <h2>🛠️ Crear Nuevo Producto</h2>
+    <div className="crear-producto">
+      <h2>Crear nuevo producto</h2>
       <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="nombre"
+          placeholder="Nombre"
+          value={formData.nombre}
+          onChange={handleChange}
+          required
+        />
+        <textarea
+          name="descripcion"
+          placeholder="Descripción"
+          value={formData.descripcion}
+          onChange={handleChange}
+        />
+        <input
+          type="number"
+          name="precio"
+          placeholder="Precio"
+          value={formData.precio}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="stock"
+          placeholder="Stock disponible"
+          value={formData.stock}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="text"
+          name="imagen"
+          placeholder="URL o ruta de la imagen"
+          value={formData.imagen}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="categoria"
+          placeholder="Categoría"
+          value={formData.categoria}
+          onChange={handleChange}
+          required
+        />
         <label>
-          Nombre:
-          <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} required />
-        </label>
-
-        <label>
-          Descripción:
-          <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} required />
-        </label>
-
-        <label>
-          Precio:
-          <input type="number" name="precio" value={formData.precio} onChange={handleChange} required />
-        </label>
-
-        <label>
-          URL de imagen:
-          <input type="text" name="imagen" value={formData.imagen} onChange={handleChange} required />
-        </label>
-
-        <label className="checkbox">
           <input
             type="checkbox"
             name="destacado"
@@ -74,13 +104,10 @@ function CrearProducto() {
           />
           Producto destacado
         </label>
-
-        <button type="submit" className="btn-crear">Crear producto</button>
+        <button type="submit">Crear Producto</button>
       </form>
-
-      {mensaje && <p className="mensaje">{mensaje}</p>}
-    </section>
+    </div>
   );
-}
+};
 
 export default CrearProducto;

@@ -8,7 +8,8 @@ const productos = [
     precio: 35000,
     imagen: "/images/MesaComedorPampa.png",
     destacado: true,
-    categoria: "Mesas"
+    categoria: "Mesas",
+    stock: 12
   },
   {
     id: 2,
@@ -17,7 +18,8 @@ const productos = [
     precio: 12000,
     imagen: "/images/SilladeTrabajoBelgrano.png",
     destacado: true,
-    categoria: "Sillas"
+    categoria: "Sillas",
+    stock: 25
   },
   {
     id: 3,
@@ -26,7 +28,8 @@ const productos = [
     precio: 22000,
     imagen: "/images/BibliotecaRecoleta.png",
     destacado: true,
-    categoria: "Estantes"
+    categoria: "Estantes",
+    stock: 10
   },
   {
     id: 4,
@@ -35,7 +38,8 @@ const productos = [
     precio: 18000,
     imagen: "/images/MesaDeCentroVintage (2).png",
     destacado: true,
-    categoria: "Mesas"
+    categoria: "Mesas",
+    stock: 8
   },
   {
     id: 5,
@@ -44,7 +48,8 @@ const productos = [
     precio: 9000,
     imagen: "/images/SillonCopacabana.png",
     destacado: false,
-    categoria: "Sillas"
+    categoria: "Sillas",
+    stock: 20
   },
   {
     id: 6,
@@ -53,7 +58,8 @@ const productos = [
     precio: 27000,
     imagen: "/images/AparadorUspallata.png",
     destacado: false,
-    categoria: "Estantes"
+    categoria: "Estantes",
+    stock: 6
   },
   {
     id: 7,
@@ -62,7 +68,8 @@ const productos = [
     precio: 8500,
     imagen: "/images/MesadeNocheAconcagua.png",
     destacado: false,
-    categoria: "Mesas"
+    categoria: "Mesas",
+    stock: 15
   },
   {
     id: 8,
@@ -71,7 +78,8 @@ const productos = [
     precio: 15000,
     imagen: "/images/MesadeCentroAraucaria.png",
     destacado: false,
-    categoria: "Mesas"
+    categoria: "Mesas",
+    stock: 10
   },
   {
     id: 9,
@@ -80,7 +88,8 @@ const productos = [
     precio: 21000,
     imagen: "/images/EscritorioCosta.png",
     destacado: false,
-    categoria: "Escritorios"
+    categoria: "Escritorios",
+    stock: 7
   }
 ];
 
