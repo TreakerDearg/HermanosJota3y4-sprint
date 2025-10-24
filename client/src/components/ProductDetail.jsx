@@ -1,7 +1,18 @@
+import { useState } from "react";
+import PropTypes from "prop-types";
 import "../styles/components/ProductDetail.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function ProductDetail({ producto, agregarAlCarrito, volver }) {
-  // Beneficios predeterminados si no vienen desde el producto
+  const [added, setAdded] = useState(false);
+
+  const handleAgregar = () => {
+    if (agregarAlCarrito) agregarAlCarrito(producto);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1000);
+  };
+
   const beneficios = producto.beneficios || [
     { icon: "fas fa-truck", text: "Envío gratis" },
     { icon: "fas fa-credit-card", text: "3 cuotas sin interés" },
@@ -9,20 +20,20 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
   ];
 
   return (
-    <section className="product-detail" aria-label={`Detalle de ${producto.nombre}`}>
+    <section className="product-detail" aria-label={`Detalle de ${producto.nombre || "Producto"}`}>
       <div className="detail-container">
         {/* Imagen del producto */}
         <div className="detail-imagen">
-          <img 
-            src={producto.imagen ? `http://localhost:5000${producto.imagen}` : "/images/placeholder.png"} 
-            alt={producto.nombre || "Producto"} 
+          <img
+            src={producto.imagen ? `${API_URL}${producto.imagen}` : "/images/placeholder.png"}
+            alt={producto.nombre || "Producto"}
             loading="lazy"
           />
         </div>
 
         {/* Información principal */}
         <div className="detail-info">
-          <h2 className="detail-title">{producto.nombre}</h2>
+          <h2 className="detail-title">{producto.nombre || "Producto sin nombre"}</h2>
 
           <div className="detail-price-tag">
             <span className="detail-price">
@@ -34,7 +45,7 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
             </span>
           </div>
 
-          <p className="detail-desc">{producto.descripcion}</p>
+          <p className="detail-desc">{producto.descripcion || "Sin descripción disponible."}</p>
 
           <ul className="detail-benefits" aria-label="Beneficios del producto">
             {beneficios.map((b, idx) => (
@@ -45,14 +56,14 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
           </ul>
 
           <div className="detail-buttons">
-            <button 
-              className="btn-agregar"
-              onClick={() => agregarAlCarrito(producto)}
-              aria-label={`Añadir ${producto.nombre} al carrito`}
+            <button
+              className={`btn-agregar ${added ? "added" : ""}`}
+              onClick={handleAgregar}
+              aria-label={added ? `${producto.nombre} agregado` : `Añadir ${producto.nombre} al carrito`}
             >
-              🛒 Añadir al Carrito
+              {added ? "✔ Agregado" : "🛒 Añadir al Carrito"}
             </button>
-            <button 
+            <button
               className="btn-volver"
               onClick={volver}
               aria-label="Volver al catálogo"
@@ -65,5 +76,24 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
     </section>
   );
 }
+
+// ===== PropTypes =====
+ProductDetail.propTypes = {
+  producto: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    nombre: PropTypes.string,
+    precio: PropTypes.number,
+    descripcion: PropTypes.string,
+    imagen: PropTypes.string,
+    beneficios: PropTypes.arrayOf(
+      PropTypes.shape({
+        icon: PropTypes.string,
+        text: PropTypes.string
+      })
+    ),
+  }).isRequired,
+  agregarAlCarrito: PropTypes.func,
+  volver: PropTypes.func.isRequired,
+};
 
 export default ProductDetail;

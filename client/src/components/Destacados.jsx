@@ -1,6 +1,8 @@
 import "../styles/components/Destacados.css";
 
-function Destacados({ productos, verDetalle, agregarAlCarrito }) {
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = () => {} }) {
   const productosDestacados = productos.filter((p) => p.destacado);
 
   return (
@@ -16,71 +18,76 @@ function Destacados({ productos, verDetalle, agregarAlCarrito }) {
 
       <div className="productos-grid">
         {productosDestacados.length > 0 ? (
-          productosDestacados.map((producto) => (
-            <article
-              key={producto._id}
-              className="producto-card"
-              aria-label={`Producto destacado: ${producto.nombre}`}
-            >
-              <div className="flip-card-inner">
-                {/* --- Cara Frontal --- */}
-                <div className="flip-card-front">
-                  <figure className="producto-imagen">
-                    <img
-                      src={`http://localhost:5000${producto.imagen}`}
-                      alt={`Imagen de ${producto.nombre}`}
-                      loading="lazy"
-                      draggable="false"
-                    />
-                  </figure>
-                  <div className="producto-info">
-                    <h3 className="producto-nombre">{producto.nombre}</h3>
+          productosDestacados.map((producto) => {
+            const nombre = producto.nombre || "Producto";
+            const descripcion = producto.descripcion || "";
+            const precio = producto.precio || 0;
+            const imagen = producto.imagen ? `${API_URL}${producto.imagen}` : "/images/placeholder.png";
+
+            return (
+              <article
+                key={producto._id}
+                className="producto-card"
+                tabIndex={0}
+                aria-label={`Producto destacado: ${nombre}`}
+              >
+                <div className="flip-card-inner">
+                  {/* --- Cara Frontal --- */}
+                  <div className="flip-card-front" aria-hidden="false">
+                    <figure className="producto-imagen">
+                      <img src={imagen} alt={`Imagen de ${nombre}`} loading="lazy" draggable="false" />
+                    </figure>
+                    <div className="producto-info">
+                      <h3 className="producto-nombre">{nombre}</h3>
+                    </div>
                   </div>
-                </div>
 
-                {/* --- Cara Trasera --- */}
-                <div className="flip-card-back">
-                  <div className="producto-detalle">
-                    <h4 className="precio">
-                      {new Intl.NumberFormat("es-AR", {
-                        style: "currency",
-                        currency: "ARS",
-                        minimumFractionDigits: 0,
-                      }).format(producto.precio)}
-                    </h4>
+                  {/* --- Cara Trasera --- */}
+                  <div className="flip-card-back" aria-hidden="true">
+                    <div className="producto-detalle">
+                      <h4 className="precio">
+                        {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(precio)}
+                      </h4>
 
-                    <p className="mini-desc">{producto.descripcion}</p>
+                      <p className="mini-desc">{descripcion}</p>
 
-                    <ul className="benefits-icons" aria-label="Beneficios del producto">
-                      <li className="benefit" title="Envío gratis">
-                        <i className="fas fa-truck" aria-hidden="true"></i>
-                        <span>Envío gratis</span>
-                      </li>
-                      <li className="benefit" title="3 cuotas sin interés">
-                        <i className="fas fa-credit-card" aria-hidden="true"></i>
-                        <span>3 cuotas sin interés</span>
-                      </li>
-                      <li className="benefit" title="Garantía 1 año">
-                        <i className="fas fa-tools" aria-hidden="true"></i>
-                        <span>Garantía 1 año</span>
-                      </li>
-                    </ul>
+                      <ul className="benefits-icons" aria-label="Beneficios del producto">
+                        <li className="benefit" title="Envío gratis">
+                          <i className="fas fa-truck" aria-hidden="true"></i> <span>Envío gratis</span>
+                        </li>
+                        <li className="benefit" title="3 cuotas sin interés">
+                          <i className="fas fa-credit-card" aria-hidden="true"></i> <span>3 cuotas sin interés</span>
+                        </li>
+                        <li className="benefit" title="Garantía 1 año">
+                          <i className="fas fa-tools" aria-hidden="true"></i> <span>Garantía 1 año</span>
+                        </li>
+                      </ul>
 
-                    <div className="destacados-actions">
-                      <button
-                        type="button"
-                        className="btn-detalle"
-                        onClick={() => verDetalle(producto)}
-                        aria-label={`Ver detalles del producto ${producto.nombre}`}
-                      >
-                        🔍 Ver Detalle
-                      </button>
+                      <div className="destacados-actions">
+                        <button
+                          type="button"
+                          className="btn-detalle"
+                          onClick={() => verDetalle(producto)}
+                          aria-label={`Ver detalles del producto ${nombre}`}
+                        >
+                          🔍 Ver Detalle
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn-agregar"
+                          onClick={() => agregarAlCarrito(producto)}
+                          aria-label={`Agregar ${nombre} al carrito`}
+                        >
+                          🛒 Agregar
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </article>
-          ))
+              </article>
+            );
+          })
         ) : (
           <p className="no-productos">No hay productos destacados disponibles.</p>
         )}

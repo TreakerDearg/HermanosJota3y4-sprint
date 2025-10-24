@@ -2,7 +2,7 @@
 .footer {
   background: linear-gradient(135deg, #111, #1f1f1f);
   color: #f0f0f0;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
 }
@@ -54,7 +54,7 @@
   line-height: 1.4;
 }
 
-/* Secciones de enlaces, contacto, newsletter y redes sociales */
+/* Secciones del footer */
 .footer-links,
 .footer-contact,
 .footer-newsletter,
@@ -207,28 +207,48 @@
   text-align: center;
   font-size: 0.9rem;
   color: #aaa;
+  margin-bottom: 0;
 }
 
 /* Responsivo */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .footer-container {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 2rem;
   }
 
   .footer-links,
   .footer-contact,
   .footer-newsletter,
   .footer-socials {
-    margin-top: 25px;
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-logo h2 {
+    font-size: 1.4rem;
   }
 
-  .footer-newsletter input[type="email"] {
-    width: 90%;
+  .footer-slogan {
+    font-size: 0.9rem;
+  }
+
+  .footer-links h3,
+  .footer-contact h3,
+  .footer-newsletter h3,
+  .footer-socials h3 {
+    font-size: 1.2rem;
+  }
+
+  .footer-socials .social-icons a {
+    font-size: 1.6rem;
   }
 
   .footer-newsletter button {
-    width: 60%;
+    width: 80%;
   }
 }

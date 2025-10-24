@@ -1,0 +1,56 @@
+/* src/styles/pages/ContactoPage.css */
+
+.contacto-page {
+  padding: 3rem 1rem;
+  font-family: "Arial", sans-serif;
+  color: #333;
+  display: flex;
+  justify-content: center;
+}
+
+.contacto-container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.contacto-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: #007bff;
+}
+
+.contacto-header p {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.contacto-form-wrapper {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.contacto-no-form {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .contacto-header h1 {
+    font-size: 2rem;
+  }
+
+  .contacto-header p {
+    font-size: 1rem;
+  }
+
+  .contacto-form-wrapper {
+    padding: 1rem;
+  }
+}

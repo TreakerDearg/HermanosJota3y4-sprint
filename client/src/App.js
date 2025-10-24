@@ -1,18 +1,23 @@
+// src/App.js
 import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ModalCarrito from "./components/ModalCarrito";
-import EliminarProducto from "./pages/EliminarProducto";
-
 
 import Home from "./pages/Home";
 import Catalogo from "./pages/Catalogo";
 import Contacto from "./pages/Contacto";
 import CheckoutPage from "./pages/Checkout";
+import CrearProducto from "./pages/CrearProducto";
+import EditarProducto from "./pages/EditarProducto";
+import EliminarProducto from "./pages/EliminarProducto";
 
 import "./styles/App.css";
+
+// ===== Configuración API =====
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 function App() {
   // ===== Estado global =====
@@ -21,9 +26,14 @@ function App() {
   const [error, setError] = useState(null);
 
   const [carrito, setCarrito] = useState(() => {
-    const saved = localStorage.getItem("carrito");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("carrito");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
+
   const [modalCarrito, setModalCarrito] = useState(false);
 
   // ===== Persistencia carrito =====
@@ -31,75 +41,160 @@ function App() {
     localStorage.setItem("carrito", JSON.stringify(carrito));
   }, [carrito]);
 
-  // ===== Fetch productos desde API =====
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const fetchProductos = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("http://localhost:5000/api/productos", {
-          signal: controller.signal,
-        });
-        if (!res.ok) throw new Error("Error al cargar los productos");
-        const data = await res.json();
-        setProductos(data);
-      } catch (err) {
-        if (err.name !== "AbortError") setError(err.message || "Error desconocido");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProductos();
-    return () => controller.abort();
+  // ===== Hook para fetch productos =====
+  const fetchProductos = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/productos`);
+      if (!res.ok) throw new Error("Error al cargar los productos");
+      const data = await res.json();
+      setProductos(Array.isArray(data.data) ? data.data : []);
+    } catch (err) {
+      setError(err.message || "Error desconocido");
+      setProductos([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // ===== Funciones de carrito =====
+  useEffect(() => {
+    fetchProductos();
+  }, [fetchProductos]);
+
+  // ===== Carrito =====
   const agregarAlCarrito = useCallback((producto) => {
     if (!producto) return;
-    setCarrito((prev) => [...prev, producto]);
+    setCarrito((prev) => {
+      const exists = prev.find((p) => p._id === producto._id);
+      if (exists) {
+        return prev.map((p) =>
+          p._id === producto._id ? { ...p, cantidad: (p.cantidad || 1) + 1 } : p
+        );
+      }
+      return [...prev, { ...producto, cantidad: 1 }];
+    });
   }, []);
 
-  const eliminarProducto = useCallback((id) => {
+  const eliminarProductoCarrito = useCallback((id) => {
     setCarrito((prev) => prev.filter((item) => item._id !== id));
   }, []);
 
   const vaciarCarrito = useCallback(() => setCarrito([]), []);
-  const mostrarCarrito = useCallback(() => setModalCarrito((prev) => !prev), []);
+  const toggleModalCarrito = useCallback(() => setModalCarrito((prev) => !prev), []);
 
+  // ===== CRUD Productos =====
+const buildFormData = (producto) => {
+  const fd = new FormData();
+  if (producto.nombre) fd.append("nombre", producto.nombre.trim());
+  if (producto.descripcion) fd.append("descripcion", producto.descripcion.trim());
+  if (producto.precio !== undefined) fd.append("precio", Number(producto.precio));
+  if (producto.stock !== undefined) fd.append("stock", Number(producto.stock));
+  if (producto.categoria) fd.append("categoria", producto.categoria.trim());
+  
+  // Enviar booleano como true/false real, no string
+  fd.append("destacado", producto.destacado ? true : false);
+
+  if (producto.imagen) fd.append("imagen", producto.imagen);
+
+  // DEBUG: Mostrar todo
+  for (let pair of fd.entries()) {
+    console.log(pair[0], pair[1]);
+  }
+
+  return fd;
+};
+
+
+const crearProducto = async (nuevoProducto) => {
+  try {
+    const res = await fetch("http://localhost:5000/api/productos", {
+      method: "POST",
+      body: buildFormData(nuevoProducto),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Error al crear producto:", data);
+      throw new Error(data.message || "Error al crear producto");
+    }
+
+    await fetchProductos();
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+
+  const actualizarProducto = async (id, updates) => {
+    if (!id) throw new Error("ID de producto inválido");
+    try {
+      const res = await fetch(`${API_BASE}/productos/${id}`, {
+        method: "PUT",
+        body: buildFormData(updates),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error al actualizar producto");
+      await fetchProductos();
+      return data;
+    } catch (err) {
+      throw new Error(err.message || "Error desconocido al actualizar producto");
+    }
+  };
+
+  const eliminarProducto = async (id) => {
+    if (!window.confirm("¿Estás seguro que querés eliminar este producto?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/productos/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error al eliminar producto");
+      await fetchProductos();
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  };
 
   return (
     <Router>
       <div className="App">
-        <Navbar carritoCount={carrito.length} mostrarCarrito={mostrarCarrito} />
+        <Navbar
+          carritoCount={carrito.reduce((acc, p) => acc + (p.cantidad || 1), 0)}
+          mostrarCarrito={toggleModalCarrito}
+        />
 
         {modalCarrito && (
           <ModalCarrito
             carrito={carrito}
-            cerrarModal={mostrarCarrito}
-            eliminarProducto={eliminarProducto}
+            cerrarModal={toggleModalCarrito}
+            eliminarProducto={eliminarProductoCarrito}
             vaciarCarrito={vaciarCarrito}
+            finalizarCompra={() => {
+              alert("¡Compra realizada con éxito!");
+              vaciarCarrito();
+            }}
           />
         )}
 
         <Routes>
-          <Route path="/" element={<Home productos={productos} loading={loading} error={error} />} />
+          {/* Frontend */}
+          <Route
+            path="/"
+            element={<Home productos={productos} loading={loading} error={error} agregarAlCarrito={agregarAlCarrito} />}
+          />
           <Route
             path="/productos/:id?"
-            element={
-              <Catalogo
-                productos={productos}
-                loading={loading}
-                error={error}
-                agregarAlCarrito={agregarAlCarrito}
-              />
-            }
+            element={<Catalogo productos={productos} loading={loading} error={error} agregarAlCarrito={agregarAlCarrito} />}
           />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/checkout" element={<CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} />} />
-          <Route path="/eliminar-producto" element={<EliminarProducto />} />
+
+          {/* Admin */}
+          <Route path="/admin/crear-producto" element={<CrearProducto crearProducto={crearProducto} />} />
+          <Route path="/admin/editar-producto/:id" element={<EditarProducto actualizarProducto={actualizarProducto} />} />
+          <Route path="/admin/eliminar-producto" element={<EliminarProducto productos={productos} eliminarProducto={eliminarProducto} />} />
         </Routes>
 
         <Footer />

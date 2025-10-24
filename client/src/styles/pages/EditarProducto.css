@@ -1,0 +1,78 @@
+.editar-producto {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.editar-producto h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.editar-producto form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.editar-producto input[type="text"],
+.editar-producto input[type="number"],
+.editar-producto textarea,
+.editar-producto input[type="file"] {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.editar-producto input:focus,
+.editar-producto textarea:focus {
+  border-color: #007bff;
+}
+
+.editar-producto label {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  gap: 8px;
+}
+
+.editar-producto button {
+  padding: 12px;
+  background-color: #28a745;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editar-producto button:hover {
+  background-color: #218838;
+}
+
+.preview-img {
+  display: block;
+  margin: 10px auto;
+  max-width: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .editar-producto {
+    padding: 20px;
+    margin: 20px;
+  }
+}

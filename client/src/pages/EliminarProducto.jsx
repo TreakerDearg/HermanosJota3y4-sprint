@@ -2,10 +2,11 @@
 import { useState, useEffect } from "react";
 import "../styles/pages/EliminarProducto.css";
 
-function EliminarProducto() {
+const EliminarProducto = () => {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState("");
+  const [eliminandoId, setEliminandoId] = useState(null);
 
   // 🔹 Cargar productos desde la API
   useEffect(() => {
@@ -14,9 +15,10 @@ function EliminarProducto() {
         const res = await fetch("http://localhost:5000/api/productos");
         if (!res.ok) throw new Error("Error al cargar los productos");
         const data = await res.json();
-        setProductos(data);
+        // Ordenar por nombre
+        setProductos(data.data?.sort((a, b) => a.nombre.localeCompare(b.nombre)) || []);
       } catch (err) {
-        console.error(err);
+        setMensaje("❌ " + err.message);
       } finally {
         setLoading(false);
       }
@@ -24,25 +26,28 @@ function EliminarProducto() {
     fetchProductos();
   }, []);
 
-  // 🔹 Eliminar un producto específico
+  // 🔹 Eliminar un producto
   const eliminarProducto = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
 
+    setEliminandoId(id);
+    setMensaje("");
     try {
       const res = await fetch(`http://localhost:5000/api/productos/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Error al eliminar el producto");
-
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al eliminar el producto");
+      }
       setProductos((prev) => prev.filter((p) => p._id !== id));
       setMensaje("✅ Producto eliminado correctamente");
     } catch (err) {
-      console.error(err);
-      setMensaje("❌ Error al eliminar el producto");
+      setMensaje("❌ " + err.message);
+    } finally {
+      setEliminandoId(null);
+      setTimeout(() => setMensaje(""), 3000);
     }
-
-    // Ocultar mensaje después de 3s
-    setTimeout(() => setMensaje(""), 3000);
   };
 
   if (loading) return <p className="loading">Cargando productos...</p>;
@@ -50,8 +55,6 @@ function EliminarProducto() {
   return (
     <section className="eliminar-producto">
       <h2>🗑️ Eliminar Producto</h2>
-      <p>Selecciona un producto de la lista para eliminarlo.</p>
-
       {mensaje && <p className="mensaje">{mensaje}</p>}
 
       {productos.length === 0 ? (
@@ -61,21 +64,26 @@ function EliminarProducto() {
           {productos.map((p) => (
             <li key={p._id} className="producto-item">
               <div className="producto-info">
-                <img
-                  src={`http://localhost:5000${p.imagen}`}
-                  alt={p.nombre}
-                  className="producto-img"
-                />
-                <div>
+                {p.imagen && (
+                  <img
+                    src={`http://localhost:5000${p.imagen}`}
+                    alt={p.nombre}
+                    className="producto-img"
+                  />
+                )}
+                <div className="producto-detalles">
                   <h3>{p.nombre}</h3>
-                  <p>${p.precio}</p>
+                  <p>Precio: ${p.precio}</p>
+                  <p>Categoría: {p.categoria}</p>
+                  <p>Stock: {p.stock}</p>
                 </div>
               </div>
               <button
                 className="btn-eliminar"
                 onClick={() => eliminarProducto(p._id)}
+                disabled={eliminandoId === p._id}
               >
-                Eliminar
+                {eliminandoId === p._id ? "Eliminando..." : "Eliminar"}
               </button>
             </li>
           ))}
@@ -83,6 +91,6 @@ function EliminarProducto() {
       )}
     </section>
   );
-}
+};
 
 export default EliminarProducto;

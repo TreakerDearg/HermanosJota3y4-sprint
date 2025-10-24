@@ -3,58 +3,101 @@ import { useParams, useNavigate } from "react-router-dom";
 import ProductList from "../components/ProductList";
 import ProductDetail from "../components/ProductDetail";
 
-const Catalogo = ({ productos = [], agregarAlCarrito, loading }) => {
+const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const [productos, setProductos] = useState(initialProductos);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [loading, setLoading] = useState(!initialProductos.length);
+  const [error, setError] = useState(null);
 
+  // ===== Fetch productos si no vienen como prop =====
   useEffect(() => {
-    console.log(" useEffect Catalogo - id:", id);
-    console.log(" Productos disponibles:", productos);
-
-    if (id && productos.length > 0) {
-      const prod = productos.find(p => String(p._id) === id);
-      console.log("🔍 Producto seleccionado:", prod);
-      setProductoSeleccionado(prod || null);
-    } else {
-      setProductoSeleccionado(null);
+    if (initialProductos.length === 0) {
+      const fetchProductos = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch("http://localhost:5000/api/productos");
+          if (!res.ok) throw new Error("No se pudieron cargar los productos");
+          const data = await res.json();
+          setProductos(data.data || []);
+        } catch (err) {
+          console.error("❌ Error fetchProductos:", err);
+          setError(err.message || "Error al cargar los productos");
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProductos();
     }
+  }, [initialProductos]);
+
+  // ===== Selección dinámica del producto =====
+  useEffect(() => {
+    if (!id) {
+      setProductoSeleccionado(null);
+      return;
+    }
+
+    // Buscar localmente primero
+    const prodLocal = productos.find(p => String(p._id) === id);
+    if (prodLocal) {
+      setProductoSeleccionado(prodLocal);
+      return;
+    }
+
+    // Si no está local, fetch individual
+    const fetchProducto = async (prodId) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`http://localhost:5000/api/productos/${prodId}`);
+        if (!res.ok) throw new Error("Producto no encontrado");
+        const data = await res.json();
+        setProductoSeleccionado(data.data);
+      } catch (err) {
+        console.error("❌ Error fetchProducto:", err);
+        setError(err.message || "Error al cargar el producto");
+        setProductoSeleccionado(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducto(id);
   }, [id, productos]);
 
+  // ===== Navegación =====
   const verDetalle = (producto) => {
-    console.log("➡️ Ver detalle producto:", producto);
     if (!producto) return;
     navigate(`/productos/${producto._id}`);
   };
 
   const volverAlCatalogo = () => {
-    console.log("⬅️ Volver al catálogo");
     navigate("/productos");
     setProductoSeleccionado(null);
   };
 
-  if (loading) return <p>Cargando productos...</p>;
+  // ===== Render =====
+  if (loading) return <p>Cargando...</p>;
+  if (error) return <p>❌ {error}</p>;
   if (!productos || productos.length === 0) return <p>No hay productos disponibles</p>;
 
   return productoSeleccionado ? (
-    <>
-      {console.log("🎯 Renderizando ProductDetail:", productoSeleccionado)}
-      <ProductDetail
-        producto={productoSeleccionado}
-        agregarAlCarrito={agregarAlCarrito}
-        volver={volverAlCatalogo}
-      />
-    </>
+    <ProductDetail
+      producto={productoSeleccionado}
+      agregarAlCarrito={agregarAlCarrito}
+      volver={volverAlCatalogo}
+    />
   ) : (
-    <>
-      {console.log(" Renderizando ProductList")}
-      <ProductList
-        productos={productos}
-        agregarAlCarrito={agregarAlCarrito}
-        verDetalle={verDetalle}
-        titulo="Catálogo de Productos"
-      />
-    </>
+    <ProductList
+      productos={productos}
+      agregarAlCarrito={agregarAlCarrito}
+      verDetalle={verDetalle}
+      titulo="Catálogo de Productos"
+    />
   );
 };
 

@@ -1,0 +1,28 @@
+/* src/styles/pages/HomePage.css */
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+  font-family: "Arial", sans-serif;
+}
+
+/* Ajustes generales para secciones */
+.home-destacados,
+.home-sobre-nosotros,
+.home-newsletter {
+  padding: 3rem 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-page {
+    gap: 3rem;
+  }
+
+  .home-destacados,
+  .home-sobre-nosotros,
+  .home-newsletter {
+    padding: 2rem 1rem;
+  }
+}
