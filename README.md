@@ -1,5 +1,3 @@
-Claro, podemos actualizar tu README para reflejar **todos los cambios recientes**: soporte de persistencia del carrito, mejoras en el frontend (detalles, destacados, ProductCard, ModalCarrito, Checkout), **conexión a MongoDB** y uso de **Multer** para manejar imágenes en backend. Te propongo esta versión mejorada y completa:
-
 ---
 
 # Mueblería Hermanos Jota
@@ -199,6 +197,3 @@ npm start
 
 ---
 
-Si querés, puedo hacer otra versión **aún más detallada**, incluyendo **capturas de pantalla del frontend**, ejemplos de uso de API con **MongoDB**, y cómo subir productos con Multer.
-
-¿Querés que haga eso también?
