@@ -1,35 +1,71 @@
 // middlewares/asyncHandler.js
+
 /**
  * Middleware de manejo asíncrono de controladores.
- * Envuelve funciones async para capturar errores automáticamente
- * y pasarlos al middleware global de errores.
+ * Captura errores en funciones async sin necesidad de try/catch repetitivos.
+ * Integra trazabilidad contextual, detección de entorno y logging estructurado.
  *
- * Añade trazabilidad con logs contextuales.
+ * Beneficios:
+ *  - Centraliza la gestión de excepciones async.
+ *  - Mejora la trazabilidad de errores sin contaminar controladores.
+ *  - Aporta visibilidad detallada del contexto HTTP y payload.
  */
+
 export const asyncHandler = (fn) => {
   return async (req, res, next) => {
     const timestamp = new Date().toISOString();
     const context = `[${timestamp}] [${req.method}] ${req.originalUrl}`;
+    const env = process.env.NODE_ENV || "development";
 
     try {
       await fn(req, res, next);
     } catch (err) {
-      // Log técnico para diagnóstico
-      if (process.env.NODE_ENV !== "production") {
-        console.error("=".repeat(60));
-        console.error(`${context} - ❌ Error capturado en asyncHandler`);
-        console.error(`Mensaje: ${err.message}`);
-        console.error(`Stack: ${err.stack}`);
-        console.error("Request body:", req.body);
-        console.error("=".repeat(60));
+      // Definir código de error por tipo (fallback 500)
+      const statusCode =
+        err.statusCode ||
+        (err.name === "ValidationError"
+          ? 400
+          : err.name === "CastError"
+          ? 400
+          : 500);
+
+      // Logging estructurado para entornos no productivos
+      if (env !== "production") {
+        console.error("=".repeat(80));
+        console.error(`${context}`);
+        console.error(`🔍 Contexto: ${req.ip} - ${req.headers["user-agent"]}`);
+        console.error(`❌ Error: ${err.message}`);
+        console.error(`📦 Tipo: ${err.name}`);
+        if (err.code) console.error(`🧩 Código interno: ${err.code}`);
+        if (Object.keys(req.body || {}).length > 0) {
+          console.error("📨 Request Body:", JSON.stringify(req.body, null, 2));
+        }
+        if (Object.keys(req.params || {}).length > 0) {
+          console.error("🔗 Params:", JSON.stringify(req.params, null, 2));
+        }
+        if (Object.keys(req.query || {}).length > 0) {
+          console.error("💡 Query:", JSON.stringify(req.query, null, 2));
+        }
+        console.error(`🧠 Stack Trace:\n${err.stack}`);
+        console.error("=".repeat(80));
       } else {
-        console.error(`${context} - ❌ ${err.message}`);
+        // En producción, log limpio y resumido
+        console.error(`${context} - ❌ ${err.message} (${err.name})`);
       }
 
-      // Añadir statusCode si no existe
-      if (!err.statusCode) err.statusCode = 500;
+      // Normalizar respuesta si aún no fue enviada
+      if (!res.headersSent) {
+        res.status(statusCode).json({
+          estado: "error",
+          mensaje:
+            env === "production"
+              ? "Ocurrió un error interno. Inténtalo más tarde."
+              : err.message,
+          detalle: env !== "production" ? err.stack : undefined,
+        });
+      }
 
-      // Pasa el error al middleware global
+      // Pasar error al middleware global (si existe)
       next(err);
     }
   };

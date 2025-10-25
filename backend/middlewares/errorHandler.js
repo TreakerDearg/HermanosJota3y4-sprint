@@ -2,53 +2,84 @@
 
 /**
  * Middleware global de errores.
- * Captura cualquier error lanzado por controladores o middleware,
- * loguea contexto y responde de manera uniforme en JSON.
+ * Centraliza la captura, logging y respuesta uniforme de todos los errores
+ * que se produzcan en controladores o middlewares.
+ *
+ * Beneficios:
+ *  - Mantiene consistencia en respuestas API.
+ *  - Permite diagnosticar fácilmente errores críticos o lógicos.
+ *  - Compatible con asyncHandler y cualquier middleware Express.
  */
+
 export const errorHandler = (err, req, res, next) => {
   const timestamp = new Date().toISOString();
-  const statusCode = err.statusCode || 500;
-  const message = err.customMessage || err.message || "Error interno del servidor";
+  const env = process.env.NODE_ENV || "development";
 
-  // Logging detallado en consola
-  if (process.env.NODE_ENV !== "production") {
-    console.error("=".repeat(60));
-    console.error(`[${timestamp}] [ERROR] ${req.method} ${req.originalUrl}`);
-    console.error(`Status: ${statusCode}`);
-    console.error(`Message: ${message}`);
-    console.error(`Body: ${JSON.stringify(req.body)}`);
-    console.error(`Params: ${JSON.stringify(req.params)}`);
-    console.error(`Query: ${JSON.stringify(req.query)}`);
-    console.error(`Stack: ${err.stack}`);
-    console.error("=".repeat(60));
-  } else {
-    // Producción: logs mínimos, sin exponer body
-    console.error(`[${timestamp}] [ERROR] ${req.method} ${req.originalUrl} - ${message}`);
+  // Clasificación de tipo de error
+  let statusCode = err.statusCode || 500;
+  let tipo = "ErrorServidor";
+
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    tipo = "ErrorValidacion";
+  } else if (err.name === "CastError") {
+    statusCode = 400;
+    tipo = "ErrorFormatoID";
+  } else if (err.name === "MongoServerError" && err.code === 11000) {
+    statusCode = 409;
+    tipo = "ErrorDuplicado";
+    err.message = `Registro duplicado: ${JSON.stringify(err.keyValue)}`;
+  } else if (statusCode >= 400 && statusCode < 500) {
+    tipo = "ErrorCliente";
   }
 
-  // Respuesta uniforme al cliente
+  const message =
+    err.customMessage ||
+    err.message ||
+    "Error interno del servidor. Inténtelo nuevamente más tarde.";
+
+  // Logging detallado en entorno desarrollo/staging
+  if (env !== "production") {
+    console.error("=".repeat(80));
+    console.error(`[${timestamp}] ❌ ${tipo}`);
+    console.error(`📍 Ruta: ${req.method} ${req.originalUrl}`);
+    console.error(`📡 Estado: ${statusCode}`);
+    console.error(`🧠 Mensaje: ${message}`);
+    console.error(`📦 Body: ${JSON.stringify(req.body || {}, null, 2)}`);
+    console.error(`🔗 Params: ${JSON.stringify(req.params || {}, null, 2)}`);
+    console.error(`💡 Query: ${JSON.stringify(req.query || {}, null, 2)}`);
+    console.error(`🧩 Stack:\n${err.stack}`);
+    console.error("=".repeat(80));
+  } else {
+    // Producción: log resumido
+    console.error(`[${timestamp}] [${tipo}] ${req.method} ${req.originalUrl} - ${message}`);
+  }
+
+  // Respuesta estándar
   res.status(statusCode).json({
-    status: "error",
-    message,
+    estado: "error",
+    tipo,
+    mensaje: message,
     path: req.originalUrl,
-    method: req.method,
+    metodo: req.method,
     timestamp,
-    stack: process.env.NODE_ENV !== "production" ? err.stack : undefined,
+    ...(env !== "production" && { stack: err.stack }), // Solo en entornos no productivos
   });
 };
 
 /**
- * Middleware para rutas no encontradas (404)
+ * Middleware 404 - Ruta no encontrada
  */
 export const notFoundHandler = (req, res, next) => {
   const timestamp = new Date().toISOString();
-  console.warn(`[${timestamp}] [404] ${req.method} ${req.originalUrl}`);
+  console.warn(`[${timestamp}] ⚠️ [404] ${req.method} ${req.originalUrl}`);
 
   res.status(404).json({
-    status: "error",
-    message: "Ruta no encontrada",
+    estado: "error",
+    tipo: "RutaNoEncontrada",
+    mensaje: "La ruta solicitada no existe o fue movida.",
     path: req.originalUrl,
-    method: req.method,
+    metodo: req.method,
     timestamp,
   });
 };
