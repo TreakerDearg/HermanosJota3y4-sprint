@@ -1,10 +1,15 @@
-#  Mueblería Hermanos Jota
+Claro, podemos actualizar tu README para reflejar **todos los cambios recientes**: soporte de persistencia del carrito, mejoras en el frontend (detalles, destacados, ProductCard, ModalCarrito, Checkout), **conexión a MongoDB** y uso de **Multer** para manejar imágenes en backend. Te propongo esta versión mejorada y completa:
+
+---
+
+# Mueblería Hermanos Jota
 
 [![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js\&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-61DAFB?logo=react\&logoColor=black)](https://reactjs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb\&logoColor=white)](https://www.mongodb.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
-Proyecto de **e-commerce de muebles**, desarrollado con **React** en el frontend y **Node.js + Express** en el backend. Permite ver catálogo de productos, detalle de cada producto, agregar al carrito, realizar checkout y enviar mensajes de contacto.
+Proyecto de **e-commerce de muebles**, desarrollado con **React** en el frontend y **Node.js + Express + MongoDB** en el backend. Permite ver catálogo de productos, detalle de cada producto, agregar al carrito, realizar checkout, persistencia en localStorage y manejo de imágenes con **Multer**.
 
 ---
 
@@ -14,8 +19,9 @@ Proyecto de **e-commerce de muebles**, desarrollado con **React** en el frontend
 muebleria-hermanos-jota/
 ├── backend/
 │   ├── controllers/       # Lógica de negocio y controladores
-│   ├── data/              # Datos de ejemplo (productos)
-│   ├── middleware/        # Middlewares personalizados
+│   ├── data/              # Datos de ejemplo (si no hay MongoDB)
+│   ├── middleware/        # Middlewares personalizados (ej: Multer)
+│   ├── models/            # Modelos Mongoose (Producto, Contacto)
 │   ├── public/images/     # Imágenes servidas por la API
 │   ├── routes/            # Rutas de API
 │   ├── .env               # Variables de entorno
@@ -26,6 +32,7 @@ muebleria-hermanos-jota/
 │   ├── src/
 │   │   ├── assets/        # Recursos estáticos
 │   │   ├── components/    # Componentes React
+│   │   ├── pages/         # Vistas principales
 │   │   ├── styles/        # Estilos globales y por componente
 │   │   ├── App.jsx
 │   │   └── index.js
@@ -37,8 +44,8 @@ muebleria-hermanos-jota/
 
 ## 2. Tecnologías usadas
 
-* **Frontend:** React, CSS3, Hooks (`useState`), Fetch API
-* **Backend:** Node.js, Express, CORS
+* **Frontend:** React, CSS3, Hooks (`useState`, `useEffect`, `useCallback`), Fetch API
+* **Backend:** Node.js, Express, CORS, MongoDB, Mongoose, Multer
 * **Herramientas:** Nodemon, dotenv
 * **Otros:** FontAwesome o emojis como fallback
 
@@ -49,7 +56,7 @@ muebleria-hermanos-jota/
 ### 3.1. Dependencias
 
 ```bash
-npm install express cors dotenv nodemon
+npm install express cors dotenv mongoose multer nodemon
 ```
 
 ### 3.2. Scripts (`backend/package.json`)
@@ -61,13 +68,17 @@ npm install express cors dotenv nodemon
 }
 ```
 
-### 3.3. Endpoints
+### 3.3. Endpoints principales
 
-| Método | Ruta                 | Descripción                        |
-| ------ | -------------------- | ---------------------------------- |
-| GET    | `/`                  | Mensaje de bienvenida              |
-| GET    | `/api/productos`     | Listado de todos los productos     |
-| GET    | `/api/productos/:id` | Obtener producto específico por id |
+| Método | Ruta                 | Descripción                                   |
+| ------ | -------------------- | --------------------------------------------- |
+| GET    | `/`                  | Mensaje de bienvenida                         |
+| GET    | `/api/productos`     | Listado de todos los productos (MongoDB)      |
+| GET    | `/api/productos/:id` | Obtener producto específico por id            |
+| POST   | `/api/productos`     | Crear producto (usa Multer para subir imagen) |
+| PUT    | `/api/productos/:id` | Actualizar producto                           |
+| DELETE | `/api/productos/:id` | Eliminar producto                             |
+| POST   | `/api/contacto`      | Enviar mensaje de contacto                    |
 
 ### 3.4. Variables de entorno (`backend/.env`)
 
@@ -106,20 +117,21 @@ npm build       # Genera build de producción
 
 ### 4.3. Componentes principales
 
-| Componente      | Función                                                  |
-| --------------- | -------------------------------------------------------- |
-| `Navbar`        | Barra superior, muestra cantidad de productos en carrito |
-| `HeroBanner`    | Banner principal del inicio                              |
-| `Destacados`    | Lista de productos destacados                            |
-| `ProductList`   | Listado completo de productos                            |
-| `ProductCard`   | Card individual de producto                              |
-| `ProductDetail` | Detalle de producto seleccionado                         |
-| `ModalCarrito`  | Modal que muestra productos agregados al carrito         |
-| `Checkout`      | Vista de checkout, muestra productos y total             |
-| `ContactForm`   | Formulario de contacto                                   |
-| `Footer`        | Pie de página                                            |
-| `SobreNosotros` | Información sobre la empresa                             |
-| `Newsletter`    | Suscripción a newsletter                                 |
+| Componente      | Función                                                                            |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `Navbar`        | Barra superior, muestra cantidad de productos en carrito                           |
+| `HeroBanner`    | Banner principal del inicio                                                        |
+| `Destacados`    | Lista de productos destacados                                                      |
+| `ProductList`   | Listado completo de productos                                                      |
+| `ProductCard`   | Card individual de producto                                                        |
+| `ProductDetail` | Detalle de producto seleccionado                                                   |
+| `ModalCarrito`  | Modal que muestra productos agregados al carrito, permite eliminar **uno por uno** |
+| `Checkout`      | Vista de checkout, muestra productos, total y acciones                             |
+| `CheckoutPage`  | Página completa de checkout con validaciones y resumen                             |
+| `ContactForm`   | Formulario de contacto                                                             |
+| `Footer`        | Pie de página                                                                      |
+| `SobreNosotros` | Información sobre la empresa                                                       |
+| `Newsletter`    | Suscripción a newsletter                                                           |
 
 ---
 
@@ -127,10 +139,13 @@ npm build       # Genera build de producción
 
 * Mostrar productos destacados y todo el catálogo
 * Ver detalle de producto
-* Agregar/eliminar productos del carrito
+* Agregar/eliminar productos del carrito (uno por uno)
+* Persistencia de carrito en **localStorage**
 * Modal de carrito con total y botones de acción
-* Checkout con total y opción de vaciar carrito
+* Checkout con total, opción de vaciar carrito y finalizar compra
 * Formulario de contacto con validación y mensaje de éxito
+* Manejo de imágenes con **Multer** al crear productos
+* Conexión a **MongoDB** para persistencia real
 * Navegación entre vistas (`inicio`, `catálogo`, `contacto`, `checkout`)
 
 ---
@@ -159,11 +174,11 @@ npm start
 
 ## 7. Notas importantes
 
-* El backend actualmente usa un **array en memoria** (`data/products.js`).
-* Imágenes de productos en `client/public/images/` o `backend/public/images/`.
+* El backend usa **MongoDB** y **Mongoose**, pero mantiene opción de datos en memoria (`data/products.js`) para pruebas.
+* Multer gestiona la subida de imágenes al servidor.
+* Persistencia de carrito es **frontend** (`localStorage`).
 * Frontend y backend separados; CORS habilitado para `localhost:3000`.
-* Persistencia de carrito **solo en frontend**.
-* Para integrar envío de formulario al backend, se puede agregar `POST /api/contacto`.
+* Checkout y modal de carrito actualizados para manejo de cantidad de productos.
 
 ---
 
@@ -171,15 +186,19 @@ npm start
 
 * Ejecutar `npm run build` en `client`.
 * Configurar GitHub Pages para servir la carpeta `client/build`.
-* Asegurarse de que las rutas de la API apunten al backend desplegado.
+* Ajustar rutas de la API a backend desplegado.
 
 ---
 
 ## 9. Alumnos
 
-| Nombre         |
-| Alexis Coronel
-| Leandro Ferreira    
+| Nombre           |
+| ---------------- |
+| Alexis Coronel   |
+| Leandro Ferreira |
+
 ---
 
+Si querés, puedo hacer otra versión **aún más detallada**, incluyendo **capturas de pantalla del frontend**, ejemplos de uso de API con **MongoDB**, y cómo subir productos con Multer.
 
+¿Querés que haga eso también?
