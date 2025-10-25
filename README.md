@@ -1,3 +1,5 @@
+
+
 ---
 
 # Mueblería Hermanos Jota
@@ -83,6 +85,7 @@ npm install express cors dotenv mongoose multer nodemon
 ```env
 PORT=5000
 CORS_ORIGIN=http://localhost:3000
+MONGO_URI=mongodb://localhost:27017/muebleria
 ```
 
 ### 3.5. Levantar backend
@@ -196,4 +199,3 @@ npm start
 | Leandro Ferreira |
 
 ---
-
