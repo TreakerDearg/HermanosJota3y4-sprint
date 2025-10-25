@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import "../styles/components/Checkout.css";
 
@@ -8,10 +8,25 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
-  const total = carrito.reduce((acc, item) => acc + item.precio * (item.cantidad || 1), 0);
+  // ===== Agrupar productos por _id =====
+  const productosAgrupados = useMemo(() => {
+    const grouped = carrito.reduce((acc, item) => {
+      const key = item._id;
+      if (acc[key]) {
+        acc[key].cantidad += 1;
+        acc[key].precioTotal += item.precio || 0;
+      } else {
+        acc[key] = { ...item, cantidad: 1, precioTotal: item.precio || 0 };
+      }
+      return acc;
+    }, {});
+    return Object.values(grouped);
+  }, [carrito]);
+
+  const total = productosAgrupados.reduce((acc, item) => acc + item.precioTotal, 0);
 
   const handleFinalizar = () => {
-    if (carrito.length === 0) return;
+    if (!productosAgrupados.length) return;
     setProcesando(true);
     setMensaje("Procesando compra...");
     setTimeout(() => {
@@ -34,19 +49,20 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
 
       {mensaje && <p className="checkout-mensaje" role="status">{mensaje}</p>}
 
-      {carrito.length === 0 ? (
+      {productosAgrupados.length === 0 ? (
         <p className="checkout-empty" role="status">Tu carrito está vacío</p>
       ) : (
         <>
           <ul className="checkout-list">
-            {carrito.map((item) => (
-              <li key={item.id} className="checkout-card">
+            {productosAgrupados.map((item) => (
+              <li key={item._id} className="checkout-card">
                 <div className="checkout-card-left">
                   <img
-                    src={item.imagen ? `${API_URL}${item.imagen}` : "/images/placeholder.png"}
+                    src={item.imagenUrl ? `${API_URL}${item.imagenUrl}` : "/images/placeholder.png"}
                     alt={item.nombre || "Producto"}
                     className="checkout-img"
                     loading="lazy"
+                    draggable={false}
                   />
                 </div>
 
@@ -60,7 +76,7 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
 
                 <div className="checkout-card-right">
                   <span className="checkout-price">
-                    {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(item.precio * (item.cantidad || 1))}
+                    {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(item.precioTotal)}
                   </span>
                 </div>
               </li>
@@ -79,7 +95,7 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
               <button
                 className="btn-finalizar"
                 onClick={handleFinalizar}
-                disabled={carrito.length === 0 || procesando}
+                disabled={procesando || productosAgrupados.length === 0}
                 aria-label="Finalizar compra"
               >
                 <i className="fa-solid fa-flag-checkered"></i> Finalizar Compra
@@ -88,7 +104,7 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
               <button
                 className="btn-vaciar"
                 onClick={vaciarCarrito}
-                disabled={carrito.length === 0 || procesando}
+                disabled={procesando || productosAgrupados.length === 0}
                 aria-label="Vaciar carrito"
               >
                 <i className="fa-solid fa-trash-can"></i> Vaciar Carrito
@@ -105,12 +121,12 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
 Checkout.propTypes = {
   carrito: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string.isRequired,
+      _id: PropTypes.string.isRequired,
       nombre: PropTypes.string,
       precio: PropTypes.number,
       cantidad: PropTypes.number,
       descripcion: PropTypes.string,
-      imagen: PropTypes.string,
+      imagenUrl: PropTypes.string,
     })
   ),
   vaciarCarrito: PropTypes.func,

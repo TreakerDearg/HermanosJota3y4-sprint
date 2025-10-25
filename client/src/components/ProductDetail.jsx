@@ -7,6 +7,13 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 function ProductDetail({ producto, agregarAlCarrito, volver }) {
   const [added, setAdded] = useState(false);
 
+  // URL de imagen segura
+  const imagenUrl = producto.imagenUrl
+    ? producto.imagenUrl.startsWith("/uploads")
+      ? `${API_URL}${producto.imagenUrl}`
+      : producto.imagenUrl
+    : "/images/placeholder.png";
+
   const handleAgregar = () => {
     if (agregarAlCarrito) agregarAlCarrito(producto);
     setAdded(true);
@@ -25,9 +32,10 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
         {/* Imagen del producto */}
         <div className="detail-imagen">
           <img
-            src={producto.imagen ? `${API_URL}${producto.imagen}` : "/images/placeholder.png"}
+            src={imagenUrl}
             alt={producto.nombre || "Producto"}
             loading="lazy"
+            draggable={false}
           />
         </div>
 
@@ -59,7 +67,7 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
             <button
               className={`btn-agregar ${added ? "added" : ""}`}
               onClick={handleAgregar}
-              aria-label={added ? `${producto.nombre} agregado` : `Añadir ${producto.nombre} al carrito`}
+              aria-label={added ? `${producto.nombre || "Producto"} agregado` : `Añadir ${producto.nombre || "Producto"} al carrito`}
             >
               {added ? "✔ Agregado" : "🛒 Añadir al Carrito"}
             </button>
@@ -84,11 +92,11 @@ ProductDetail.propTypes = {
     nombre: PropTypes.string,
     precio: PropTypes.number,
     descripcion: PropTypes.string,
-    imagen: PropTypes.string,
+    imagenUrl: PropTypes.string,
     beneficios: PropTypes.arrayOf(
       PropTypes.shape({
         icon: PropTypes.string,
-        text: PropTypes.string
+        text: PropTypes.string,
       })
     ),
   }).isRequired,

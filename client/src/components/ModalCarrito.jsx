@@ -3,10 +3,17 @@ import "../styles/components/ModalCarrito.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, eliminarProducto = () => {} }) {
+function ModalCarrito({
+  carrito = [],
+  cerrarModal,
+  finalizarCompra = () => {},
+  eliminarProducto = () => {}
+}) {
   // Cerrar con Escape
   useEffect(() => {
-    const handleEsc = (e) => { if (e.key === "Escape") cerrarModal(); };
+    const handleEsc = (e) => {
+      if (e.key === "Escape") cerrarModal();
+    };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [cerrarModal]);
@@ -27,11 +34,23 @@ function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, e
   const total = productosList.reduce((acc, item) => acc + item.precioTotal, 0);
 
   return (
-    <div className="modal-overlay" onClick={cerrarModal} role="dialog" aria-modal="true" aria-label="Carrito de compras">
+    <div
+      className="modal-overlay"
+      onClick={cerrarModal}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Carrito de compras"
+    >
       <div className="modal-carrito" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>🛒 Tu Carrito</h2>
-          <button className="cerrar-btn" onClick={cerrarModal} aria-label="Cerrar carrito">✖</button>
+          <button
+            className="cerrar-btn"
+            onClick={cerrarModal}
+            aria-label="Cerrar carrito"
+          >
+            ✖
+          </button>
         </div>
 
         {productosList.length === 0 ? (
@@ -41,17 +60,31 @@ function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, e
             <div className="productos">
               {productosList.map((item) => {
                 const nombre = item.nombre || "Producto";
-                const imagen = item.imagen ? `${API_URL}${item.imagen}` : "/images/placeholder.png";
+                const imagen = item.imagenUrl
+                  ? `${API_URL}${item.imagenUrl}`
+                  : "/images/placeholder.png";
+
                 return (
                   <div className="producto" key={item._id}>
                     <div className="mini-imagen">
-                      <img src={imagen} alt={nombre} loading="lazy" draggable="false" />
+                      <img
+                        src={imagen}
+                        alt={nombre}
+                        loading="lazy"
+                        draggable={false}
+                      />
                     </div>
 
                     <div className="info">
-                      <p className="nombre">{nombre} {item.cantidad > 1 && `x${item.cantidad}`}</p>
+                      <p className="nombre">
+                        {nombre} {item.cantidad > 1 && `x${item.cantidad}`}
+                      </p>
                       <p className="precio">
-                        {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(item.precioTotal)}
+                        {new Intl.NumberFormat("es-AR", {
+                          style: "currency",
+                          currency: "ARS",
+                          minimumFractionDigits: 0
+                        }).format(item.precioTotal)}
                       </p>
                     </div>
 
@@ -70,7 +103,11 @@ function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, e
             <div className="total">
               <span>Total:</span>
               <strong>
-                {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(total)}
+                {new Intl.NumberFormat("es-AR", {
+                  style: "currency",
+                  currency: "ARS",
+                  minimumFractionDigits: 0
+                }).format(total)}
               </strong>
             </div>
 

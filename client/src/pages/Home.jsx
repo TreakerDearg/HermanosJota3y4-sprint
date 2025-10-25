@@ -16,11 +16,19 @@ const Home = ({ productos, agregarAlCarrito }) => {
     navigate(`/productos/${producto._id}`);
   };
 
+  // Agregar URL completa de la imagen si existe
+  const productosConImagen = destacados.map((p) => ({
+    ...p,
+    imagenUrl: p.imagenUrl
+      ? `${process.env.REACT_APP_API_BASE || "http://localhost:5000"}${p.imagenUrl}`
+      : null,
+  }));
+
   return (
     <main>
       <HeroBanner />
       <Destacados
-        productos={destacados}
+        productos={productosConImagen}
         verDetalle={verDetalle}
         agregarAlCarrito={agregarAlCarrito}
       />

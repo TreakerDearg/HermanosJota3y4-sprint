@@ -3,34 +3,51 @@ import { useParams, useNavigate } from "react-router-dom";
 import ProductList from "../components/ProductList";
 import ProductDetail from "../components/ProductDetail";
 
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+
 const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [productos, setProductos] = useState(initialProductos);
+  const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(!initialProductos.length);
   const [error, setError] = useState(null);
 
   // ===== Fetch productos si no vienen como prop =====
   useEffect(() => {
-    if (initialProductos.length === 0) {
-      const fetchProductos = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          const res = await fetch("http://localhost:5000/api/productos");
-          if (!res.ok) throw new Error("No se pudieron cargar los productos");
-          const data = await res.json();
-          setProductos(data.data || []);
-        } catch (err) {
-          console.error("❌ Error fetchProductos:", err);
-          setError(err.message || "Error al cargar los productos");
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchProductos();
+    const fetchProductos = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE}/productos`);
+        if (!res.ok) throw new Error("No se pudieron cargar los productos");
+        const data = await res.json();
+
+        const productosRaw = data.data ?? data;
+        const productosConImagen = productosRaw.map(p => ({
+          ...p,
+          imagenUrl: p.imagenUrl ? `${API_BASE}${p.imagenUrl}` : null
+        }));
+
+        setProductos(productosConImagen);
+      } catch (err) {
+        console.error("❌ Error fetchProductos:", err);
+        setError(err.message || "Error al cargar los productos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!initialProductos.length) fetchProductos();
+    else {
+      // Formatear imágenes si vienen props
+      const productosConImagen = initialProductos.map(p => ({
+        ...p,
+        imagenUrl: p.imagenUrl ? `${API_BASE}${p.imagenUrl}` : null
+      }));
+      setProductos(productosConImagen);
+      setLoading(false);
     }
   }, [initialProductos]);
 
@@ -41,22 +58,24 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
       return;
     }
 
-    // Buscar localmente primero
     const prodLocal = productos.find(p => String(p._id) === id);
     if (prodLocal) {
       setProductoSeleccionado(prodLocal);
       return;
     }
 
-    // Si no está local, fetch individual
     const fetchProducto = async (prodId) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:5000/api/productos/${prodId}`);
+        const res = await fetch(`${API_BASE}/productos/${prodId}`);
         if (!res.ok) throw new Error("Producto no encontrado");
         const data = await res.json();
-        setProductoSeleccionado(data.data);
+        const p = data.data ?? data;
+        setProductoSeleccionado({
+          ...p,
+          imagenUrl: p.imagenUrl ? `${API_BASE}${p.imagenUrl}` : null
+        });
       } catch (err) {
         console.error("❌ Error fetchProducto:", err);
         setError(err.message || "Error al cargar el producto");
@@ -70,11 +89,7 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
   }, [id, productos]);
 
   // ===== Navegación =====
-  const verDetalle = (producto) => {
-    if (!producto) return;
-    navigate(`/productos/${producto._id}`);
-  };
-
+  const verDetalle = (producto) => producto && navigate(`/productos/${producto._id}`);
   const volverAlCatalogo = () => {
     navigate("/productos");
     setProductoSeleccionado(null);
@@ -83,7 +98,7 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
   // ===== Render =====
   if (loading) return <p>Cargando...</p>;
   if (error) return <p>❌ {error}</p>;
-  if (!productos || productos.length === 0) return <p>No hay productos disponibles</p>;
+  if (!productos.length) return <p>No hay productos disponibles</p>;
 
   return productoSeleccionado ? (
     <ProductDetail

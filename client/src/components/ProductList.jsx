@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import ProductCard from "./ProductCard";
 import "../styles/components/ProductList.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function ProductList({
   productos = [],
   agregarAlCarrito = () => {},
@@ -13,19 +15,21 @@ function ProductList({
   const [precioSeleccionado, setPrecioSeleccionado] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
 
-  const categorias = ["Todos", "Mesas", "Sillas", "Estantes", "Escritorios"];
+  const categorias = useMemo(() => ["Todos", ...new Set(productos.map((p) => p.categoria).filter(Boolean))], [productos]);
   const rangosPrecio = ["Todos", "Hasta $10000", "$10000 - $20000", "Más de $20000"];
 
   // ===== Filtrado memoizado =====
   const productosFiltrados = useMemo(() => {
     return productos.filter((p) => {
-      const categoria = p.categoria || "";
       const nombre = p.nombre || "";
+      const categoria = p.categoria || "";
 
+      // Filtrar por categoría
       const matchCategoria =
         categoriaSeleccionada === "Todos" ||
         categoria.toLowerCase() === categoriaSeleccionada.toLowerCase();
 
+      // Filtrar por precio
       let matchPrecio = true;
       switch (precioSeleccionado) {
         case "Hasta $10000":
@@ -41,17 +45,19 @@ function ProductList({
           matchPrecio = true;
       }
 
+      // Filtrar por búsqueda
       const matchBusqueda = nombre.toLowerCase().includes(busqueda.toLowerCase());
+
       return matchCategoria && matchPrecio && matchBusqueda;
     });
   }, [productos, categoriaSeleccionada, precioSeleccionado, busqueda]);
 
   return (
     <section className="product-list-section">
-      <div className="section-header">
+      <header className="section-header">
         <h2 className="product-list-title">{titulo}</h2>
         <p className="product-count">{productosFiltrados.length} productos disponibles</p>
-      </div>
+      </header>
 
       {/* ===== Barra de búsqueda ===== */}
       <div className="search-bar">
@@ -108,9 +114,13 @@ function ProductList({
           {productosFiltrados.map((producto) => (
             <ProductCard
               key={producto._id}
-              producto={producto}
+              producto={{
+                ...producto,
+                imagenUrl: producto.imagenUrl || "/images/placeholder.png",
+              }}
               agregarAlCarrito={agregarAlCarrito}
               verDetalle={verDetalle}
+              apiUrl={API_URL}
             />
           ))}
         </div>

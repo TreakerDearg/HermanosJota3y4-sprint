@@ -1,4 +1,3 @@
-// src/pages/CrearProducto.jsx
 import { useState } from "react";
 import "../styles/pages/CrearProducto.css";
 
@@ -17,7 +16,7 @@ const CrearProducto = ({ crearProducto }) => {
   const [errores, setErrores] = useState({});
   const [mensaje, setMensaje] = useState("");
 
-  // Manejo de inputs
+  // ===== Manejo de inputs =====
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -25,7 +24,7 @@ const CrearProducto = ({ crearProducto }) => {
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    // Validación inmediata para campos obligatorios
+    // Validación rápida de campos obligatorios
     if (["nombre", "precio", "stock", "categoria"].includes(name)) {
       setErrores((prev) => ({
         ...prev,
@@ -34,7 +33,7 @@ const CrearProducto = ({ crearProducto }) => {
     }
   };
 
-  // Manejo de archivo
+  // ===== Manejo de archivo =====
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setImagen(file);
@@ -47,12 +46,12 @@ const CrearProducto = ({ crearProducto }) => {
     }
   };
 
-  // Validación y envío
+  // ===== Validación y envío =====
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validación estricta
+    setMensaje("");
     const nuevosErrores = {};
+
     ["nombre", "precio", "stock", "categoria"].forEach((key) => {
       if (!formData[key] || !formData[key].toString().trim()) {
         nuevosErrores[key] = "Campo obligatorio";
@@ -64,38 +63,30 @@ const CrearProducto = ({ crearProducto }) => {
       return setMensaje("❌ Completa todos los campos obligatorios");
     }
 
-    const precioNum = Number(formData.precio);
-    const stockNum = Number(formData.stock);
+    const precioNum = parseFloat(formData.precio);
+    const stockNum = parseInt(formData.stock, 10);
 
-    if (isNaN(precioNum) || precioNum < 0) {
-      return setMensaje("❌ Precio inválido");
-    }
-
-    if (isNaN(stockNum) || stockNum < 0) {
-      return setMensaje("❌ Stock inválido");
-    }
+    if (isNaN(precioNum) || precioNum < 0) return setMensaje("❌ Precio inválido");
+    if (isNaN(stockNum) || stockNum < 0) return setMensaje("❌ Stock inválido");
 
     try {
       setLoading(true);
-      setMensaje("");
 
+      // ===== Construir FormData =====
       const data = new FormData();
       data.append("nombre", formData.nombre.trim());
       data.append("descripcion", formData.descripcion.trim() || "");
-      data.append("precio", precioNum);
-      data.append("stock", stockNum);
+      data.append("precio", String(precioNum));
+      data.append("stock", String(stockNum));
       data.append("categoria", formData.categoria.trim());
-      data.append("destacado", formData.destacado ? "true" : "false"); // boolean string
+      data.append("destacado", formData.destacado ? "true" : "false");
       if (imagen) data.append("imagen", imagen);
 
-      // Debug: revisar qué se envía
-      // for (let pair of data.entries()) console.log(pair[0], pair[1]);
-
+      // ===== Llamada al backend =====
       await crearProducto(data);
 
+      // ===== Reset del formulario =====
       setMensaje("✅ Producto creado con éxito");
-
-      // Reset
       setFormData({
         nombre: "",
         descripcion: "",
@@ -108,6 +99,7 @@ const CrearProducto = ({ crearProducto }) => {
       setPreview(null);
       setErrores({});
     } catch (err) {
+      console.error(err);
       setMensaje("❌ Error al crear producto: " + (err.message || "desconocido"));
     } finally {
       setLoading(false);
@@ -117,7 +109,12 @@ const CrearProducto = ({ crearProducto }) => {
   return (
     <div className="crear-producto">
       <h2>Crear Nuevo Producto</h2>
-      {mensaje && <p className={`mensaje ${mensaje.startsWith("✅") ? "exito" : "error"}`}>{mensaje}</p>}
+
+      {mensaje && (
+        <p className={`mensaje ${mensaje.startsWith("✅") ? "exito" : "error"}`}>
+          {mensaje}
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="form-group">

@@ -1,9 +1,10 @@
 import "../styles/components/Destacados.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-
 function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = () => {} }) {
   const productosDestacados = productos.filter((p) => p.destacado);
+
+  const formatPrecio = (precio) =>
+    new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(precio);
 
   return (
     <section className="destacados" aria-labelledby="destacados-titulo">
@@ -22,7 +23,7 @@ function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = 
             const nombre = producto.nombre || "Producto";
             const descripcion = producto.descripcion || "";
             const precio = producto.precio || 0;
-            const imagen = producto.imagen ? `${API_URL}${producto.imagen}` : "/images/placeholder.png";
+            const imagen = producto.imagenUrl || "/images/placeholder.png";
 
             return (
               <article
@@ -33,7 +34,7 @@ function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = 
               >
                 <div className="flip-card-inner">
                   {/* --- Cara Frontal --- */}
-                  <div className="flip-card-front" aria-hidden="false">
+                  <div className="flip-card-front">
                     <figure className="producto-imagen">
                       <img src={imagen} alt={`Imagen de ${nombre}`} loading="lazy" draggable="false" />
                     </figure>
@@ -43,12 +44,9 @@ function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = 
                   </div>
 
                   {/* --- Cara Trasera --- */}
-                  <div className="flip-card-back" aria-hidden="true">
+                  <div className="flip-card-back">
                     <div className="producto-detalle">
-                      <h4 className="precio">
-                        {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(precio)}
-                      </h4>
-
+                      <h4 className="precio">{formatPrecio(precio)}</h4>
                       <p className="mini-desc">{descripcion}</p>
 
                       <ul className="benefits-icons" aria-label="Beneficios del producto">
@@ -72,7 +70,6 @@ function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = 
                         >
                           🔍 Ver Detalle
                         </button>
-
                         <button
                           type="button"
                           className="btn-agregar"
