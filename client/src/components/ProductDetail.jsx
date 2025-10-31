@@ -2,15 +2,16 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import "../styles/components/ProductDetail.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_BASE =
+  process.env.REACT_APP_API_URL?.replace(/\/api$/, "") ||
+  "https://hermanosjota3y4-sprint.onrender.com";
 
 function ProductDetail({ producto, agregarAlCarrito, volver }) {
   const [added, setAdded] = useState(false);
 
-  // URL de imagen segura
   const imagenUrl = producto.imagenUrl
-    ? producto.imagenUrl.startsWith("/uploads")
-      ? `${API_URL}${producto.imagenUrl}`
+    ? producto.imagenUrl.replace(/\\/g, "/").startsWith("/uploads")
+      ? `${API_BASE}${producto.imagenUrl.replace(/\\/g, "/")}`
       : producto.imagenUrl
     : "/images/placeholder.png";
 
@@ -27,55 +28,50 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
   ];
 
   return (
-    <section className="product-detail" aria-label={`Detalle de ${producto.nombre || "Producto"}`}>
-      <div className="detail-container">
+    <section className="product-detail-terminal" aria-label={`Detalle de ${producto.nombre || "Producto"}`}>
+      <div className="detail-terminal-container">
         {/* Imagen del producto */}
-        <div className="detail-imagen">
-          <img
-            src={imagenUrl}
-            alt={producto.nombre || "Producto"}
-            loading="lazy"
-            draggable={false}
-          />
+        <div className="detail-terminal-imagen">
+          <img src={imagenUrl} alt={producto.nombre || "Producto"} loading="lazy" draggable={false} />
         </div>
 
         {/* Información principal */}
-        <div className="detail-info">
-          <h2 className="detail-title">{producto.nombre || "Producto sin nombre"}</h2>
+        <div className="detail-terminal-info">
+          <h2 className="detail-terminal-title">{producto.nombre || "Producto sin nombre"}</h2>
 
-          <div className="detail-price-tag">
-            <span className="detail-price">
-              {new Intl.NumberFormat("es-AR", {
-                style: "currency",
-                currency: "ARS",
-                minimumFractionDigits: 0,
-              }).format(producto.precio || 0)}
-            </span>
+          <p className="detail-terminal-price">
+            {new Intl.NumberFormat("es-AR", {
+              style: "currency",
+              currency: "ARS",
+              minimumFractionDigits: 0,
+            }).format(producto.precio || 0)}
+          </p>
+
+          {/* Descripción con scroll si es larga */}
+          <div className="detail-terminal-desc-scroll">
+            <p className="detail-terminal-desc">{producto.descripcion || "Sin descripción disponible."}</p>
           </div>
 
-          <p className="detail-desc">{producto.descripcion || "Sin descripción disponible."}</p>
-
-          <ul className="detail-benefits" aria-label="Beneficios del producto">
+          {/* Beneficios tipo panel */}
+          <ul className="detail-terminal-benefits" aria-label="Beneficios del producto">
             {beneficios.map((b, idx) => (
-              <li key={idx} className="benefit-item">
-                <i className={b.icon} aria-hidden="true"></i> {b.text}
+              <li key={idx} className="benefit-terminal-item">
+                <i className={b.icon} aria-hidden="true"></i>
+                <span>{b.text}</span>
               </li>
             ))}
           </ul>
 
-          <div className="detail-buttons">
+          {/* Botones estilo terminal */}
+          <div className="detail-terminal-buttons">
             <button
-              className={`btn-agregar ${added ? "added" : ""}`}
+              className={`btn-terminal-agregar ${added ? "added" : ""}`}
               onClick={handleAgregar}
               aria-label={added ? `${producto.nombre || "Producto"} agregado` : `Añadir ${producto.nombre || "Producto"} al carrito`}
             >
               {added ? "✔ Agregado" : "🛒 Añadir al Carrito"}
             </button>
-            <button
-              className="btn-volver"
-              onClick={volver}
-              aria-label="Volver al catálogo"
-            >
+            <button className="btn-terminal-volver" onClick={volver} aria-label="Volver al catálogo">
               🔙 Volver al Catálogo
             </button>
           </div>
@@ -85,7 +81,6 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
   );
 }
 
-// ===== PropTypes =====
 ProductDetail.propTypes = {
   producto: PropTypes.shape({
     _id: PropTypes.string.isRequired,

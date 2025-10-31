@@ -2,10 +2,11 @@
 
 .contacto-page {
   padding: 3rem 1rem;
-  font-family: "Arial", sans-serif;
-  color: #333;
+  font-family: 'Courier New', Courier, monospace; /* Monospace para estilo terminal */
+  color: #f5f5f5;
   display: flex;
   justify-content: center;
+  background-color: #1a1a1a; /* Fondo oscuro */
 }
 
 .contacto-container {
@@ -17,27 +18,72 @@
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
   text-align: center;
-  color: #007bff;
+  color: #ffd700; /* Dorado */
+  text-shadow: 0 0 6px #ffd700; /* Glow tipo terminal */
 }
 
 .contacto-header p {
   text-align: center;
   margin-bottom: 2rem;
-  color: #555;
+  color: #e6e6e6;
   font-size: 1.1rem;
+  text-shadow: 0 0 2px #ffd700; /* Sutil glow */
 }
 
 .contacto-form-wrapper {
-  background-color: #fff;
+  background-color: #262626; /* Fondo oscuro para el formulario */
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
 }
 
 .contacto-no-form {
   text-align: center;
   font-size: 1.2rem;
-  color: #dc3545;
+  color: #ff4c4c; /* Rojo brillante */
+  font-weight: bold;
+  text-shadow: 0 0 3px #ff4c4c;
+}
+
+/* Inputs y textarea coherentes con estilo terminal */
+.contacto-form-wrapper input,
+.contacto-form-wrapper textarea {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1rem;
+  border: 2px solid #ffd700;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #f5f5f5;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.contacto-form-wrapper input:focus,
+.contacto-form-wrapper textarea:focus {
+  outline: none;
+  border-color: #ffda44;
+  box-shadow: 0 0 6px #ffd700;
+}
+
+.contacto-form-wrapper button {
+  display: inline-block;
+  background: linear-gradient(135deg, #ffd700, #e6c200);
+  color: #1a1a1a;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.contacto-form-wrapper button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
 }
 
 /* Responsive */

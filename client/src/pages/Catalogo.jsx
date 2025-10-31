@@ -3,7 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import ProductList from "../components/ProductList";
 import ProductDetail from "../components/ProductDetail";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+// ============================
+// ✅ Configuración de API dinámica
+// ============================
+// Limpia el posible /api final para construir correctamente las URLs de imagen
+const API_BASE =
+  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+const API_IMG = API_BASE.replace(/\/api$/, ""); // elimina /api para rutas de imágenes
 
 const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
   const { id } = useParams();
@@ -14,7 +20,21 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
   const [loading, setLoading] = useState(!initialProductos.length);
   const [error, setError] = useState(null);
 
-  // ===== Fetch productos si no vienen como prop =====
+  // ============================
+  // 🔹 Helper para imagen URL segura
+  // ============================
+  const addImagenUrl = (p) => ({
+    ...p,
+    imagenUrl: p.imagenUrl
+      ? p.imagenUrl.replace(/\\/g, "/").startsWith("/uploads")
+        ? `${API_IMG}${p.imagenUrl.replace(/\\/g, "/")}`
+        : p.imagenUrl
+      : "/images/placeholder.png",
+  });
+
+  // ============================
+  // 🔹 Fetch de productos (listado)
+  // ============================
   useEffect(() => {
     const fetchProductos = async () => {
       setLoading(true);
@@ -22,15 +42,10 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
       try {
         const res = await fetch(`${API_BASE}/productos`);
         if (!res.ok) throw new Error("No se pudieron cargar los productos");
+
         const data = await res.json();
-
         const productosRaw = data.data ?? data;
-        const productosConImagen = productosRaw.map(p => ({
-          ...p,
-          imagenUrl: p.imagenUrl ? `${API_BASE}${p.imagenUrl}` : null
-        }));
-
-        setProductos(productosConImagen);
+        setProductos(productosRaw.map(addImagenUrl));
       } catch (err) {
         console.error("❌ Error fetchProductos:", err);
         setError(err.message || "Error al cargar los productos");
@@ -40,25 +55,19 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
     };
 
     if (!initialProductos.length) fetchProductos();
-    else {
-      // Formatear imágenes si vienen props
-      const productosConImagen = initialProductos.map(p => ({
-        ...p,
-        imagenUrl: p.imagenUrl ? `${API_BASE}${p.imagenUrl}` : null
-      }));
-      setProductos(productosConImagen);
-      setLoading(false);
-    }
+    else setProductos(initialProductos.map(addImagenUrl));
   }, [initialProductos]);
 
-  // ===== Selección dinámica del producto =====
+  // ============================
+  // 🔹 Fetch de producto individual
+  // ============================
   useEffect(() => {
     if (!id) {
       setProductoSeleccionado(null);
       return;
     }
 
-    const prodLocal = productos.find(p => String(p._id) === id);
+    const prodLocal = productos.find((p) => String(p._id) === id);
     if (prodLocal) {
       setProductoSeleccionado(prodLocal);
       return;
@@ -70,12 +79,9 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
       try {
         const res = await fetch(`${API_BASE}/productos/${prodId}`);
         if (!res.ok) throw new Error("Producto no encontrado");
+
         const data = await res.json();
-        const p = data.data ?? data;
-        setProductoSeleccionado({
-          ...p,
-          imagenUrl: p.imagenUrl ? `${API_BASE}${p.imagenUrl}` : null
-        });
+        setProductoSeleccionado(addImagenUrl(data.data ?? data));
       } catch (err) {
         console.error("❌ Error fetchProducto:", err);
         setError(err.message || "Error al cargar el producto");
@@ -88,14 +94,18 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
     fetchProducto(id);
   }, [id, productos]);
 
-  // ===== Navegación =====
+  // ============================
+  // 🔹 Navegación
+  // ============================
   const verDetalle = (producto) => producto && navigate(`/productos/${producto._id}`);
   const volverAlCatalogo = () => {
     navigate("/productos");
     setProductoSeleccionado(null);
   };
 
-  // ===== Render =====
+  // ============================
+  // 🔹 Renderizado
+  // ============================
   if (loading) return <p>Cargando...</p>;
   if (error) return <p>❌ {error}</p>;
   if (!productos.length) return <p>No hay productos disponibles</p>;

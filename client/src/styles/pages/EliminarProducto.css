@@ -1,30 +1,41 @@
+/* ===== Eliminar Producto — Estilo Terminal Industrial ===== */
 .eliminar-producto {
   max-width: 800px;
   margin: 40px auto;
   padding: 30px;
-  background-color: #fff;
+  background-color: #1a1a1a;
+  border: 2px solid #ffd700;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.2);
+  font-family: 'Courier New', Courier, monospace;
+  color: #f5f5f5;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.eliminar-producto:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
 }
 
 .eliminar-producto h2 {
   text-align: center;
   margin-bottom: 20px;
   font-size: 1.8rem;
-  color: #333;
+  color: #ffd700;
+  text-shadow: 0 0 6px #ffd700;
 }
 
 .eliminar-producto p {
   text-align: center;
   margin-bottom: 20px;
-  color: #555;
+  color: #e6e6e6;
 }
 
 .mensaje {
   text-align: center;
   margin-bottom: 15px;
   font-weight: bold;
+  color: #28a745;
 }
 
 .lista-productos {
@@ -40,13 +51,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #ffd700;
   border-radius: 10px;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.2s;
+  background-color: #262626;
 }
 
 .producto-item:hover {
-  background-color: #f8f9fa;
+  background-color: #333;
+  transform: scale(1.01);
 }
 
 .producto-info {
@@ -60,19 +73,19 @@
   height: 80px;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
 }
 
 .producto-detalles h3 {
   margin: 0 0 5px 0;
   font-size: 1.1rem;
-  color: #222;
+  color: #ffd700;
 }
 
 .producto-detalles p {
   margin: 2px 0;
   font-size: 0.9rem;
-  color: #555;
+  color: #e6e6e6;
 }
 
 .btn-eliminar {
@@ -83,11 +96,12 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.2s;
 }
 
 .btn-eliminar:hover:not(:disabled) {
   background-color: #b02a37;
+  transform: scale(1.05);
 }
 
 .btn-eliminar:disabled {
@@ -95,7 +109,7 @@
   cursor: not-allowed;
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 600px) {
   .producto-item {
     flex-direction: column;

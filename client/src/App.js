@@ -17,7 +17,10 @@ import EliminarProducto from "./pages/EliminarProducto";
 import "./styles/App.css";
 
 // ===== Configuración API =====
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
+// Netlify usa REACT_APP_*
+const API_BASE =
+  process.env.REACT_APP_API_URL ||
+  "https://hermanosjota3y4-sprint.onrender.com/api";
 
 function App() {
   // ===== Estado global =====
@@ -83,73 +86,71 @@ function App() {
   const vaciarCarrito = useCallback(() => setCarrito([]), []);
   const toggleModalCarrito = useCallback(() => setModalCarrito((prev) => !prev), []);
 
-// ===== Construir FormData correctamente =====
-const buildFormData = (producto) => {
-  const fd = new FormData();
-  if (producto instanceof FormData) return producto; // ya viene como FormData
+  // ===== Construir FormData =====
+  const buildFormData = (producto) => {
+    const fd = new FormData();
+    if (producto instanceof FormData) return producto;
 
-  if (producto.nombre) fd.append("nombre", producto.nombre.trim());
-  if (producto.descripcion) fd.append("descripcion", producto.descripcion?.trim() || "");
-  if (producto.precio !== undefined) fd.append("precio", String(producto.precio));
-  if (producto.stock !== undefined) fd.append("stock", String(producto.stock));
-  if (producto.categoria) fd.append("categoria", producto.categoria.trim());
-  fd.append("destacado", producto.destacado ? "true" : "false");
-  if (producto.imagen) fd.append("imagen", producto.imagen);
+    if (producto.nombre) fd.append("nombre", producto.nombre.trim());
+    if (producto.descripcion) fd.append("descripcion", producto.descripcion?.trim() || "");
+    if (producto.precio !== undefined) fd.append("precio", String(producto.precio));
+    if (producto.stock !== undefined) fd.append("stock", String(producto.stock));
+    if (producto.categoria) fd.append("categoria", producto.categoria.trim());
+    fd.append("destacado", producto.destacado ? "true" : "false");
+    if (producto.imagen) fd.append("imagen", producto.imagen);
 
-  console.log("FormData a enviar (App.js):");
-  for (let pair of fd.entries()) console.log(pair[0], pair[1]);
-  return fd;
-};
+    return fd;
+  };
 
-// ===== Crear producto =====
-const crearProducto = async (nuevoProducto) => {
-  try {
-    const res = await fetch(`${API_BASE}/productos`, {
-      method: "POST",
-      body: buildFormData(nuevoProducto),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.mensaje || "Error al crear producto");
-    await fetchProductos();
-    return data;
-  } catch (err) {
-    console.error("Error en crearProducto:", err);
-    throw err;
-  }
-};
+  // ===== Crear producto =====
+  const crearProducto = async (nuevoProducto) => {
+    try {
+      const res = await fetch(`${API_BASE}/productos`, {
+        method: "POST",
+        body: buildFormData(nuevoProducto),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.mensaje || "Error al crear producto");
+      await fetchProductos();
+      return data;
+    } catch (err) {
+      console.error("Error en crearProducto:", err);
+      throw err;
+    }
+  };
 
-// ===== Actualizar producto =====
-const actualizarProducto = async (id, updates) => {
-  if (!id) throw new Error("ID de producto inválido");
-  try {
-    const res = await fetch(`${API_BASE}/productos/${id}`, {
-      method: "PUT",
-      body: buildFormData(updates),
-    });
+  // ===== Actualizar producto =====
+  const actualizarProducto = async (id, updates) => {
+    if (!id) throw new Error("ID de producto inválido");
+    try {
+      const res = await fetch(`${API_BASE}/productos/${id}`, {
+        method: "PUT",
+        body: buildFormData(updates),
+      });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.mensaje || "Error al actualizar producto");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.mensaje || "Error al actualizar producto");
 
-    await fetchProductos();
-    return data;
-  } catch (err) {
-    console.error("Error en actualizarProducto:", err);
-    throw err;
-  }
-};
+      await fetchProductos();
+      return data;
+    } catch (err) {
+      console.error("Error en actualizarProducto:", err);
+      throw err;
+    }
+  };
 
-// ===== Eliminar producto =====
-const eliminarProducto = async (id) => {
-  if (!window.confirm("¿Estás seguro que querés eliminar este producto?")) return;
-  try {
-    const res = await fetch(`${API_BASE}/productos/${id}`, { method: "DELETE" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.mensaje || "Error al eliminar producto");
-    await fetchProductos();
-  } catch (err) {
-    alert("❌ " + err.message);
-  }
-};
+  // ===== Eliminar producto =====
+  const eliminarProducto = async (id) => {
+    if (!window.confirm("¿Estás seguro que querés eliminar este producto?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/productos/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.mensaje || "Error al eliminar producto");
+      await fetchProductos();
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  };
 
   return (
     <Router>

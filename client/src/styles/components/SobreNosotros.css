@@ -1,123 +1,129 @@
-/* Sobre Nosotros - Sección principal */
+/* ============================================================ */
+/* SOBRE NOSOTROS - ESTILO TERMINAL INDUSTRIAL */
+/* ============================================================ */
+
 .sobre-nosotros {
-  padding: 4rem 1.5rem;
-  background: #fff8f2;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #0d0d0d;
+  color: #e6e6e6;
+  padding: 3rem 1rem;
+  font-family: 'Courier New', Courier, monospace;
 }
 
-/* Contenedor interno */
 .sobre-nosotros .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
   max-width: 1200px;
-  margin: auto;
+  margin: 0 auto;
+  display: flex;
   flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 /* Texto principal */
 .sobre-nosotros .texto {
-  flex: 1;
-  min-width: 280px;
+  flex: 1 1 300px;
+  max-width: 500px;
 }
 
 .sobre-nosotros .titulo {
-  font-size: 2.5rem;
-  color: #b5651d;
+  font-size: 2rem;
+  color: #ffd700;
   margin-bottom: 1rem;
-  position: relative;
-}
-
-.sobre-nosotros .titulo::after {
-  content: '';
-  display: block;
-  width: 60px;
-  height: 3px;
-  background: #ffd700;
-  margin-top: 10px;
-  border-radius: 2px;
+  text-shadow: 0 0 5px #ffd700;
+  letter-spacing: 1px;
 }
 
 .sobre-nosotros .texto p {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #333;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: #ccc;
   margin-bottom: 1.5rem;
 }
 
-/* Botón principal */
 .btn-sobre {
-  padding: 10px 25px;
-  background: linear-gradient(135deg, #ffd700, #e6c200);
-  border: none;
-  border-radius: 8px;
-  color: #1a1a1a;
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  border: 1px solid #ffd700;
+  color: #ffd700;
+  font-family: 'Courier New', monospace;
   font-weight: bold;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
 .btn-sobre:hover {
+  background: #ffd700;
+  color: #1a1a1a;
   transform: scale(1.05);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
-/* Valores destacados */
+/* Cards de valores */
 .valores {
-  flex: 1;
   display: flex;
+  flex: 2 1 600px;
+  gap: 1.5rem;
   flex-wrap: wrap;
-  gap: 20px;
   justify-content: center;
-  min-width: 280px;
 }
 
 .valor-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  padding: 20px;
-  text-align: center;
-  flex: 1 1 120px;
-  max-width: 180px;
+  background: linear-gradient(145deg, #111, #1a1a1a);
+  border: 1px solid #444;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+  padding: 1rem;
+  flex: 1 1 200px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .valor-card:hover {
-  transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 14px 28px rgba(0,0,0,0.15);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(255,215,0,0.4);
 }
 
 .valor-icon {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 10px;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #444;
+  object-fit: cover;
 }
 
 .valor-card h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #b5651d;
+  font-size: 1.1rem;
+  color: #ffd700;
+  margin: 0.3rem 0;
+  text-align: center;
+  text-shadow: 0 0 3px #ffd700;
 }
 
 .valor-card p {
-  font-size: 0.9rem;
-  color: #555;
-  line-height: 1.4;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #ccc;
+  line-height: 1.2rem;
 }
 
-/* Responsivo */
+/* Responsive */
 @media (max-width: 768px) {
   .sobre-nosotros .container {
     flex-direction: column;
     align-items: center;
-    text-align: center;
   }
 
   .valores {
-    flex-direction: row;
-    gap: 15px;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .valor-card {
+    max-width: 90%;
   }
 }

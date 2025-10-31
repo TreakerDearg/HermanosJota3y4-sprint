@@ -3,7 +3,8 @@ import PropTypes from "prop-types";
 import ProductCard from "./ProductCard";
 import "../styles/components/ProductList.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_BASE = process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api";
+
 
 function ProductList({
   productos = [],
@@ -15,21 +16,22 @@ function ProductList({
   const [precioSeleccionado, setPrecioSeleccionado] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
 
-  const categorias = useMemo(() => ["Todos", ...new Set(productos.map((p) => p.categoria).filter(Boolean))], [productos]);
+  const categorias = useMemo(
+    () => ["Todos", ...new Set(productos.map((p) => p.categoria).filter(Boolean))],
+    [productos]
+  );
+
   const rangosPrecio = ["Todos", "Hasta $10000", "$10000 - $20000", "Más de $20000"];
 
-  // ===== Filtrado memoizado =====
   const productosFiltrados = useMemo(() => {
     return productos.filter((p) => {
       const nombre = p.nombre || "";
       const categoria = p.categoria || "";
 
-      // Filtrar por categoría
       const matchCategoria =
         categoriaSeleccionada === "Todos" ||
         categoria.toLowerCase() === categoriaSeleccionada.toLowerCase();
 
-      // Filtrar por precio
       let matchPrecio = true;
       switch (precioSeleccionado) {
         case "Hasta $10000":
@@ -45,9 +47,7 @@ function ProductList({
           matchPrecio = true;
       }
 
-      // Filtrar por búsqueda
       const matchBusqueda = nombre.toLowerCase().includes(busqueda.toLowerCase());
-
       return matchCategoria && matchPrecio && matchBusqueda;
     });
   }, [productos, categoriaSeleccionada, precioSeleccionado, busqueda]);
@@ -59,7 +59,6 @@ function ProductList({
         <p className="product-count">{productosFiltrados.length} productos disponibles</p>
       </header>
 
-      {/* ===== Barra de búsqueda ===== */}
       <div className="search-bar">
         <input
           type="text"
@@ -75,7 +74,6 @@ function ProductList({
         )}
       </div>
 
-      {/* ===== Filtros ===== */}
       <div className="filters-container">
         <div className="category-filters" role="group" aria-label="Filtrar por categoría">
           {categorias.map((c) => (
@@ -106,7 +104,6 @@ function ProductList({
         </div>
       </div>
 
-      {/* ===== Grid de productos ===== */}
       {productosFiltrados.length === 0 ? (
         <p className="no-products">No hay productos disponibles con los filtros seleccionados.</p>
       ) : (
@@ -116,11 +113,15 @@ function ProductList({
               key={producto._id}
               producto={{
                 ...producto,
-                imagenUrl: producto.imagenUrl || "/images/placeholder.png",
+                imagenUrl: producto.imagenUrl
+                  ? producto.imagenUrl.startsWith("/uploads")
+                    ? `${API_BASE}${producto.imagenUrl}`
+                    : producto.imagenUrl
+                  : "/images/placeholder.png",
               }}
               agregarAlCarrito={agregarAlCarrito}
               verDetalle={verDetalle}
-              apiUrl={API_URL}
+              apiUrl={API_BASE}
             />
           ))}
         </div>
@@ -129,7 +130,6 @@ function ProductList({
   );
 }
 
-// ===== PropTypes =====
 ProductList.propTypes = {
   productos: PropTypes.array,
   agregarAlCarrito: PropTypes.func,

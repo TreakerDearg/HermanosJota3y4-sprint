@@ -5,25 +5,29 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: "Arial", sans-serif;
-  color: #333;
+  font-family: 'Courier New', Courier, monospace;
+  color: #f5f5f5;
+  background-color: #1a1a1a;
 }
 
 .checkout-header h1 {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+  color: #ffd700;
+  text-shadow: 0 0 6px #ffd700;
 }
 
 .checkout-header p {
-  margin-bottom: 0.5rem;
-  color: #555;
+  margin-bottom: 1.5rem;
+  color: #e6e6e6;
+  font-size: 1.1rem;
 }
 
 /* ===== Checkout Component ===== */
 .checkout {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #262626;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
   padding: 2rem;
 }
 
@@ -39,81 +43,106 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding: 1rem;
-  border-bottom: 1px solid #eee;
-  transition: transform 0.2s;
+  border: 1px solid #ffd700;
+  border-radius: 10px;
+  background-color: #1f1f1f;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .checkout-card:hover {
-  transform: scale(1.01);
+  transform: scale(1.02);
+  box-shadow: 0 0 12px #ffd700;
 }
 
 .checkout-card-left img.checkout-img {
   width: 80px;
   height: 80px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 8px;
+  border: 1px solid #ffd700;
 }
 
 .checkout-card-center {
   flex: 1;
-  margin-left: 1rem;
+  margin: 0 1rem;
 }
 
 .checkout-card-center h3 {
   margin: 0 0 0.3rem 0;
   font-size: 1.1rem;
+  color: #ffd700;
 }
 
 .checkout-card-center p {
   margin: 0;
-  color: #666;
+  color: #e6e6e6;
+  font-size: 0.95rem;
+}
+
+.checkout-cantidad {
   font-size: 0.9rem;
-}
-
-.checkout-card-right span.checkout-price {
   font-weight: bold;
-  color: #007bff;
-  font-size: 1rem;
+  color: #ffda44;
+  margin-left: 0.5rem;
 }
 
+.checkout-card-right {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+/* ===== Footer Actions ===== */
 .checkout-footer {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  align-items: flex-end;
+  gap: 1rem;
+  border-top: 1px solid #ffd700;
+  padding-top: 1rem;
 }
 
 .checkout-total {
+  display: flex;
+  justify-content: space-between;
   font-size: 1.3rem;
   font-weight: bold;
+  color: #ffd700;
+}
+
+.checkout-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
 }
 
 .checkout-actions button {
   cursor: pointer;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0.7rem 1.2rem;
+  font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
-  margin-left: 0.5rem;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .btn-finalizar {
-  background-color: #28a745;
-  color: #fff;
+  background: linear-gradient(135deg, #ffd700, #e6c200);
+  color: #1a1a1a;
 }
 
 .btn-finalizar:hover {
-  background-color: #218838;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
 }
 
 .btn-vaciar {
-  background-color: #dc3545;
+  background-color: #ff4c4c;
   color: #fff;
 }
 
 .btn-vaciar:hover {
-  background-color: #c82333;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 76, 76, 0.6);
 }
 
 /* ===== Empty Cart ===== */
@@ -125,26 +154,32 @@
 .checkout-empty-page h2 {
   font-size: 2rem;
   margin-bottom: 1rem;
+  color: #ff4c4c;
+  text-shadow: 0 0 4px #ff4c4c;
 }
 
 .checkout-empty-page p {
   font-size: 1.1rem;
   margin-bottom: 2rem;
+  color: #e6e6e6;
 }
 
 .btn-volver-catalogo {
-  background-color: #007bff;
-  color: #fff;
+  background: linear-gradient(135deg, #ffd700, #e6c200);
+  color: #1a1a1a;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
 .btn-volver-catalogo:hover {
-  background-color: #0056b3;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px #ffd700;
 }
 
 /* ===== Responsive ===== */
@@ -157,9 +192,19 @@
   .checkout-card-left img.checkout-img {
     width: 100%;
     height: auto;
+    margin-bottom: 0.5rem;
+  }
+
+  .checkout-card-center {
+    margin: 0 0 0.5rem 0;
   }
 
   .checkout-footer {
     align-items: center;
+  }
+
+  .checkout-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }

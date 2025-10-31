@@ -11,7 +11,7 @@ function Navbar({ carritoCount = 0, mostrarCarrito }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Cerrar menús al hacer clic fuera
+  // 🔹 Cerrar menús al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuAbierto(false);
@@ -21,7 +21,7 @@ function Navbar({ carritoCount = 0, mostrarCarrito }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Cerrar menú con Escape
+  // 🔹 Cerrar con Escape
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") {
@@ -42,39 +42,21 @@ function Navbar({ carritoCount = 0, mostrarCarrito }) {
   const isActive = (ruta) => location.pathname === ruta;
 
   return (
-    <nav className="navbar" role="navigation" aria-label="Menú principal">
-      {/* Logo */}
+    <nav className="navbar-terminal">
+      {/* 🔹 Logo */}
       <div
         className="navbar-logo"
         onClick={() => handleClick("/")}
         role="button"
         tabIndex={0}
-        aria-label="Ir a la página de inicio"
-        onKeyDown={(e) => { if (e.key === "Enter") handleClick("/"); }}
+        onKeyDown={(e) => e.key === "Enter" && handleClick("/")}
       >
         <img src={logo} alt="Logo Mueblería Hermanos Jota" />
-        <span>Hermanos Jota</span>
+        <span className="logo-text">Hermanos Jota</span>
       </div>
 
-      {/* Botón hamburguesa */}
-      <button
-        className={`hamburger ${menuAbierto ? "active" : ""}`}
-        onClick={() => setMenuAbierto(!menuAbierto)}
-        aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
-        aria-expanded={menuAbierto}
-        aria-controls="menu-principal"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      {/* Menú principal */}
-      <ul
-        id="menu-principal"
-        className={`nav-links ${menuAbierto ? "active" : ""}`}
-        ref={menuRef}
-      >
+      {/* 🔹 Menú principal */}
+      <ul className={`nav-links ${menuAbierto ? "active" : ""}`} ref={menuRef}>
         {[
           { name: "Inicio", path: "/" },
           { name: "Catálogo", path: "/productos" },
@@ -86,22 +68,17 @@ function Navbar({ carritoCount = 0, mostrarCarrito }) {
             className={isActive(item.path) ? "active" : ""}
             onClick={() => handleClick(item.path)}
             tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter") handleClick(item.path); }}
-            aria-current={isActive(item.path) ? "page" : undefined}
+            onKeyDown={(e) => e.key === "Enter" && handleClick(item.path)}
           >
             {item.name}
           </li>
         ))}
 
-        {/* Dropdown Admin */}
+        {/* 🔹 Dropdown Admin */}
         <li className="dropdown" ref={adminRef}>
           <span
-            onClick={() => setAdminAbierto(!adminAbierto)}
             className="dropdown-title"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter") setAdminAbierto(!adminAbierto); }}
-            aria-haspopup="true"
-            aria-expanded={adminAbierto}
+            onClick={() => setAdminAbierto(!adminAbierto)}
           >
             Admin ▾
           </span>
@@ -115,14 +92,20 @@ function Navbar({ carritoCount = 0, mostrarCarrito }) {
         </li>
       </ul>
 
-      {/* Carrito */}
-      <button
-        className="carrito-btn"
-        onClick={mostrarCarrito}
-        aria-label={`Abrir carrito, ${carritoCount} productos`}
-      >
+      {/* 🔹 Botón Carrito */}
+      <button className="carrito-btn" onClick={mostrarCarrito}>
         <span className="cart-icon">🛒</span>
         {carritoCount > 0 && <span className="cart-count">{carritoCount}</span>}
+      </button>
+
+      {/* 🔹 Hamburguesa */}
+      <button
+        className={`hamburger ${menuAbierto ? "active" : ""}`}
+        onClick={() => setMenuAbierto(!menuAbierto)}
+      >
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
     </nav>
   );

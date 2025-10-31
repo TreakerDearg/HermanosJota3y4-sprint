@@ -1,24 +1,31 @@
 import { useEffect } from "react";
+import PropTypes from "prop-types";
 import "../styles/components/ModalCarrito.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+// ============================
+// 🔹 Configuración de API
+// ============================
+// Usa variable de entorno de Netlify si está definida
+const API_BASE = process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com";
 
 function ModalCarrito({
   carrito = [],
   cerrarModal,
   finalizarCompra = () => {},
-  eliminarProducto = () => {}
+  eliminarProducto = () => {},
 }) {
-  // Cerrar con Escape
+  // ============================
+  // 🔹 Cerrar con tecla ESC
+  // ============================
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") cerrarModal();
-    };
+    const handleEsc = (e) => e.key === "Escape" && cerrarModal();
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [cerrarModal]);
 
-  // Agrupar productos por _id
+  // ============================
+  // 🔹 Agrupar productos por ID
+  // ============================
   const productosAgrupados = carrito.reduce((acc, item) => {
     const key = item._id;
     if (acc[key]) {
@@ -33,6 +40,9 @@ function ModalCarrito({
   const productosList = Object.values(productosAgrupados);
   const total = productosList.reduce((acc, item) => acc + item.precioTotal, 0);
 
+  // ============================
+  // 🔹 Render
+  // ============================
   return (
     <div
       className="modal-overlay"
@@ -44,46 +54,44 @@ function ModalCarrito({
       <div className="modal-carrito" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>🛒 Tu Carrito</h2>
-          <button
-            className="cerrar-btn"
-            onClick={cerrarModal}
-            aria-label="Cerrar carrito"
-          >
+          <button className="cerrar-btn" onClick={cerrarModal} aria-label="Cerrar carrito">
             ✖
           </button>
         </div>
 
         {productosList.length === 0 ? (
-          <p className="vacio" role="status">Tu carrito está vacío</p>
+          <p className="vacio" role="status">
+            Tu carrito está vacío
+          </p>
         ) : (
           <>
             <div className="productos">
               {productosList.map((item) => {
                 const nombre = item.nombre || "Producto";
-                const imagen = item.imagenUrl
-                  ? `${API_URL}${item.imagenUrl}`
-                  : "/images/placeholder.png";
+
+                // 🔹 Normaliza URL de imagen
+                let imagenUrl = "/images/placeholder.png";
+                if (item.imagenUrl) {
+                  imagenUrl = item.imagenUrl.startsWith("http")
+                    ? item.imagenUrl
+                    : `${API_BASE}${item.imagenUrl.startsWith("/") ? "" : "/"}${item.imagenUrl}`;
+                }
 
                 return (
                   <div className="producto" key={item._id}>
                     <div className="mini-imagen">
-                      <img
-                        src={imagen}
-                        alt={nombre}
-                        loading="lazy"
-                        draggable={false}
-                      />
+                      <img src={imagenUrl} alt={nombre} loading="lazy" draggable={false} />
                     </div>
 
                     <div className="info">
                       <p className="nombre">
-                        {nombre} {item.cantidad > 1 && `x${item.cantidad}`}
+                        {nombre} {item.cantidad > 1 && <span>x{item.cantidad}</span>}
                       </p>
                       <p className="precio">
                         {new Intl.NumberFormat("es-AR", {
                           style: "currency",
                           currency: "ARS",
-                          minimumFractionDigits: 0
+                          minimumFractionDigits: 0,
                         }).format(item.precioTotal)}
                       </p>
                     </div>
@@ -106,7 +114,7 @@ function ModalCarrito({
                 {new Intl.NumberFormat("es-AR", {
                   style: "currency",
                   currency: "ARS",
-                  minimumFractionDigits: 0
+                  minimumFractionDigits: 0,
                 }).format(total)}
               </strong>
             </div>
@@ -118,7 +126,7 @@ function ModalCarrito({
                 disabled={productosList.length === 0}
                 aria-label="Finalizar compra"
               >
-                🛒 Finalizar Compra
+                🏁 Finalizar Compra
               </button>
             </div>
           </>
@@ -127,5 +135,23 @@ function ModalCarrito({
     </div>
   );
 }
+
+// ============================
+// 🔹 Validación de props
+// ============================
+ModalCarrito.propTypes = {
+  carrito: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      nombre: PropTypes.string,
+      precio: PropTypes.number,
+      categoria: PropTypes.string,
+      imagenUrl: PropTypes.string,
+    })
+  ),
+  cerrarModal: PropTypes.func.isRequired,
+  finalizarCompra: PropTypes.func,
+  eliminarProducto: PropTypes.func,
+};
 
 export default ModalCarrito;
