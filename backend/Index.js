@@ -20,19 +20,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
-const API_PREFIX = process.env.API_PREFIX || "/api";
 
-// ----------------------------
-// 🧩 Config de uploads dinámica
-// ----------------------------
+// En producción, los archivos no persisten en Render
 const UPLOAD_DIR =
   process.env.NODE_ENV === "production"
-    ? path.join(os.tmpdir(), "uploads") // Render / Vercel serverless no mantiene archivos locales
+    ? path.join(os.tmpdir(), "uploads")
     : path.join(__dirname, "uploads");
 
-// ----------------------------
+// ============================
 // ⚠ Validación mínima de entorno
-// ----------------------------
+// ============================
 if (!MONGO_URI) {
   console.error("❌ FALTA VARIABLE DE ENTORNO: MONGO_URI");
   process.exit(1);
@@ -42,19 +39,27 @@ if (!MONGO_URI) {
 // 🌐 Middlewares globales
 // ============================
 
-// Permitir múltiples orígenes
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
-  : ["*"]; // temporal para pruebas, cambiar en producción
+const allowedOrigins = [
+  "https://hermanos-jota3y4-sprint-67f0a19p6-treakerdeargs-projects.vercel.app",
+  "https://hermanosjota3y4.vercel.app",
+  "http://localhost:3000",
+];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // Postman, curl
-      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      // Permitir Postman, curl, SSR sin origin
+      if (!origin) return callback(null, true);
+
+      // Aceptar builds dinámicos de Vercel
+      const vercelPattern = /^https:\/\/hermanos-jota3y4-sprint-[a-z0-9-]+-treakerdeargs-projects\.vercel\.app$/;
+
+      if (allowedOrigins.includes(origin) || vercelPattern.test(origin)) {
         return callback(null, true);
       }
-      callback(new Error("CORS no permitido"));
+
+      console.error("❌ Bloqueado por CORS:", origin);
+      callback(new Error("CORS no autorizado"));
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
@@ -74,6 +79,8 @@ app.use("/images", express.static(path.join(__dirname, "public/images")));
 // ============================
 // 🚀 Rutas base
 // ============================
+
+// Health check principal
 app.get("/", (req, res) => {
   res.status(200).json({
     estado: "success",
@@ -83,8 +90,8 @@ app.get("/", (req, res) => {
   });
 });
 
-// Endpoint principal de productos
-app.use(`${API_PREFIX}/productos`, productosRoutes);
+// Endpoint principal de productos (sin /api para simplificar el consumo)
+app.use("/productos", productosRoutes);
 
 // ============================
 // ⚠️ Manejo de errores
