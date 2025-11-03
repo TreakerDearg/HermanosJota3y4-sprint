@@ -1,4 +1,3 @@
-// src/pages/EditarProducto.jsx
 import { useState, useEffect } from "react";
 import "../styles/pages/EditarProducto.css";
 
@@ -20,28 +19,29 @@ const EditarProducto = ({ actualizarProducto }) => {
   const [submitting, setSubmitting] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
-  // ===== Cargar productos desde el backend =====
+  // ===============================
+  // BASE API CONFIG
+  // ===============================
+  const API_BASE =
+    process.env.REACT_APP_API_URL ||
+    "https://hermanosjota3y4-sprint.onrender.com/api";
+
+  // ===============================
+  // CARGAR PRODUCTOS
+  // ===============================
   useEffect(() => {
     const fetchProductos = async () => {
       try {
         setLoading(true);
         setMensaje("");
 
-        // URL dinámica compatible con Render / local
-        const API_BASE =
-          (process.env.REACT_APP_API_URL ||
-            "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
-        const API_URL = `${API_BASE}/productos`;
-
-        console.log("🌐 Cargando productos desde:", API_URL);
-
-        const res = await fetch(API_URL);
+        const res = await fetch(`${API_BASE}/productos`);
         if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
 
         const data = await res.json();
         setProductos(Array.isArray(data.data) ? data.data : []);
       } catch (err) {
-        console.error("❌ Error fetchProductos:", err);
+        console.error("❌ Error al obtener productos:", err);
         setMensaje("❌ No se pudieron cargar los productos.");
       } finally {
         setLoading(false);
@@ -49,9 +49,11 @@ const EditarProducto = ({ actualizarProducto }) => {
     };
 
     fetchProductos();
-  }, []);
+  }, [API_BASE]);
 
-  // ===== Cargar datos del producto seleccionado =====
+  // ===============================
+  // CARGAR PRODUCTO SELECCIONADO
+  // ===============================
   useEffect(() => {
     if (!selectedId) return;
 
@@ -72,7 +74,9 @@ const EditarProducto = ({ actualizarProducto }) => {
     }
   }, [selectedId, productos]);
 
-  // ===== Manejo de inputs =====
+  // ===============================
+  // HANDLERS
+  // ===============================
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -81,7 +85,6 @@ const EditarProducto = ({ actualizarProducto }) => {
     }));
   };
 
-  // ===== Manejo de imagen =====
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setNuevaImagen(file);
@@ -94,13 +97,13 @@ const EditarProducto = ({ actualizarProducto }) => {
     }
   };
 
-  // ===== Envío de actualización =====
+  // ===============================
+  // SUBMIT ACTUALIZACIÓN
+  // ===============================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedId)
-      return setMensaje("❌ Selecciona un producto primero.");
-
+    if (!selectedId) return setMensaje("❌ Selecciona un producto.");
     if (!formData.nombre || !formData.precio || !formData.stock || !formData.categoria)
       return setMensaje("❌ Completa todos los campos obligatorios.");
 
@@ -109,20 +112,30 @@ const EditarProducto = ({ actualizarProducto }) => {
       setMensaje("");
 
       const data = new FormData();
-      Object.keys(formData).forEach((key) => data.append(key, formData[key]));
+      Object.entries(formData).forEach(([key, value]) =>
+        data.append(key, value)
+      );
       if (nuevaImagen) data.append("imagen", nuevaImagen);
 
-      await actualizarProducto(selectedId, data);
+      const res = await fetch(`${API_BASE}/productos/${selectedId}`, {
+        method: "PUT",
+        body: data,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Error HTTP ${res.status}: ${text}`);
+      }
 
       setMensaje("✅ Producto actualizado correctamente.");
 
-      // Refrescar vista de imagen
       if (nuevaImagen && preview) {
         setImagenActual(preview);
         setPreview(null);
         setNuevaImagen(null);
       }
     } catch (err) {
+      console.error("❌ Error en actualización:", err);
       setMensaje("❌ Error al actualizar: " + (err.message || "Error desconocido."));
     } finally {
       setSubmitting(false);
@@ -207,7 +220,7 @@ const EditarProducto = ({ actualizarProducto }) => {
                 src={
                   imagenActual.startsWith("http")
                     ? imagenActual
-                    : `${process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com"}${imagenActual}`
+                    : `${API_BASE.replace("/api", "")}${imagenActual}`
                 }
                 alt="Actual"
                 className="preview-img"

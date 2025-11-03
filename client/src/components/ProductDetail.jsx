@@ -2,18 +2,16 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import "../styles/components/ProductDetail.css";
 
-const API_BASE =
-  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
+// 🔹 URL base del backend
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function ProductDetail({ producto, agregarAlCarrito, volver }) {
   const [added, setAdded] = useState(false);
 
   // 🔹 Normaliza URL de imagen
-  const imagenUrl = producto.imagenUrl
-    ? producto.imagenUrl.startsWith("http")
-      ? producto.imagenUrl
-      : `${API_BASE.replace(/\/api$/, "")}/${producto.imagenUrl.replace(/^\/+/, "")}`
-    : "/images/placeholder.png";
+  const imagenUrl = producto.imagenUrl?.startsWith("/uploads")
+    ? `${API_BASE}${producto.imagenUrl}`
+    : producto.imagenUrl || "/images/placeholder.png";
 
   const handleAgregar = () => {
     if (agregarAlCarrito) agregarAlCarrito(producto);

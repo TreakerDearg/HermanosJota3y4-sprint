@@ -1,10 +1,8 @@
 import PropTypes from "prop-types";
 import "../styles/components/Destacados.css";
 
-const API_BASE =
-  process.env.REACT_APP_API_URL ||
-  "https://hermanosjota3y4-sprint.onrender.com/api/productos";
-
+// URL base del backend, sin incluir /productos
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = () => {} }) {
   const productosDestacados = productos.filter((p) => p.destacado);
@@ -34,12 +32,11 @@ function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = 
             const descripcion = producto.descripcion || "";
             const precio = producto.precio || 0;
 
-const imagenUrl = producto.imagenUrl
-  ? producto.imagenUrl.startsWith("/uploads")
-    ? `${API_BASE}${producto.imagenUrl}`
-    : producto.imagenUrl
-  : "/images/placeholder.png";
-
+            const imagenUrl = producto.imagenUrl
+              ? producto.imagenUrl.startsWith("/uploads")
+                ? `${API_BASE}${producto.imagenUrl}`
+                : producto.imagenUrl
+              : "/images/placeholder.png";
 
             return (
               <article
@@ -70,7 +67,10 @@ const imagenUrl = producto.imagenUrl
                       <h4 className="precio-terminal">{formatPrecio(precio)}</h4>
                       <p className="mini-desc-terminal">{descripcion}</p>
 
-                      <ul className="benefits-icons-terminal" aria-label="Beneficios del producto">
+                      <ul
+                        className="benefits-icons-terminal"
+                        aria-label="Beneficios del producto"
+                      >
                         <li className="benefit-terminal" title="Envío gratis">
                           <i className="fas fa-truck" aria-hidden="true"></i>
                           <span>Envío gratis</span>
@@ -110,7 +110,9 @@ const imagenUrl = producto.imagenUrl
             );
           })
         ) : (
-          <p className="no-productos-terminal">No hay productos destacados disponibles.</p>
+          <p className="no-productos-terminal">
+            No hay productos destacados disponibles.
+          </p>
         )}
       </div>
     </section>

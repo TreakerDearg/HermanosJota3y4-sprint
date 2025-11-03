@@ -7,23 +7,40 @@ import Newsletter from "../components/Newsletter";
 const Home = ({ productos, agregarAlCarrito }) => {
   const navigate = useNavigate();
 
-  // Filtrar productos destacados
+  // ===============================
+  // 🔹 Configuración base de API e imágenes
+  // ===============================
+  const API_BASE =
+    process.env.REACT_APP_API_URL ||
+    "https://hermanosjota3y4-sprint.onrender.com/api";
+
+  // Se eliminan duplicados de /api y se construye correctamente la URL de imagen
+  const API_IMG = API_BASE.replace("/api", "");
+
+  // ===============================
+  // 🔹 Productos destacados
+  // ===============================
   const destacados = productos.filter((p) => p.destacado);
 
-  // Función para ver detalle desde los destacados
+  // 🔹 Normalización de rutas de imágenes
+  const productosConImagen = destacados.map((p) => ({
+    ...p,
+    imagenUrl: p.imagenUrl
+      ? p.imagenUrl.startsWith("http")
+        ? p.imagenUrl
+        : `${API_IMG}${p.imagenUrl.replace(/\\/g, "/")}`
+      : "/images/placeholder.png",
+  }));
+
+  // 🔹 Navegación al detalle
   const verDetalle = (producto) => {
     if (!producto) return;
     navigate(`/productos/${producto._id}`);
   };
 
-  // Agregar URL completa de la imagen si existe
-  const productosConImagen = destacados.map((p) => ({
-    ...p,
-    imagenUrl: p.imagenUrl
-      ? `${process.env.REACT_APP_API_BASE || "http://localhost:5000"}${p.imagenUrl}`
-      : null,
-  }));
-
+  // ===============================
+  // 🔹 Render principal
+  // ===============================
   return (
     <main>
       <HeroBanner />

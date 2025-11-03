@@ -10,17 +10,21 @@ const CrearProducto = ({ crearProducto }) => {
     categoria: "",
     destacado: false,
   });
+
   const [imagen, setImagen] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errores, setErrores] = useState({});
   const [mensaje, setMensaje] = useState("");
 
-  // 🧭 URL base dinámica
-  const API_BASE =
-    (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
+  // ============================
+  // ✅ URL base dinámica (sin "/productos" duplicado)
+  // ============================
+  const API_BASE = (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
 
-  // ===== Manejo de inputs =====
+  // ============================
+  // 🔹 Manejo de inputs
+  // ============================
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -28,6 +32,7 @@ const CrearProducto = ({ crearProducto }) => {
       [name]: type === "checkbox" ? checked : value,
     }));
 
+    // Validación en tiempo real
     if (["nombre", "precio", "stock", "categoria"].includes(name)) {
       setErrores((prev) => ({
         ...prev,
@@ -36,7 +41,9 @@ const CrearProducto = ({ crearProducto }) => {
     }
   };
 
-  // ===== Manejo de archivo =====
+  // ============================
+  // 🔹 Manejo de imagen
+  // ============================
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setImagen(file);
@@ -49,12 +56,15 @@ const CrearProducto = ({ crearProducto }) => {
     }
   };
 
-  // ===== Validación y envío =====
+  // ============================
+  // 🔹 Envío del formulario
+  // ============================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje("");
     const nuevosErrores = {};
 
+    // Validación de campos obligatorios
     ["nombre", "precio", "stock", "categoria"].forEach((key) => {
       if (!formData[key] || !formData[key].toString().trim()) {
         nuevosErrores[key] = "Campo obligatorio";
@@ -63,7 +73,8 @@ const CrearProducto = ({ crearProducto }) => {
 
     if (Object.keys(nuevosErrores).length) {
       setErrores(nuevosErrores);
-      return setMensaje("❌ Completa todos los campos obligatorios");
+      setMensaje("❌ Completa todos los campos obligatorios");
+      return;
     }
 
     const precioNum = parseFloat(formData.precio);
@@ -84,8 +95,8 @@ const CrearProducto = ({ crearProducto }) => {
       data.append("destacado", formData.destacado ? "true" : "false");
       if (imagen) data.append("imagen", imagen);
 
-      // 🔹 Llamada al backend con URL base dinámica
-      await crearProducto(data, API_BASE);
+      // 🔹 Llamada a backend
+      await crearProducto(data, `${API_BASE}/productos`);
 
       setMensaje("✅ Producto creado con éxito");
       setFormData({
@@ -100,13 +111,16 @@ const CrearProducto = ({ crearProducto }) => {
       setPreview(null);
       setErrores({});
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error al crear producto:", err);
       setMensaje("❌ Error al crear producto: " + (err.message || "desconocido"));
     } finally {
       setLoading(false);
     }
   };
 
+  // ============================
+  // 🔹 Renderizado
+  // ============================
   return (
     <div className="crear-producto">
       <h2>Crear Nuevo Producto</h2>

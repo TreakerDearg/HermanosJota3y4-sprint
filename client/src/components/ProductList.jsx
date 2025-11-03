@@ -3,10 +3,8 @@ import PropTypes from "prop-types";
 import ProductCard from "./ProductCard";
 import "../styles/components/ProductList.css";
 
-const API_BASE =
-  process.env.REACT_APP_API_URL ||
-  "https://hermanosjota3y4-sprint.onrender.com/api/productos";
-const API_IMG = API_BASE.replace(/\/api$/, "");
+// 🔹 URL base del backend
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function ProductList({
   productos = [],
@@ -70,7 +68,11 @@ function ProductList({
           aria-label="Buscar productos"
         />
         {busqueda && (
-          <button className="clear-btn" onClick={() => setBusqueda("")} aria-label="Limpiar búsqueda">
+          <button
+            className="clear-btn"
+            onClick={() => setBusqueda("")}
+            aria-label="Limpiar búsqueda"
+          >
             ✖
           </button>
         )}
@@ -110,21 +112,22 @@ function ProductList({
         <p className="no-products">No hay productos disponibles con los filtros seleccionados.</p>
       ) : (
         <div className="product-list-grid">
-          {productosFiltrados.map((producto) => (
-            <ProductCard
-              key={producto._id}
-              producto={{
-                ...producto,
-                imagenUrl: producto.imagenUrl
-                  ? producto.imagenUrl.startsWith("http")
-                    ? producto.imagenUrl
-                    : `${API_IMG}/${producto.imagenUrl.replace(/^\/+/, "")}`
-                  : "/images/placeholder.png",
-              }}
-              agregarAlCarrito={agregarAlCarrito}
-              verDetalle={verDetalle}
-            />
-          ))}
+          {productosFiltrados.map((producto) => {
+            // 🔹 Normaliza URL de imagen
+            const imagenUrl =
+              producto.imagenUrl?.startsWith("/uploads")
+                ? `${API_BASE}${producto.imagenUrl}`
+                : producto.imagenUrl || "/images/placeholder.png";
+
+            return (
+              <ProductCard
+                key={producto._id}
+                producto={{ ...producto, imagenUrl }}
+                agregarAlCarrito={agregarAlCarrito}
+                verDetalle={verDetalle}
+              />
+            );
+          })}
         </div>
       )}
     </section>

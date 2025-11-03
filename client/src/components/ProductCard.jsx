@@ -2,19 +2,17 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import "../styles/components/ProductCard.css";
 
-// 🔹 URL base de backend
-const API_BASE =
-  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
+// 🔹 URL base del backend sin /api al final
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
   const [added, setAdded] = useState(false);
 
   // 🔹 Normaliza URL de imagen
-  const imagenUrl = producto.imagenUrl
-    ? producto.imagenUrl.startsWith("http")
-      ? producto.imagenUrl
-      : `${API_BASE.replace(/\/api$/, "")}/${producto.imagenUrl.replace(/^\/+/, "")}`
-    : "/images/placeholder.png";
+  const imagenUrl =
+    producto.imagenUrl?.startsWith("/uploads")
+      ? `${API_BASE}${producto.imagenUrl}`
+      : producto.imagenUrl || "/images/placeholder.png";
 
   const handleClickCard = () => {
     if (verDetalle) verDetalle(producto);
@@ -46,7 +44,7 @@ function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
 
         <div className="producto-terminal-content">
           <div className="producto-terminal-imagen">
-            <img src={imagenUrl} alt={producto.nombre} draggable={false} loading="lazy" />
+            <img src={imagenUrl} alt={producto.nombre || "Producto"} draggable={false} loading="lazy" />
           </div>
 
           <div className="producto-terminal-info">

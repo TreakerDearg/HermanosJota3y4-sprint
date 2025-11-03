@@ -1,4 +1,3 @@
-// src/pages/EliminarProducto.jsx
 import { useState, useEffect } from "react";
 import "../styles/pages/EliminarProducto.css";
 
@@ -8,18 +7,24 @@ const EliminarProducto = () => {
   const [mensaje, setMensaje] = useState("");
   const [eliminandoId, setEliminandoId] = useState(null);
 
-  // URL base dinámica
+  // ===============================
+  // BASE API CONFIG
+  // ===============================
   const API_BASE =
-    (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
-  const API_IMG = API_BASE.replace(/\/api$/, "");
+    process.env.REACT_APP_API_URL ||
+    "https://hermanosjota3y4-sprint.onrender.com/api";
+  const API_IMG = API_BASE.replace("/api", "");
 
-  // 🔹 Cargar productos
+  // ===============================
+  // CARGAR PRODUCTOS
+  // ===============================
   useEffect(() => {
     const fetchProductos = async () => {
       try {
         setLoading(true);
         const res = await fetch(`${API_BASE}/productos`);
-        if (!res.ok) throw new Error(`Error HTTP ${res.status}: No se pudieron cargar los productos`);
+        if (!res.ok)
+          throw new Error(`Error HTTP ${res.status}: No se pudieron cargar los productos`);
 
         const data = await res.json();
         setProductos(data.data?.sort((a, b) => a.nombre.localeCompare(b.nombre)) || []);
@@ -33,7 +38,9 @@ const EliminarProducto = () => {
     fetchProductos();
   }, [API_BASE]);
 
-  // 🔹 Eliminar producto
+  // ===============================
+  // ELIMINAR PRODUCTO
+  // ===============================
   const eliminarProducto = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
 
@@ -41,10 +48,13 @@ const EliminarProducto = () => {
     setMensaje("");
 
     try {
-      const res = await fetch(`${API_BASE}/productos/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/productos/${id}`, {
+        method: "DELETE",
+      });
+
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error al eliminar el producto");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error HTTP ${res.status}`);
       }
 
       setProductos((prev) => prev.filter((p) => p._id !== id));
@@ -58,6 +68,9 @@ const EliminarProducto = () => {
     }
   };
 
+  // ===============================
+  // RENDER
+  // ===============================
   if (loading) return <p className="loading">Cargando productos...</p>;
 
   return (
@@ -84,6 +97,7 @@ const EliminarProducto = () => {
                     loading="lazy"
                   />
                 )}
+
                 <div className="producto-detalles">
                   <h3>{p.nombre}</h3>
                   <p>Precio: ${p.precio}</p>

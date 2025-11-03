@@ -2,9 +2,8 @@ import { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import "../styles/components/ModalCarrito.css";
 
-// 🔹 URL base dinámica
-const API_BASE =
-  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+// 🔹 URL base del backend sin /api al final
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, eliminarProducto = () => {} }) {
   // Cerrar con ESC
@@ -47,11 +46,11 @@ function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, e
               {productosList.map((item) => {
                 const nombre = item.nombre || "Producto";
 
-                // Normaliza URL de imagen
+                // URL segura para imagenes: backend /uploads o placeholder
                 const imagenUrl =
-                  item.imagenUrl?.startsWith("http")
-                    ? item.imagenUrl
-                    : `${API_BASE.replace(/\/api$/, "")}/${item.imagenUrl?.replace(/^\/+/, "")}` || "/images/placeholder.png";
+                  item.imagenUrl?.startsWith("/uploads")
+                    ? `${API_BASE}${item.imagenUrl}`
+                    : item.imagenUrl || "/images/placeholder.png";
 
                 return (
                   <div className="producto" key={item._id}>
@@ -68,7 +67,11 @@ function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, e
                       </p>
                     </div>
 
-                    <button className="eliminar-btn" onClick={() => eliminarProducto(item._id)} aria-label={`Eliminar ${nombre} del carrito`}>
+                    <button
+                      className="eliminar-btn"
+                      onClick={() => eliminarProducto(item._id)}
+                      aria-label={`Eliminar ${nombre} del carrito`}
+                    >
                       ❌
                     </button>
                   </div>
@@ -82,7 +85,12 @@ function ModalCarrito({ carrito = [], cerrarModal, finalizarCompra = () => {}, e
             </div>
 
             <div className="modal-actions">
-              <button className="finalizar-btn" onClick={finalizarCompra} disabled={productosList.length === 0} aria-label="Finalizar compra">
+              <button
+                className="finalizar-btn"
+                onClick={finalizarCompra}
+                disabled={productosList.length === 0}
+                aria-label="Finalizar compra"
+              >
                 🏁 Finalizar Compra
               </button>
             </div>
