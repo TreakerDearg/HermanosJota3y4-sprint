@@ -3,16 +3,16 @@ import PropTypes from "prop-types";
 import "../styles/components/ProductDetail.css";
 
 const API_BASE =
-  process.env.REACT_APP_API_URL?.replace(/\/api$/, "") ||
-  "https://hermanosjota3y4-sprint.onrender.com";
+  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
 
 function ProductDetail({ producto, agregarAlCarrito, volver }) {
   const [added, setAdded] = useState(false);
 
+  // 🔹 Normaliza URL de imagen
   const imagenUrl = producto.imagenUrl
-    ? producto.imagenUrl.replace(/\\/g, "/").startsWith("/uploads")
-      ? `${API_BASE}${producto.imagenUrl.replace(/\\/g, "/")}`
-      : producto.imagenUrl
+    ? producto.imagenUrl.startsWith("http")
+      ? producto.imagenUrl
+      : `${API_BASE.replace(/\/api$/, "")}/${producto.imagenUrl.replace(/^\/+/, "")}`
     : "/images/placeholder.png";
 
   const handleAgregar = () => {
@@ -40,19 +40,13 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
           <h2 className="detail-terminal-title">{producto.nombre || "Producto sin nombre"}</h2>
 
           <p className="detail-terminal-price">
-            {new Intl.NumberFormat("es-AR", {
-              style: "currency",
-              currency: "ARS",
-              minimumFractionDigits: 0,
-            }).format(producto.precio || 0)}
+            {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(producto.precio || 0)}
           </p>
 
-          {/* Descripción con scroll si es larga */}
           <div className="detail-terminal-desc-scroll">
             <p className="detail-terminal-desc">{producto.descripcion || "Sin descripción disponible."}</p>
           </div>
 
-          {/* Beneficios tipo panel */}
           <ul className="detail-terminal-benefits" aria-label="Beneficios del producto">
             {beneficios.map((b, idx) => (
               <li key={idx} className="benefit-terminal-item">
@@ -62,7 +56,6 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
             ))}
           </ul>
 
-          {/* Botones estilo terminal */}
           <div className="detail-terminal-buttons">
             <button
               className={`btn-terminal-agregar ${added ? "added" : ""}`}
@@ -89,10 +82,7 @@ ProductDetail.propTypes = {
     descripcion: PropTypes.string,
     imagenUrl: PropTypes.string,
     beneficios: PropTypes.arrayOf(
-      PropTypes.shape({
-        icon: PropTypes.string,
-        text: PropTypes.string,
-      })
+      PropTypes.shape({ icon: PropTypes.string, text: PropTypes.string })
     ),
   }).isRequired,
   agregarAlCarrito: PropTypes.func,

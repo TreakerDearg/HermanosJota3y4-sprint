@@ -2,17 +2,18 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import "../styles/components/ProductCard.css";
 
+// 🔹 URL base de backend
 const API_BASE =
-  process.env.REACT_APP_API_URL?.replace(/\/api$/, "") ||
-  "https://hermanosjota3y4-sprint.onrender.com";
+  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
 
 function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
   const [added, setAdded] = useState(false);
 
+  // 🔹 Normaliza URL de imagen
   const imagenUrl = producto.imagenUrl
-    ? producto.imagenUrl.replace(/\\/g, "/").startsWith("/uploads")
-      ? `${API_BASE}${producto.imagenUrl.replace(/\\/g, "/")}`
-      : producto.imagenUrl
+    ? producto.imagenUrl.startsWith("http")
+      ? producto.imagenUrl
+      : `${API_BASE.replace(/\/api$/, "")}/${producto.imagenUrl.replace(/^\/+/, "")}`
     : "/images/placeholder.png";
 
   const handleClickCard = () => {
@@ -45,19 +46,12 @@ function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
 
         <div className="producto-terminal-content">
           <div className="producto-terminal-imagen">
-            <img
-              src={imagenUrl}
-              alt={producto.nombre}
-              draggable={false}
-              loading="lazy"
-            />
+            <img src={imagenUrl} alt={producto.nombre} draggable={false} loading="lazy" />
           </div>
 
           <div className="producto-terminal-info">
             <h3>{producto.nombre || "Producto"}</h3>
-            <span className="categoria">
-              [{producto.categoria || "Sin categoría"}]
-            </span>
+            <span className="categoria">[{producto.categoria || "Sin categoría"}]</span>
             <p className="precio">
               {new Intl.NumberFormat("es-AR", {
                 style: "currency",
@@ -67,10 +61,7 @@ function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
             </p>
 
             {agregarAlCarrito && (
-              <button
-                className={`terminal-btn ${added ? "added" : ""}`}
-                onClick={handleAgregarAlCarrito}
-              >
+              <button className={`terminal-btn ${added ? "added" : ""}`} onClick={handleAgregarAlCarrito}>
                 {added ? "✔ AGREGADO" : "AGREGAR AL CARRITO"}
               </button>
             )}

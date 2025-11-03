@@ -16,6 +16,10 @@ const CrearProducto = ({ crearProducto }) => {
   const [errores, setErrores] = useState({});
   const [mensaje, setMensaje] = useState("");
 
+  // 🧭 URL base dinámica
+  const API_BASE =
+    (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+
   // ===== Manejo de inputs =====
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -24,7 +28,6 @@ const CrearProducto = ({ crearProducto }) => {
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    // Validación rápida de campos obligatorios
     if (["nombre", "precio", "stock", "categoria"].includes(name)) {
       setErrores((prev) => ({
         ...prev,
@@ -72,7 +75,6 @@ const CrearProducto = ({ crearProducto }) => {
     try {
       setLoading(true);
 
-      // ===== Construir FormData =====
       const data = new FormData();
       data.append("nombre", formData.nombre.trim());
       data.append("descripcion", formData.descripcion.trim() || "");
@@ -82,10 +84,9 @@ const CrearProducto = ({ crearProducto }) => {
       data.append("destacado", formData.destacado ? "true" : "false");
       if (imagen) data.append("imagen", imagen);
 
-      // ===== Llamada al backend =====
-      await crearProducto(data);
+      // 🔹 Llamada al backend con URL base dinámica
+      await crearProducto(data, API_BASE);
 
-      // ===== Reset del formulario =====
       setMensaje("✅ Producto creado con éxito");
       setFormData({
         nombre: "",

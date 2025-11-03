@@ -7,9 +7,13 @@ import ProductDetail from "../components/ProductDetail";
 // ✅ Configuración de API dinámica
 // ============================
 // Limpia el posible /api final para construir correctamente las URLs de imagen
-const API_BASE =
-  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
-const API_IMG = API_BASE.replace(/\/api$/, ""); // elimina /api para rutas de imágenes
+const API_BASE = (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+
+// 🔧 Asegura que solo quite "/api" si realmente está al final
+const API_IMG = API_BASE.endsWith("/api")
+  ? API_BASE.slice(0, -4)
+  : API_BASE;
+
 
 const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
   const { id } = useParams();

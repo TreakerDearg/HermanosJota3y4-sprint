@@ -3,8 +3,10 @@ import PropTypes from "prop-types";
 import ProductCard from "./ProductCard";
 import "../styles/components/ProductList.css";
 
-const API_BASE = process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api";
-
+const API_BASE =
+  process.env.REACT_APP_API_URL ||
+  "https://hermanosjota3y4-sprint.onrender.com/api";
+const API_IMG = API_BASE.replace(/\/api$/, "");
 
 function ProductList({
   productos = [],
@@ -114,14 +116,13 @@ function ProductList({
               producto={{
                 ...producto,
                 imagenUrl: producto.imagenUrl
-                  ? producto.imagenUrl.startsWith("/uploads")
-                    ? `${API_BASE}${producto.imagenUrl}`
-                    : producto.imagenUrl
+                  ? producto.imagenUrl.startsWith("http")
+                    ? producto.imagenUrl
+                    : `${API_IMG}/${producto.imagenUrl.replace(/^\/+/, "")}`
                   : "/images/placeholder.png",
               }}
               agregarAlCarrito={agregarAlCarrito}
               verDetalle={verDetalle}
-              apiUrl={API_BASE}
             />
           ))}
         </div>

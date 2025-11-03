@@ -1,7 +1,10 @@
 import PropTypes from "prop-types";
 import "../styles/components/Destacados.css";
 
-const API_URL = process.env.REACT_APP_API_URL?.replace(/\/api$/, "") || "https://hermanosjota3y4-sprint.onrender.com";
+const API_BASE =
+  process.env.REACT_APP_API_URL ||
+  "https://hermanosjota3y4-sprint.onrender.com/api";
+
 
 function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = () => {} }) {
   const productosDestacados = productos.filter((p) => p.destacado);
@@ -31,11 +34,12 @@ function Destacados({ productos = [], verDetalle = () => {}, agregarAlCarrito = 
             const descripcion = producto.descripcion || "";
             const precio = producto.precio || 0;
 
-            const imagenUrl = producto.imagenUrl
-              ? producto.imagenUrl.startsWith("/uploads")
-                ? `${API_URL}${producto.imagenUrl}`
-                : producto.imagenUrl
-              : "/images/placeholder.png";
+const imagenUrl = producto.imagenUrl
+  ? producto.imagenUrl.startsWith("/uploads")
+    ? `${API_BASE}${producto.imagenUrl}`
+    : producto.imagenUrl
+  : "/images/placeholder.png";
+
 
             return (
               <article
