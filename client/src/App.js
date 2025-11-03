@@ -20,7 +20,7 @@ import "./styles/App.css";
 // Netlify usa REACT_APP_*
 const API_BASE =
   process.env.REACT_APP_API_URL ||
-  "https://hermanosjota3y4-sprint.onrender.com/api";
+  "https://hermanosjota3y4-sprint.onrender.com/api/productos";
 
 function App() {
   // ===== Estado global =====
