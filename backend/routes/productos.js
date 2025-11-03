@@ -12,7 +12,7 @@ import { upload, handleUploadErrors } from "../middlewares/upload.js";
 const router = express.Router();
 
 // ==============================
-// LOGGING Y VALIDACIÓN BÁSICA
+// LOGGING DE REQUESTS
 // ==============================
 router.use((req, res, next) => {
   console.log(`[API Productos] ${req.method} ${req.originalUrl}`);
@@ -20,73 +20,32 @@ router.use((req, res, next) => {
 });
 
 // ==============================
-// GET: Obtener todos los productos
+// RUTAS CRUD PRODUCTOS
 // ==============================
-router.get("/", async (req, res, next) => {
-  try {
-    await getProductos(req, res);
-  } catch (err) {
-    console.error("[GET /productos] Error:", err.message);
-    next(err);
-  }
-});
 
-// ==============================
-// GET: Obtener un producto por ID
-// ==============================
-router.get("/:id", async (req, res, next) => {
-  try {
-    await getProducto(req, res);
-  } catch (err) {
-    console.error("[GET /productos/:id] Error:", err.message);
-    next(err);
-  }
-});
+// GET: Todos los productos
+router.get("/", getProductos);
 
-// ==============================
-// POST: Crear producto (con imagen opcional)
-// ==============================
+// GET: Producto por ID
+router.get("/:id", getProducto);
+
+// POST: Crear producto (imagen opcional)
 router.post(
   "/",
-  upload.single("imagen"),   // Multer sube archivo
-  handleUploadErrors,        // Si falla Multer
-  async (req, res, next) => {
-    try {
-      await createProducto(req, res);
-    } catch (err) {
-      console.error("[POST /productos] Error:", err.message);
-      next(err);
-    }
-  }
+  upload.single("imagen"),
+  handleUploadErrors,
+  createProducto
 );
 
-// ==============================
-// PUT: Actualizar producto (con imagen opcional)
-// ==============================
+// PUT: Actualizar producto (imagen opcional)
 router.put(
   "/:id",
   upload.single("imagen"),
   handleUploadErrors,
-  async (req, res, next) => {
-    try {
-      await updateProducto(req, res);
-    } catch (err) {
-      console.error("[PUT /productos/:id] Error:", err.message);
-      next(err);
-    }
-  }
+  updateProducto
 );
 
-// ==============================
 // DELETE: Eliminar producto
-// ==============================
-router.delete("/:id", async (req, res, next) => {
-  try {
-    await deleteProducto(req, res);
-  } catch (err) {
-    console.error("[DELETE /productos/:id] Error:", err.message);
-    next(err);
-  }
-});
+router.delete("/:id", deleteProducto);
 
 export default router;

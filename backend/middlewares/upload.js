@@ -1,70 +1,48 @@
+// middlewares/upload.js
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 import os from "os";
 
-// ============================================================
-// 📦 CONFIGURACIÓN DE RUTA DE SUBIDA
-// ============================================================
-// En producción (Render), los archivos locales desaparecen tras reinicio.
-// Por eso, usamos el directorio temporal del sistema para evitar errores.
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
-
-// Si estás en Render, usa una carpeta temporal para evitar errores de permisos.
 const UPLOAD_DIR = IS_PRODUCTION
-  ? path.join(os.tmpdir(), "uploads") // /tmp/uploads
+  ? path.join(os.tmpdir(), "uploads")
   : path.join(process.cwd(), "uploads");
 
-// Crea la carpeta si no existe
+// Crear carpeta si no existe
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
   console.log(`[Storage] Carpeta de uploads creada en: ${UPLOAD_DIR}`);
 }
 
-// ============================================================
-// ⚙️ CONFIGURACIÓN DE ALMACENAMIENTO (STORAGE)
-// ============================================================
+// Configuración del storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOAD_DIR);
-  },
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     const base = path.basename(file.originalname, ext).replace(/\s+/g, "_");
     const filename = `${Date.now()}_${base}${ext}`;
-    console.log(`[Storage] Archivo generado: ${filename}`);
     cb(null, filename);
   },
 });
 
-// ============================================================
-// 🧩 FILTRO DE ARCHIVOS
-// ============================================================
+// Filtrar solo imágenes
 const allowedTypes = /jpeg|jpg|png|webp|gif/;
-
 const fileFilter = (req, file, cb) => {
   const isValidMime = allowedTypes.test(file.mimetype.toLowerCase());
   const isValidExt = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-
-  if (isValidMime && isValidExt) {
-    cb(null, true);
-  } else {
-    cb(new Error("Solo se permiten imágenes (jpg, png, webp, gif)."));
-  }
+  if (isValidMime && isValidExt) cb(null, true);
+  else cb(new Error("Solo se permiten imágenes (jpg, png, webp, gif)."));
 };
 
-// ============================================================
-// 🚀 INSTANCIA DE MULTER
-// ============================================================
+// Instancia de Multer
 export const upload = multer({
   storage,
-  limits: { fileSize: 3 * 1024 * 1024 }, // Máx. 3MB
+  limits: { fileSize: 3 * 1024 * 1024 }, // 3MB
   fileFilter,
 });
 
-// ============================================================
-// ❗ MANEJO DE ERRORES DE SUBIDA
-// ============================================================
+// Manejo de errores de Multer
 export const handleUploadErrors = (err, req, res, next) => {
   if (!err) return next();
 

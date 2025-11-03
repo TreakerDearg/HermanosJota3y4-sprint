@@ -27,7 +27,7 @@ const API_PREFIX = process.env.API_PREFIX || "/api";
 // ----------------------------
 const UPLOAD_DIR =
   process.env.NODE_ENV === "production"
-    ? path.join(os.tmpdir(), "uploads") // Render usa /tmp
+    ? path.join(os.tmpdir(), "uploads") // Render / Vercel serverless no mantiene archivos locales
     : path.join(__dirname, "uploads");
 
 // ----------------------------
@@ -43,13 +43,17 @@ if (!MONGO_URI) {
 // ============================
 
 // Permitir múltiples orígenes
-const allowedOrigins = (process.env.CORS_ORIGIN || "").split(",").map(o => o.trim());
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+  : ["*"]; // temporal para pruebas, cambiar en producción
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Permitir requests sin origin (ej: Postman, curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (!origin) return callback(null, true); // Postman, curl
+      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
       callback(new Error("CORS no permitido"));
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -79,6 +83,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// Endpoint principal de productos
 app.use(`${API_PREFIX}/productos`, productosRoutes);
 
 // ============================
@@ -96,7 +101,9 @@ const startServer = async () => {
     console.log(`[${new Date().toISOString()}] ✅ Conectado a MongoDB`);
 
     const server = app.listen(PORT, () => {
-      console.log(`[${new Date().toISOString()}] 🚀 Servidor escuchando en http://localhost:${PORT}`);
+      console.log(
+        `[${new Date().toISOString()}] 🚀 Servidor escuchando en http://localhost:${PORT}`
+      );
     });
 
     // Graceful shutdown
@@ -111,7 +118,9 @@ const startServer = async () => {
     process.on("SIGINT", () => shutdown("SIGINT"));
     process.on("SIGTERM", () => shutdown("SIGTERM"));
   } catch (err) {
-    console.error(`[${new Date().toISOString()}] 💥 Error al iniciar servidor: ${err.message}`);
+    console.error(
+      `[${new Date().toISOString()}] 💥 Error al iniciar servidor: ${err.message}`
+    );
     process.exit(1);
   }
 };
