@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import "../styles/components/ProductDetail.css";
 
 const API_BASE =
-  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
 
 function ProductDetail({ producto, agregarAlCarrito, volver }) {
   const [added, setAdded] = useState(false);

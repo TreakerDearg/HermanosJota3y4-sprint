@@ -4,7 +4,7 @@ import "../styles/components/ProductCard.css";
 
 // 🔹 URL base de backend
 const API_BASE =
-  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+  (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
 
 function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
   const [added, setAdded] = useState(false);

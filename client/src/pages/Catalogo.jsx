@@ -7,7 +7,7 @@ import ProductDetail from "../components/ProductDetail";
 // ✅ Configuración de API dinámica
 // ============================
 // Limpia el posible /api final para construir correctamente las URLs de imagen
-const API_BASE = (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+const API_BASE = (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
 
 // 🔧 Asegura que solo quite "/api" si realmente está al final
 const API_IMG = API_BASE.endsWith("/api")

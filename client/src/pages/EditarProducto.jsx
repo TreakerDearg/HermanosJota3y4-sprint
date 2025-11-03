@@ -30,7 +30,7 @@ const EditarProducto = ({ actualizarProducto }) => {
         // URL dinámica compatible con Render / local
         const API_BASE =
           (process.env.REACT_APP_API_URL ||
-            "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+            "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
         const API_URL = `${API_BASE}/productos`;
 
         console.log("🌐 Cargando productos desde:", API_URL);

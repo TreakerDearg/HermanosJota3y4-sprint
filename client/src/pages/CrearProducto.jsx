@@ -18,7 +18,7 @@ const CrearProducto = ({ crearProducto }) => {
 
   // 🧭 URL base dinámica
   const API_BASE =
-    (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+    (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api/productos").replace(/\/$/, "");
 
   // ===== Manejo de inputs =====
   const handleChange = (e) => {
