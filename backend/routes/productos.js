@@ -1,4 +1,4 @@
-// routes/productRoutes.js
+// routes/productos.js
 import express from "express";
 import {
   getProductos,
@@ -30,20 +30,10 @@ router.get("/", getProductos);
 router.get("/:id", getProducto);
 
 // POST: Crear producto (imagen opcional)
-router.post(
-  "/",
-  upload.single("imagen"),
-  handleUploadErrors,
-  createProducto
-);
+router.post("/", upload.single("imagen"), handleUploadErrors, createProducto);
 
 // PUT: Actualizar producto (imagen opcional)
-router.put(
-  "/:id",
-  upload.single("imagen"),
-  handleUploadErrors,
-  updateProducto
-);
+router.put("/:id", upload.single("imagen"), handleUploadErrors, updateProducto);
 
 // DELETE: Eliminar producto
 router.delete("/:id", deleteProducto);

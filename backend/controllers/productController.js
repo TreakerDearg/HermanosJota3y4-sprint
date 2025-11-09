@@ -1,144 +1,154 @@
-// controllers/productController.js
-import mongoose from "mongoose";
-import Producto from "../models/Producto.js";
 import fs from "fs";
 import path from "path";
-import { asyncHandler } from "../middlewares/asyncHandler.js";
+import os from "os";
+import Product from "../models/Product.js";
+import { fileURLToPath } from "url";
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// 🔹 Utilidades internas
-const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+// 📂 Directorio de uploads
+const UPLOAD_DIR =
+  process.env.NODE_ENV === "production"
+    ? path.join(os.tmpdir(), "uploads")
+    : path.join(process.cwd(), "uploads");
 
-const deleteImageIfExists = (filePath) => {
+// 🌐 Base URL dinámica según entorno
+const BASE_URL =
+  process.env.BASE_URL ||
+  process.env.RENDER_EXTERNAL_URL ||
+  `http://localhost:${process.env.PORT || 5000}`;
+
+// Crear carpeta si no existe
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  console.log(`[Storage] Carpeta de uploads creada en: ${UPLOAD_DIR}`);
+}
+
+// ======================================================
+// 🔹 GET /productos - Obtener todos
+// ======================================================
+export const getProductos = async (req, res) => {
   try {
-    const fullPath = path.join(process.cwd(), filePath);
-    if (filePath && fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
-      console.log(`[Storage] 🗑 Imagen eliminada: ${filePath}`);
-    }
-  } catch (error) {
-    console.warn(`[Storage] ⚠ No se pudo eliminar imagen: ${error.message}`);
+    const productos = await Product.find();
+
+    // Adjuntar URL pública completa de la imagen
+    const productosConImagen = productos.map((p) => ({
+      ...p._doc,
+      imagenUrl: p.imagen ? `${BASE_URL}${p.imagen}` : null,
+    }));
+
+    res.json({ success: true, data: productosConImagen });
+  } catch (err) {
+    console.error("❌ Error al obtener productos:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// =============================================================
-// GET /api/productos
-// =============================================================
-export const getProductos = asyncHandler(async (req, res) => {
-  const productos = await Producto.find().sort({ createdAt: -1 });
-  res.status(200).json({
-    estado: "success",
-    total: productos.length,
-    data: productos,
-  });
-});
+// ======================================================
+// 🔹 GET /productos/:id - Obtener uno
+// ======================================================
+export const getProducto = async (req, res) => {
+  try {
+    const producto = await Product.findById(req.params.id);
+    if (!producto) return res.status(404).json({ message: "Producto no encontrado" });
 
-// =============================================================
-// GET /api/productos/:id
-// =============================================================
-export const getProducto = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!isValidId(id)) {
-    return res.status(400).json({ estado: "error", mensaje: "ID de producto inválido" });
+    const productoConImagen = {
+      ...producto._doc,
+      imagenUrl: producto.imagen ? `${BASE_URL}${producto.imagen}` : null,
+    };
+
+    res.json({ success: true, data: productoConImagen });
+  } catch (err) {
+    res.status(400).json({ message: "ID inválido" });
   }
+};
 
-  const producto = await Producto.findById(id);
-  if (!producto) {
-    return res.status(404).json({ estado: "error", mensaje: "Producto no encontrado" });
-  }
+// ======================================================
+// 🔹 POST /productos - Crear nuevo producto
+// ======================================================
+export const createProducto = async (req, res) => {
+  try {
+    const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
 
-  res.status(200).json({ estado: "success", data: producto });
-});
+    let imagenPath = null;
+    if (req.file) imagenPath = `/uploads/${req.file.filename}`;
 
-// =============================================================
-// POST /api/productos
-// =============================================================
-export const createProducto = asyncHandler(async (req, res) => {
-  const { nombre, descripcion = "", categoria, precio, stock, destacado } = req.body;
-  const precioNum = parseFloat(precio);
-  const stockNum = parseInt(stock, 10);
-
-  if (!nombre?.trim() || !categoria?.trim() || isNaN(precioNum) || isNaN(stockNum)) {
-    return res.status(400).json({
-      estado: "error",
-      mensaje: "Campos requeridos faltantes o inválidos: nombre, precio, categoría o stock.",
+    const nuevo = new Product({
+      nombre,
+      descripcion,
+      precio,
+      categoria,
+      stock,
+      destacado,
+      imagen: imagenPath,
     });
-  }
 
-  if (precioNum < 0 || stockNum < 0) {
-    return res.status(400).json({
-      estado: "error",
-      mensaje: "Precio y stock deben ser números positivos.",
+    const guardado = await nuevo.save();
+
+    res.status(201).json({
+      success: true,
+      data: { ...guardado._doc, imagenUrl: imagenPath ? `${BASE_URL}${imagenPath}` : null },
     });
+  } catch (err) {
+    console.error("❌ Error al crear producto:", err);
+    res.status(400).json({ success: false, message: err.message });
   }
+};
 
-  const nuevoProducto = new Producto({
-    nombre: nombre.trim(),
-    descripcion: descripcion.trim(),
-    categoria: categoria.trim(),
-    precio: precioNum,
-    stock: stockNum,
-    destacado: destacado === "true" || destacado === true,
-    imagenUrl: req.file ? `/uploads/${req.file.filename}` : null,
-  });
+// ======================================================
+// 🔹 PUT /productos/:id - Actualizar
+// ======================================================
+export const updateProducto = async (req, res) => {
+  try {
+    const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
+    const productoActual = await Product.findById(req.params.id);
 
-  const productoGuardado = await nuevoProducto.save();
+    if (!productoActual) return res.status(404).json({ message: "Producto no encontrado" });
 
-  res.status(201).json({
-    estado: "success",
-    mensaje: "Producto creado correctamente",
-    data: productoGuardado,
-  });
-});
+    let updateData = { nombre, descripcion, precio, categoria, stock, destacado };
 
-// =============================================================
-// PUT /api/productos/:id
-// =============================================================
-export const updateProducto = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!isValidId(id)) return res.status(400).json({ estado: "error", mensaje: "ID inválido" });
+    if (req.file) {
+      // Eliminar imagen anterior si existía
+      if (productoActual.imagen) {
+        const oldPath = path.join(process.cwd(), productoActual.imagen);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      updateData.imagen = `/uploads/${req.file.filename}`;
+    }
 
-  const producto = await Producto.findById(id);
-  if (!producto) return res.status(404).json({ estado: "error", mensaje: "Producto no encontrado" });
+    const actualizado = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
-  const { nombre, descripcion, categoria, precio, stock, destacado } = req.body;
-  const precioNum = precio !== undefined ? parseFloat(precio) : producto.precio;
-  const stockNum = stock !== undefined ? parseInt(stock, 10) : producto.stock;
+    res.json({
+      success: true,
+      data: {
+        ...actualizado._doc,
+        imagenUrl: actualizado.imagen ? `${BASE_URL}${actualizado.imagen}` : null,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Error al actualizar producto:", err);
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
 
-  if (isNaN(precioNum) || precioNum < 0) return res.status(400).json({ estado: "error", mensaje: "Precio inválido" });
-  if (isNaN(stockNum) || stockNum < 0) return res.status(400).json({ estado: "error", mensaje: "Stock inválido" });
+// ======================================================
+// 🔹 DELETE /productos/:id - Eliminar
+// ======================================================
+export const deleteProducto = async (req, res) => {
+  try {
+    const producto = await Product.findById(req.params.id);
+    if (!producto) return res.status(404).json({ message: "Producto no encontrado" });
 
-  if (req.file && producto.imagenUrl) deleteImageIfExists(producto.imagenUrl);
+    // Eliminar imagen si existe
+    if (producto.imagen) {
+      const filePath = path.join(process.cwd(), producto.imagen);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
 
-  producto.nombre = nombre?.trim() || producto.nombre;
-  producto.descripcion = descripcion?.trim() || producto.descripcion;
-  producto.categoria = categoria?.trim() || producto.categoria;
-  producto.precio = precioNum;
-  producto.stock = stockNum;
-  producto.destacado = destacado === "true" || destacado === true;
-  if (req.file) producto.imagenUrl = `/uploads/${req.file.filename}`;
-
-  const actualizado = await producto.save();
-
-  res.status(200).json({
-    estado: "success",
-    mensaje: "Producto actualizado correctamente",
-    data: actualizado,
-  });
-});
-
-// =============================================================
-// DELETE /api/productos/:id
-// =============================================================
-export const deleteProducto = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!isValidId(id)) return res.status(400).json({ estado: "error", mensaje: "ID inválido" });
-
-  const producto = await Producto.findByIdAndDelete(id);
-  if (!producto) return res.status(404).json({ estado: "error", mensaje: "Producto no encontrado" });
-
-  if (producto.imagenUrl) deleteImageIfExists(producto.imagenUrl);
-
-  res.status(200).json({ estado: "success", mensaje: "Producto eliminado correctamente" });
-});
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: "Producto eliminado" });
+  } catch (err) {
+    console.error("❌ Error al eliminar producto:", err);
+    res.status(400).json({ success: false, message: err.message });
+  }
+};

@@ -11,34 +11,31 @@ import logger from "./middlewares/logger.js";
 import { notFoundHandler, errorHandler } from "./middlewares/errorHandler.js";
 import { connectDB } from "./db.js";
 
-// ============================
-// 🔧 Configuración base
-// ============================
 dotenv.config();
+
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
-// En producción, los archivos no persisten en Render
+// ============================
+// 📁 Configurar ruta de uploads
+// ============================
 const UPLOAD_DIR =
   process.env.NODE_ENV === "production"
     ? path.join(os.tmpdir(), "uploads")
     : path.join(__dirname, "uploads");
 
-// ============================
-// ⚠ Validación mínima de entorno
-// ============================
-if (!MONGO_URI) {
-  console.error("❌ FALTA VARIABLE DE ENTORNO: MONGO_URI");
-  process.exit(1);
+// Crear carpeta si no existe (solo en dev)
+import fs from "fs";
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  console.log(`[Storage] Carpeta de uploads creada en: ${UPLOAD_DIR}`);
 }
 
 // ============================
-// 🌐 Middlewares globales
+// 🌐 CORS
 // ============================
-
 const allowedOrigins = [
   "https://hermanos-jota3y4-sprint-67f0a19p6-treakerdeargs-projects.vercel.app",
   "https://hermanosjota3y4.vercel.app",
@@ -48,16 +45,11 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Permitir Postman, curl, SSR sin origin
       if (!origin) return callback(null, true);
-
-      // Aceptar builds dinámicos de Vercel
       const vercelPattern = /^https:\/\/hermanos-jota3y4-sprint-[a-z0-9-]+-treakerdeargs-projects\.vercel\.app$/;
-
       if (allowedOrigins.includes(origin) || vercelPattern.test(origin)) {
         return callback(null, true);
       }
-
       console.error("❌ Bloqueado por CORS:", origin);
       callback(new Error("CORS no autorizado"));
     },
@@ -66,6 +58,9 @@ app.use(
   })
 );
 
+// ============================
+// 🧩 Middlewares base
+// ============================
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(logger);
@@ -80,7 +75,6 @@ app.use("/images", express.static(path.join(__dirname, "public/images")));
 // 🚀 Rutas base
 // ============================
 
-// Health check principal
 app.get("/", (req, res) => {
   res.status(200).json({
     estado: "success",
@@ -90,11 +84,10 @@ app.get("/", (req, res) => {
   });
 });
 
-// Endpoint principal de productos (sin /api para simplificar el consumo)
 app.use("/productos", productosRoutes);
 
 // ============================
-// ⚠️ Manejo de errores
+// ⚠️ Errores globales
 // ============================
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -108,14 +101,11 @@ const startServer = async () => {
     console.log(`[${new Date().toISOString()}] ✅ Conectado a MongoDB`);
 
     const server = app.listen(PORT, () => {
-      console.log(
-        `[${new Date().toISOString()}] 🚀 Servidor escuchando en http://localhost:${PORT}`
-      );
+      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     });
 
-    // Graceful shutdown
     const shutdown = (signal) => {
-      console.log(`\n🧹 Recibida señal ${signal}. Cerrando servidor...`);
+      console.log(`\n Recibida señal ${signal}. Cerrando servidor...`);
       server.close(() => {
         console.log("🛑 Servidor cerrado correctamente");
         process.exit(0);
@@ -125,12 +115,9 @@ const startServer = async () => {
     process.on("SIGINT", () => shutdown("SIGINT"));
     process.on("SIGTERM", () => shutdown("SIGTERM"));
   } catch (err) {
-    console.error(
-      `[${new Date().toISOString()}] 💥 Error al iniciar servidor: ${err.message}`
-    );
+    console.error(`❌ Error al iniciar servidor: ${err.message}`);
     process.exit(1);
   }
 };
 
-// Iniciar aplicación
 startServer();

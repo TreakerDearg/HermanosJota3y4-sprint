@@ -5,6 +5,8 @@ import fs from "fs";
 import os from "os";
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+// En producción, Render/Vercel no permiten escritura persistente fuera de /tmp
 const UPLOAD_DIR = IS_PRODUCTION
   ? path.join(os.tmpdir(), "uploads")
   : path.join(process.cwd(), "uploads");
@@ -15,49 +17,51 @@ if (!fs.existsSync(UPLOAD_DIR)) {
   console.log(`[Storage] Carpeta de uploads creada en: ${UPLOAD_DIR}`);
 }
 
-// Configuración del storage
+// Configuración del almacenamiento
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    const base = path.basename(file.originalname, ext).replace(/\s+/g, "_");
-    const filename = `${Date.now()}_${base}${ext}`;
-    cb(null, filename);
+    const base = path
+      .basename(file.originalname, ext)
+      .replace(/\s+/g, "_")
+      .replace(/[^\w_-]/g, ""); // Limpieza adicional
+    cb(null, `${Date.now()}_${base}${ext}`);
   },
 });
 
-// Filtrar solo imágenes
+// Filtrado de archivos válidos
 const allowedTypes = /jpeg|jpg|png|webp|gif/;
 const fileFilter = (req, file, cb) => {
-  const isValidMime = allowedTypes.test(file.mimetype.toLowerCase());
-  const isValidExt = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  if (isValidMime && isValidExt) cb(null, true);
+  const isMimeValid = allowedTypes.test(file.mimetype.toLowerCase());
+  const isExtValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  if (isMimeValid && isExtValid) cb(null, true);
   else cb(new Error("Solo se permiten imágenes (jpg, png, webp, gif)."));
 };
 
 // Instancia de Multer
 export const upload = multer({
   storage,
-  limits: { fileSize: 3 * 1024 * 1024 }, // 3MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // Subo a 5MB por seguridad
   fileFilter,
 });
 
-// Manejo de errores de Multer
+// Manejo de errores de subida
 export const handleUploadErrors = (err, req, res, next) => {
   if (!err) return next();
 
-  let mensaje = "Error desconocido al subir el archivo.";
+  let mensaje = "Error al subir el archivo.";
 
   if (err instanceof multer.MulterError) {
     switch (err.code) {
       case "LIMIT_FILE_SIZE":
-        mensaje = "El archivo excede el tamaño máximo permitido (3MB).";
+        mensaje = "El archivo excede los 5MB permitidos.";
         break;
       case "LIMIT_UNEXPECTED_FILE":
-        mensaje = "Archivo no esperado en la solicitud.";
+        mensaje = "Archivo inesperado.";
         break;
       default:
-        mensaje = `Error de Multer: ${err.code}`;
+        mensaje = `Error interno de Multer: ${err.code}`;
     }
   } else {
     mensaje = err.message;
