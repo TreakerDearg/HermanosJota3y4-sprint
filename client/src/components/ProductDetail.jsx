@@ -2,16 +2,17 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import "../styles/components/ProductDetail.css";
 
-// 🔹 URL base del backend
+// 🔹 URL base del backend (solo si es necesaria para normalizar imágenes locales)
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function ProductDetail({ producto, agregarAlCarrito, volver }) {
   const [added, setAdded] = useState(false);
 
-  // 🔹 Normaliza URL de imagen
-  const imagenUrl = producto.imagenUrl?.startsWith("/uploads")
-    ? `${API_BASE}${producto.imagenUrl}`
-    : producto.imagenUrl || "/images/placeholder.png";
+  // 🔹 Normaliza la URL de imagen para que siempre apunte correctamente
+  const imagenUrl =
+    producto.imagen?.startsWith("/uploads")
+      ? `${API_BASE}${producto.imagen}`
+      : producto.imagen || producto.imagenUrl || "/images/placeholder.png";
 
   const handleAgregar = () => {
     if (agregarAlCarrito) agregarAlCarrito(producto);
@@ -26,23 +27,39 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
   ];
 
   return (
-    <section className="product-detail-terminal" aria-label={`Detalle de ${producto.nombre || "Producto"}`}>
+    <section
+      className="product-detail-terminal"
+      aria-label={`Detalle de ${producto.nombre || "Producto"}`}
+    >
       <div className="detail-terminal-container">
         {/* Imagen del producto */}
         <div className="detail-terminal-imagen">
-          <img src={imagenUrl} alt={producto.nombre || "Producto"} loading="lazy" draggable={false} />
+          <img
+            src={imagenUrl}
+            alt={producto.nombre || "Producto"}
+            loading="lazy"
+            draggable={false}
+          />
         </div>
 
         {/* Información principal */}
         <div className="detail-terminal-info">
-          <h2 className="detail-terminal-title">{producto.nombre || "Producto sin nombre"}</h2>
+          <h2 className="detail-terminal-title">
+            {producto.nombre || "Producto sin nombre"}
+          </h2>
 
           <p className="detail-terminal-price">
-            {new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(producto.precio || 0)}
+            {new Intl.NumberFormat("es-AR", {
+              style: "currency",
+              currency: "ARS",
+              minimumFractionDigits: 0,
+            }).format(producto.precio || 0)}
           </p>
 
           <div className="detail-terminal-desc-scroll">
-            <p className="detail-terminal-desc">{producto.descripcion || "Sin descripción disponible."}</p>
+            <p className="detail-terminal-desc">
+              {producto.descripcion || "Sin descripción disponible."}
+            </p>
           </div>
 
           <ul className="detail-terminal-benefits" aria-label="Beneficios del producto">
@@ -58,11 +75,19 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
             <button
               className={`btn-terminal-agregar ${added ? "added" : ""}`}
               onClick={handleAgregar}
-              aria-label={added ? `${producto.nombre || "Producto"} agregado` : `Añadir ${producto.nombre || "Producto"} al carrito`}
+              aria-label={
+                added
+                  ? `${producto.nombre || "Producto"} agregado`
+                  : `Añadir ${producto.nombre || "Producto"} al carrito`
+              }
             >
               {added ? "✔ Agregado" : "🛒 Añadir al Carrito"}
             </button>
-            <button className="btn-terminal-volver" onClick={volver} aria-label="Volver al catálogo">
+            <button
+              className="btn-terminal-volver"
+              onClick={volver}
+              aria-label="Volver al catálogo"
+            >
               🔙 Volver al Catálogo
             </button>
           </div>
@@ -78,6 +103,7 @@ ProductDetail.propTypes = {
     nombre: PropTypes.string,
     precio: PropTypes.number,
     descripcion: PropTypes.string,
+    imagen: PropTypes.string,
     imagenUrl: PropTypes.string,
     beneficios: PropTypes.arrayOf(
       PropTypes.shape({ icon: PropTypes.string, text: PropTypes.string })

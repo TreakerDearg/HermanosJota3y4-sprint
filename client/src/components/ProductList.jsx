@@ -3,8 +3,9 @@ import PropTypes from "prop-types";
 import ProductCard from "./ProductCard";
 import "../styles/components/ProductList.css";
 
-// 🔹 URL base del backend
+// eslint-disable-next-line no-unused-vars
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
+
 
 function ProductList({
   productos = [],
@@ -16,76 +17,81 @@ function ProductList({
   const [precioSeleccionado, setPrecioSeleccionado] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
 
+  // 🔹 Categorías dinámicas
   const categorias = useMemo(
     () => ["Todos", ...new Set(productos.map((p) => p.categoria).filter(Boolean))],
     [productos]
   );
 
-  const rangosPrecio = ["Todos", "Hasta $10000", "$10000 - $20000", "Más de $20000"];
+  // 🔹 Rangos de precio fijos
+  const rangosPrecio = ["Todos", "Hasta $10.000", "$10.000 - $20.000", "Más de $20.000"];
 
+  // 🔹 Filtrado inteligente
   const productosFiltrados = useMemo(() => {
     return productos.filter((p) => {
-      const nombre = p.nombre || "";
-      const categoria = p.categoria || "";
+      const nombre = p.nombre?.toLowerCase() || "";
+      const categoria = p.categoria?.toLowerCase() || "";
+      const precio = p.precio || 0;
 
       const matchCategoria =
         categoriaSeleccionada === "Todos" ||
-        categoria.toLowerCase() === categoriaSeleccionada.toLowerCase();
+        categoria === categoriaSeleccionada.toLowerCase();
 
       let matchPrecio = true;
       switch (precioSeleccionado) {
-        case "Hasta $10000":
-          matchPrecio = p.precio <= 10000;
+        case "Hasta $10.000":
+          matchPrecio = precio <= 10000;
           break;
-        case "$10000 - $20000":
-          matchPrecio = p.precio > 10000 && p.precio <= 20000;
+        case "$10.000 - $20.000":
+          matchPrecio = precio > 10000 && precio <= 20000;
           break;
-        case "Más de $20000":
-          matchPrecio = p.precio > 20000;
+        case "Más de $20.000":
+          matchPrecio = precio > 20000;
           break;
         default:
           matchPrecio = true;
       }
 
-      const matchBusqueda = nombre.toLowerCase().includes(busqueda.toLowerCase());
+      const matchBusqueda = nombre.includes(busqueda.toLowerCase());
       return matchCategoria && matchPrecio && matchBusqueda;
     });
   }, [productos, categoriaSeleccionada, precioSeleccionado, busqueda]);
 
   return (
     <section className="product-list-section">
+      {/* Encabezado */}
       <header className="section-header">
         <h2 className="product-list-title">{titulo}</h2>
-        <p className="product-count">{productosFiltrados.length} productos disponibles</p>
+        <p className="product-count">
+          {productosFiltrados.length} producto
+          {productosFiltrados.length !== 1 && "s"} disponible
+          {productosFiltrados.length !== 1 && "s"}
+        </p>
       </header>
 
+      {/* Barra de búsqueda */}
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Buscar por nombre de producto..."
+          placeholder="🔍 Buscar por nombre..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          aria-label="Buscar productos"
         />
         {busqueda && (
-          <button
-            className="clear-btn"
-            onClick={() => setBusqueda("")}
-            aria-label="Limpiar búsqueda"
-          >
+          <button className="clear-btn" onClick={() => setBusqueda("")}>
             ✖
           </button>
         )}
       </div>
 
+      {/* Filtros */}
       <div className="filters-container">
-        <div className="category-filters" role="group" aria-label="Filtrar por categoría">
+        <div className="category-filters">
           {categorias.map((c) => (
             <button
               key={c}
               className={`category-btn ${c === categoriaSeleccionada ? "active" : ""}`}
               onClick={() => setCategoriaSeleccionada(c)}
-              aria-pressed={c === categoriaSeleccionada}
             >
               {c}
             </button>
@@ -93,7 +99,7 @@ function ProductList({
         </div>
 
         <div className="price-filters">
-          <label htmlFor="precio">Filtrar por precio:</label>
+          <label htmlFor="precio">💰 Precio:</label>
           <select
             id="precio"
             value={precioSeleccionado}
@@ -108,16 +114,17 @@ function ProductList({
         </div>
       </div>
 
+      {/* Grid de productos */}
       {productosFiltrados.length === 0 ? (
-        <p className="no-products">No hay productos disponibles con los filtros seleccionados.</p>
+        <p className="no-products">No hay productos que coincidan con tu búsqueda.</p>
       ) : (
         <div className="product-list-grid">
           {productosFiltrados.map((producto) => {
-            // 🔹 Normaliza URL de imagen
+            // 🔹 Imagen segura con fallback
             const imagenUrl =
-              producto.imagenUrl?.startsWith("/uploads")
-                ? `${API_BASE}${producto.imagenUrl}`
-                : producto.imagenUrl || "/images/placeholder.png";
+              producto.imagenUrl ||
+              producto.imagen ||
+              "/images/placeholder.png";
 
             return (
               <ProductCard

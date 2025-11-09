@@ -10,12 +10,8 @@ const Home = ({ productos, agregarAlCarrito }) => {
   // ===============================
   // 🔹 Configuración base de API e imágenes
   // ===============================
-  const API_BASE =
-    process.env.REACT_APP_API_URL ||
-    "https://hermanosjota3y4-sprint.onrender.com/api";
-
-  // Se eliminan duplicados de /api y se construye correctamente la URL de imagen
-  const API_IMG = API_BASE.replace("/api", "");
+  const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
+  const API_IMG = API_BASE.replace(/\/api$/, ""); // elimina /api al final si existe
 
   // ===============================
   // 🔹 Productos destacados
@@ -23,14 +19,21 @@ const Home = ({ productos, agregarAlCarrito }) => {
   const destacados = productos.filter((p) => p.destacado);
 
   // 🔹 Normalización de rutas de imágenes
-  const productosConImagen = destacados.map((p) => ({
-    ...p,
-    imagenUrl: p.imagenUrl
-      ? p.imagenUrl.startsWith("http")
-        ? p.imagenUrl
-        : `${API_IMG}${p.imagenUrl.replace(/\\/g, "/")}`
-      : "/images/placeholder.png",
-  }));
+  const productosConImagen = destacados.map((p) => {
+    let imagenUrl = "/images/placeholder.png";
+
+    if (p.imagenUrl) {
+      if (p.imagenUrl.startsWith("http")) {
+        imagenUrl = p.imagenUrl;
+      } else if (p.imagenUrl.startsWith("/uploads")) {
+        imagenUrl = `${API_IMG}${p.imagenUrl.replace(/\\/g, "/")}`;
+      } else {
+        imagenUrl = `${API_IMG}/uploads/${p.imagenUrl.replace(/\\/g, "/")}`;
+      }
+    }
+
+    return { ...p, imagenUrl };
+  });
 
   // 🔹 Navegación al detalle
   const verDetalle = (producto) => {
