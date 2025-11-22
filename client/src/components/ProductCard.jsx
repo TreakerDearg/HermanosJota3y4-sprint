@@ -1,68 +1,30 @@
-import { useState } from "react";
+import React, { useState, memo } from "react";
 import PropTypes from "prop-types";
+import { getImagenUrl } from "../utils/getImagenUrl";
 import "../styles/components/ProductCard.css";
-
-// 🔹 URL base del backend sin /api al final
-const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
   const [added, setAdded] = useState(false);
+  const imagenUrl = getImagenUrl(producto);
 
-  // 🔹 Normaliza URL de imagen
-  const imagenUrl =
-    producto.imagenUrl?.startsWith("/uploads")
-      ? `${API_BASE}${producto.imagenUrl}`
-      : producto.imagenUrl || "/images/placeholder.png";
-
-  const handleClickCard = () => {
-    if (verDetalle) verDetalle(producto);
-  };
-
-  const handleAgregarAlCarrito = (e) => {
-    e.stopPropagation();
-    if (agregarAlCarrito) agregarAlCarrito(producto);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1000);
-  };
+  const handleClickCard = () => verDetalle?.(producto);
+  const handleAgregar = e => { e.stopPropagation(); agregarAlCarrito?.(producto); setAdded(true); setTimeout(() => setAdded(false), 1000); };
 
   return (
-    <div
-      className="producto-card-terminal"
-      onClick={handleClickCard}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") handleClickCard();
-      }}
-    >
+    <div className="producto-card-terminal" onClick={handleClickCard}>
       <div className="terminal-border">
         <div className="terminal-header">
-          <span className="dot red"></span>
-          <span className="dot yellow"></span>
-          <span className="dot green"></span>
+          <span className="dot red"></span><span className="dot yellow"></span><span className="dot green"></span>
         </div>
-
         <div className="producto-terminal-content">
           <div className="producto-terminal-imagen">
             <img src={imagenUrl} alt={producto.nombre || "Producto"} draggable={false} loading="lazy" />
           </div>
-
           <div className="producto-terminal-info">
             <h3>{producto.nombre || "Producto"}</h3>
             <span className="categoria">[{producto.categoria || "Sin categoría"}]</span>
-            <p className="precio">
-              {new Intl.NumberFormat("es-AR", {
-                style: "currency",
-                currency: "ARS",
-                minimumFractionDigits: 0,
-              }).format(producto.precio || 0)}
-            </p>
-
-            {agregarAlCarrito && (
-              <button className={`terminal-btn ${added ? "added" : ""}`} onClick={handleAgregarAlCarrito}>
-                {added ? "✔ AGREGADO" : "AGREGAR AL CARRITO"}
-              </button>
-            )}
+            <p className="precio">{new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",minimumFractionDigits:0}).format(producto.precio || 0)}</p>
+            {agregarAlCarrito && <button className={`terminal-btn ${added ? "added" : ""}`} onClick={handleAgregar}>{added ? "✔ AGREGADO" : "AGREGAR AL CARRITO"}</button>}
           </div>
         </div>
       </div>
@@ -71,15 +33,9 @@ function ProductCard({ producto, agregarAlCarrito, verDetalle }) {
 }
 
 ProductCard.propTypes = {
-  producto: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    nombre: PropTypes.string,
-    precio: PropTypes.number,
-    categoria: PropTypes.string,
-    imagenUrl: PropTypes.string,
-  }).isRequired,
+  producto: PropTypes.object.isRequired,
   agregarAlCarrito: PropTypes.func,
   verDetalle: PropTypes.func,
 };
 
-export default ProductCard;
+export default memo(ProductCard);

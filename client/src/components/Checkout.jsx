@@ -1,15 +1,23 @@
+// src/components/Checkout.jsx
 import { useState, useMemo } from "react";
-import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { useUI } from "../context/UIContext";
 import "../styles/components/Checkout.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = () => {} }) {
+export default function Checkout() {
+  const { carrito, vaciarCarrito } = useCart();
+  const { toggleModalCarrito } = useUI();
+  const navigate = useNavigate();
+
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
   // === Agrupación de productos por ID ===
   const productosAgrupados = useMemo(() => {
+    if (!carrito) return [];
     const grouped = carrito.reduce((acc, item) => {
       const key = item._id;
       if (acc[key]) {
@@ -28,15 +36,16 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
   // === Acción de finalizar compra ===
   const handleFinalizar = () => {
     if (!productosAgrupados.length) return;
+
     setProcesando(true);
     setMensaje("Procesando compra...");
 
-    // Simulación del proceso de pago
     setTimeout(() => {
       setMensaje("✅ ¡Compra realizada con éxito!");
       vaciarCarrito();
-      finalizarCompra();
+      toggleModalCarrito(); // cerrar modal si estaba abierto
       setProcesando(false);
+      navigate("/"); // redirige a inicio, podés cambiar a "/productos" si querés
       setTimeout(() => setMensaje(""), 3000);
     }, 1200);
   };
@@ -142,21 +151,3 @@ function Checkout({ carrito = [], vaciarCarrito = () => {}, finalizarCompra = ()
     </section>
   );
 }
-
-// === Validación de props ===
-Checkout.propTypes = {
-  carrito: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      nombre: PropTypes.string,
-      precio: PropTypes.number,
-      cantidad: PropTypes.number,
-      descripcion: PropTypes.string,
-      imagenUrl: PropTypes.string,
-    })
-  ),
-  vaciarCarrito: PropTypes.func,
-  finalizarCompra: PropTypes.func,
-};
-
-export default Checkout;

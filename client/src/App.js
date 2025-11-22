@@ -1,6 +1,12 @@
 // src/App.js
-import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { CartProvider } from "./context/CartContext";
+import { ProductProvider } from "./context/ProductContext";
+
+
+
+import { UIProvider, useUI } from "./context/UIContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -13,189 +19,147 @@ import CheckoutPage from "./pages/Checkout";
 import CrearProducto from "./pages/CrearProducto";
 import EditarProducto from "./pages/EditarProducto";
 import EliminarProducto from "./pages/EliminarProducto";
+import AuthPage from "./pages/AuthPage";
+import UserProfile from "./pages/UserProfile";
+import EditProfile from "./pages/EditProfile";
+import EditPassword from "./pages/EditPassword";
+import MetodosPago from "./pages/MetodosPago";
+import Direcciones from "./pages/Direcciones";
+import Notificaciones from "./pages/Notificaciones";
+import Actividad from "./pages/Actividad";
+import ProductosAdmin from "./pages/ProductosAdmin";
+
+
 
 import "./styles/App.css";
 
-// ===== Configuración API =====
-// Netlify usa REACT_APP_*
-const API_BASE =
-  process.env.REACT_APP_API_URL ||
-  "https://hermanosjota3y4-sprint.onrender.com/api/productos";
+// ============================================
+// 🚦 Rutas privadas
+// ============================================
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/auth" />;
+};
 
-function App() {
-  // ===== Estado global =====
-  const [productos, setProductos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const AdminRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user?.rol === "admin" ? children : <Navigate to="/" />;
+};
 
-  const [carrito, setCarrito] = useState(() => {
-    try {
-      const saved = localStorage.getItem("carrito");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [modalCarrito, setModalCarrito] = useState(false);
-
-  // ===== Persistencia carrito =====
-  useEffect(() => {
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-  }, [carrito]);
-
-  // ===== Hook para fetch productos =====
-  const fetchProductos = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE}/productos`);
-      if (!res.ok) throw new Error("Error al cargar los productos");
-      const data = await res.json();
-      setProductos(Array.isArray(data.data) ? data.data : []);
-    } catch (err) {
-      setError(err.message || "Error desconocido");
-      setProductos([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchProductos();
-  }, [fetchProductos]);
-
-  // ===== Carrito =====
-  const agregarAlCarrito = useCallback((producto) => {
-    if (!producto) return;
-    setCarrito((prev) => {
-      const exists = prev.find((p) => p._id === producto._id);
-      if (exists) {
-        return prev.map((p) =>
-          p._id === producto._id ? { ...p, cantidad: (p.cantidad || 1) + 1 } : p
-        );
-      }
-      return [...prev, { ...producto, cantidad: 1 }];
-    });
-  }, []);
-
-  const eliminarProductoCarrito = useCallback((id) => {
-    setCarrito((prev) => prev.filter((item) => item._id !== id));
-  }, []);
-
-  const vaciarCarrito = useCallback(() => setCarrito([]), []);
-  const toggleModalCarrito = useCallback(() => setModalCarrito((prev) => !prev), []);
-
-  // ===== Construir FormData =====
-  const buildFormData = (producto) => {
-    const fd = new FormData();
-    if (producto instanceof FormData) return producto;
-
-    if (producto.nombre) fd.append("nombre", producto.nombre.trim());
-    if (producto.descripcion) fd.append("descripcion", producto.descripcion?.trim() || "");
-    if (producto.precio !== undefined) fd.append("precio", String(producto.precio));
-    if (producto.stock !== undefined) fd.append("stock", String(producto.stock));
-    if (producto.categoria) fd.append("categoria", producto.categoria.trim());
-    fd.append("destacado", producto.destacado ? "true" : "false");
-    if (producto.imagen) fd.append("imagen", producto.imagen);
-
-    return fd;
-  };
-
-  // ===== Crear producto =====
-  const crearProducto = async (nuevoProducto) => {
-    try {
-      const res = await fetch(`${API_BASE}/productos`, {
-        method: "POST",
-        body: buildFormData(nuevoProducto),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.mensaje || "Error al crear producto");
-      await fetchProductos();
-      return data;
-    } catch (err) {
-      console.error("Error en crearProducto:", err);
-      throw err;
-    }
-  };
-
-  // ===== Actualizar producto =====
-  const actualizarProducto = async (id, updates) => {
-    if (!id) throw new Error("ID de producto inválido");
-    try {
-      const res = await fetch(`${API_BASE}/productos/${id}`, {
-        method: "PUT",
-        body: buildFormData(updates),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.mensaje || "Error al actualizar producto");
-
-      await fetchProductos();
-      return data;
-    } catch (err) {
-      console.error("Error en actualizarProducto:", err);
-      throw err;
-    }
-  };
-
-  // ===== Eliminar producto =====
-  const eliminarProducto = async (id) => {
-    if (!window.confirm("¿Estás seguro que querés eliminar este producto?")) return;
-    try {
-      const res = await fetch(`${API_BASE}/productos/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.mensaje || "Error al eliminar producto");
-      await fetchProductos();
-    } catch (err) {
-      alert("❌ " + err.message);
-    }
-  };
+// ============================================
+// 🌐 Contenido principal de la app
+// ============================================
+function AppContent() {
+  const { modalCarrito, toggleModalCarrito } = useUI();
 
   return (
-    <Router>
-      <div className="App">
-        <Navbar
-          carritoCount={carrito.reduce((acc, p) => acc + (p.cantidad || 1), 0)}
-          mostrarCarrito={toggleModalCarrito}
-        />
+    <>
+      <Navbar mostrarCarrito={toggleModalCarrito} />
+      {modalCarrito && <ModalCarrito />}
+<Routes>
+  {/* Páginas públicas */}
+  <Route path="/" element={<Home />} />
+  <Route path="/productos" element={<Catalogo />} />
+  <Route path="/productos/:id" element={<Catalogo />} />
+  <Route path="/contacto" element={<Contacto />} />
+  <Route path="/auth" element={<AuthPage />} />
+  <Route path="/metodos-pago" element={<MetodosPago />} />
+  <Route path="/direcciones" element={<Direcciones />} />
+  <Route path="/notificaciones" element={<Notificaciones />} />
+  <Route path="/actividad" element={<Actividad />} />
 
-        {modalCarrito && (
-          <ModalCarrito
-            carrito={carrito}
-            cerrarModal={toggleModalCarrito}
-            eliminarProducto={eliminarProductoCarrito}
-            vaciarCarrito={vaciarCarrito}
-            finalizarCompra={() => {
-              alert("¡Compra realizada con éxito!");
-              vaciarCarrito();
-            }}
-          />
-        )}
+  {/* Perfil del usuario */}
+  <Route
+    path="/perfil"
+    element={
+      <PrivateRoute>
+        <UserProfile />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/checkout"
+    element={
+      <PrivateRoute>
+        <CheckoutPage />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/editar-perfil"
+    element={
+      <PrivateRoute>
+        <EditProfile />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/editar-password"
+    element={
+      <PrivateRoute>
+        <EditPassword />
+      </PrivateRoute>
+    }
+  />
 
-        <Routes>
-          {/* Frontend */}
-          <Route
-            path="/"
-            element={<Home productos={productos} loading={loading} error={error} agregarAlCarrito={agregarAlCarrito} />}
-          />
-          <Route
-            path="/productos/:id?"
-            element={<Catalogo productos={productos} loading={loading} error={error} agregarAlCarrito={agregarAlCarrito} />}
-          />
-          <Route path="/contacto" element={<Contacto />} />
-          <Route path="/checkout" element={<CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} />} />
+  {/* Rutas de administración */}
+  <Route
+    path="/admin/crear-producto"
+    element={
+      <AdminRoute>
+        <CrearProducto />
+      </AdminRoute>
+    }
+  />
+  <Route
+    path="/admin/editar-producto/:id"
+    element={
+      <AdminRoute>
+        <EditarProducto />
+      </AdminRoute>
+    }
+  />
+  <Route
+    path="/admin/eliminar-producto"
+    element={
+      <AdminRoute>
+        <EliminarProducto />
+      </AdminRoute>
+    }
+  />
+  <Route
+    path="/admin/productos"
+    element={
+      <AdminRoute>
+        <ProductosAdmin />
+      </AdminRoute>
+    }
+  />
+</Routes>
 
-          {/* Admin */}
-          <Route path="/admin/crear-producto" element={<CrearProducto crearProducto={crearProducto} />} />
-          <Route path="/admin/editar-producto/:id" element={<EditarProducto actualizarProducto={actualizarProducto} />} />
-          <Route path="/admin/eliminar-producto" element={<EliminarProducto productos={productos} eliminarProducto={eliminarProducto} />} />
-        </Routes>
 
-        <Footer />
-      </div>
-    </Router>
+      <Footer />
+    </>
   );
 }
 
-export default App;
+// ============================================
+// 🔹 App principal con Providers
+// ============================================
+export default function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <UIProvider>
+          <ProductProvider>
+
+            <CartProvider>
+              <AppContent />
+            </CartProvider>
+          </ProductProvider>
+
+        </UIProvider>
+      </AuthProvider>
+    </Router>
+  );
+}

@@ -1,0 +1,125 @@
+/* ============================================================
+   🎨 ESTILO PANEL ADMIN NEGRO + DORADO
+   ============================================================ */
+.productos-admin {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 28px;
+  background: #111;
+  border: 1.5px solid #d4af37;
+  border-radius: 14px;
+  color: #f8f8f8;
+  font-family: "Poppins", sans-serif;
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.25);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-header h2 {
+  color: #d4af37;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.btn-crear {
+  background: #d4af37;
+  color: #111;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.25s;
+}
+
+.btn-crear:hover {
+  background: #e8c766;
+  transform: scale(1.03);
+}
+
+.tabla-productos {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-productos th,
+.tabla-productos td {
+  padding: 10px 12px;
+  border: 1px solid #d4af37;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.tabla-productos th {
+  background: #1a1a1a;
+  color: #d4af37;
+}
+
+.tabla-productos td {
+  background: #111;
+}
+
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-editar,
+.btn-eliminar {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: 0.2s;
+}
+
+.btn-editar {
+  background: #2e8b57; /* verde */
+  color: #fff;
+}
+
+.btn-editar:hover {
+  background: #3fc27b;
+}
+
+.btn-eliminar {
+  background: #c0392b; /* rojo */
+  color: #fff;
+}
+
+.btn-eliminar:hover {
+  background: #e74c3c;
+}
+
+.loading,
+.sin-productos {
+  text-align: center;
+  padding: 18px;
+  font-size: 1rem;
+  color: #d4af37;
+}
+
+@media (max-width: 800px) {
+  .tabla-productos th,
+  .tabla-productos td {
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+}

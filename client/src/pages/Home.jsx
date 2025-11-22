@@ -3,59 +3,40 @@ import HeroBanner from "../components/HeroBanner";
 import Destacados from "../components/Destacados";
 import SobreNosotros from "../components/SobreNosotros";
 import Newsletter from "../components/Newsletter";
+import { useCart } from "../context/CartContext";
+import { useProducts } from "../context/ProductContext";
 
-const Home = ({ productos, agregarAlCarrito }) => {
+export default function Home() {
   const navigate = useNavigate();
+  const { productos } = useProducts();
+  const { addToCart } = useCart();
 
-  // ===============================
-  // 🔹 Configuración base de API e imágenes
-  // ===============================
-  const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
-  const API_IMG = API_BASE.replace(/\/api$/, ""); // elimina /api al final si existe
+  // Filtrar productos destacados de forma segura
+  const destacados = Array.isArray(productos)
+    ? productos.filter((p) => p.destacado)
+    : [];
 
-  // ===============================
-  // 🔹 Productos destacados
-  // ===============================
-  const destacados = productos.filter((p) => p.destacado);
-
-  // 🔹 Normalización de rutas de imágenes
-  const productosConImagen = destacados.map((p) => {
-    let imagenUrl = "/images/placeholder.png";
-
-    if (p.imagenUrl) {
-      if (p.imagenUrl.startsWith("http")) {
-        imagenUrl = p.imagenUrl;
-      } else if (p.imagenUrl.startsWith("/uploads")) {
-        imagenUrl = `${API_IMG}${p.imagenUrl.replace(/\\/g, "/")}`;
-      } else {
-        imagenUrl = `${API_IMG}/uploads/${p.imagenUrl.replace(/\\/g, "/")}`;
-      }
-    }
-
-    return { ...p, imagenUrl };
-  });
-
-  // 🔹 Navegación al detalle
+  // Función para navegar al detalle de un producto
   const verDetalle = (producto) => {
-    if (!producto) return;
+    if (!producto?._id) return;
     navigate(`/productos/${producto._id}`);
   };
 
-  // ===============================
-  // 🔹 Render principal
-  // ===============================
   return (
     <main>
+      {/* Banner principal */}
       <HeroBanner />
+
+      {/* Productos destacados */}
       <Destacados
-        productos={productosConImagen}
+        productos={destacados}
         verDetalle={verDetalle}
-        agregarAlCarrito={agregarAlCarrito}
+        agregarAlCarrito={addToCart}
       />
+
+      {/* Secciones informativas */}
       <SobreNosotros />
       <Newsletter />
     </main>
   );
-};
-
-export default Home;
+}

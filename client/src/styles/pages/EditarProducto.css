@@ -1,92 +1,317 @@
-/* ===== Editar Producto — Estilo Terminal Industrial ===== */
+/* ======================================
+   Variables de color industrial
+   ====================================== */
+:root {
+  --negro-industrial: #1a1a1a;
+  --gris-metal: #2c2c2c;
+  --dorado: #d4af37;
+  --dorado-claro: #e6c96a;
+  --blanco-texto: #f5f5f5;
+  --rojo-error: #e74c3c;
+  --verde-exito: #2ecc71;
+  --sombra-fuerte: rgba(0, 0, 0, 0.7);
+  --radius-card: 6px;
+  --padding-card: 1rem;
+  --transition-speed: 0.25s;
+}
+
+/* ======================================
+   Contenedor principal
+   ====================================== */
 .editar-producto {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 30px;
-  background-color: #1a1a1a;
-  border: 2px solid #ffd700;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.2);
-  font-family: 'Courier New', Courier, monospace;
-  color: #f5f5f5;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: var(--negro-industrial);
+  color: var(--blanco-texto);
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: 'Roboto', 'Arial', sans-serif;
 }
 
-.editar-producto:hover {
-  transform: scale(1.01);
-  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
-}
-
-.editar-producto h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 1.8rem;
-  color: #ffd700;
-  text-shadow: 0 0 6px #ffd700;
-}
-
-.editar-producto form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.editar-producto input[type="text"],
-.editar-producto input[type="number"],
-.editar-producto textarea,
-.editar-producto input[type="file"] {
-  padding: 10px 12px;
-  border: 1px solid #ffd700;
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-  background-color: #262626;
-  color: #f5f5f5;
-  transition: border 0.2s, background 0.2s;
-}
-
-.editar-producto input:focus,
-.editar-producto textarea:focus {
-  border-color: #28a745;
-  background-color: #333;
-}
-
-.editar-producto label {
+/* Título principal */
+.titulo-principal {
+  font-size: 2rem;
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--dorado);
+  border-bottom: 2px solid var(--dorado-claro);
+  padding-bottom: 0.5rem;
+}
+
+/* Mensajes de estado */
+.mensaje {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-card);
+  margin-bottom: 1rem;
+  font-weight: bold;
   font-size: 0.95rem;
-  gap: 8px;
 }
 
-.editar-producto button {
-  padding: 12px;
-  background-color: #28a745;
+.mensaje.exito {
+  background-color: var(--verde-exito);
   color: #fff;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
 }
 
-.editar-producto button:hover {
-  background-color: #218838;
-  transform: scale(1.05);
+.mensaje.error {
+  background-color: var(--rojo-error);
+  color: #fff;
 }
 
+/* ======================================
+   Tarjetas (card)
+   ====================================== */
+.card {
+  background-color: var(--gris-metal);
+  padding: var(--padding-card);
+  border-radius: var(--radius-card);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px var(--sombra-fuerte);
+  border: 2px solid var(--dorado);
+  transition: all var(--transition-speed) ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 18px var(--sombra-fuerte);
+}
+
+.card h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--dorado-claro);
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--dorado);
+  padding-bottom: 0.3rem;
+}
+
+/* ======================================
+   Campos del formulario
+   ====================================== */
+.fila-doble {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.campo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+  color: var(--dorado-claro);
+}
+
+.campo input,
+.campo textarea,
+.selector-productos {
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-card);
+  border: 2px solid var(--dorado);
+  background-color: var(--negro-industrial);
+  color: var(--blanco-texto);
+  outline: none;
+  transition: all var(--transition-speed) ease;
+  font-size: 0.95rem;
+}
+
+.campo input:focus,
+.campo textarea:focus,
+.selector-productos:focus {
+  border-color: var(--dorado-claro);
+  box-shadow: 0 0 8px var(--dorado-claro);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
+  padding: 0.8rem;
+  font-size: 1rem;
+  background-color: #1e1e1e;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Checkbox */
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-weight: bold;
+  color: var(--dorado-claro);
+}
+
+.checkbox-field input {
+  accent-color: var(--dorado);
+}
+
+/* Selector de producto */
+.card-seleccion {
+  margin-bottom: 2rem;
+}
+
+.selector-productos {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Vista previa de imagen */
 .preview-img {
   display: block;
-  margin: 10px auto;
-  max-width: 150px;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+  max-width: 220px;
+  margin-top: 0.5rem;
+  border: 3px solid var(--dorado);
+  border-radius: var(--radius-card);
+  box-shadow: 0 6px 12px var(--sombra-fuerte);
+  transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 600px) {
+.preview-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px var(--dorado-claro);
+}
+
+/* Botón guardar */
+.btn-guardar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--dorado);
+  color: var(--negro-industrial);
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all var(--transition-speed) ease;
+}
+
+.btn-guardar:hover {
+  background-color: var(--dorado-claro);
+  box-shadow: 0 0 12px var(--dorado-claro);
+}
+
+/* Texto de tips */
+.tip {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-top: 0.5rem;
+}
+
+/* Loading */
+.loading {
+  font-size: 1.2rem;
+  color: var(--dorado-claro);
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* ======================================
+   Descripción
+   ====================================== */
+.descripcion-field textarea {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+  border: 2px solid var(--dorado);
+  border-radius: var(--radius-card);
+  padding: 1rem;
+  min-height: 140px;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6);
+  transition: all var(--transition-speed) ease;
+}
+
+.descripcion-field textarea:focus {
+  border-color: var(--dorado-claro);
+  box-shadow: 0 0 12px var(--dorado-claro) inset;
+}
+
+/* ======================================
+   Sección de imágenes
+   ====================================== */
+.imagenes-field .imagenes-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.imagen-actual,
+.imagen-nueva {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.imagen-actual label,
+.imagen-nueva label {
+  font-weight: bold;
+  color: var(--dorado-claro);
+  margin-bottom: 0.5rem;
+}
+
+.card input[type="file"] {
+  margin-top: 0.5rem;
+  background-color: var(--gris-metal);
+  border: 2px solid var(--dorado);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-card);
+  color: var(--blanco-texto);
+  cursor: pointer;
+  font-weight: bold;
+  transition: all var(--transition-speed) ease;
+}
+
+.card input[type="file"]:hover {
+  border-color: var(--dorado-claro);
+  box-shadow: 0 0 8px var(--dorado-claro);
+}
+
+.card p {
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+  color: var(--dorado);
+  font-weight: bold;
+}
+
+/* ======================================
+   Responsive
+   ====================================== */
+@media (max-width: 900px) {
+  .fila-doble {
+    flex-direction: column;
+  }
+
+  .imagenes-field .imagenes-container {
+    flex-direction: column;
+  }
+
+  .preview-img {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
   .editar-producto {
-    padding: 20px;
-    margin: 20px;
+    padding: 1rem;
+  }
+
+  .titulo-principal {
+    font-size: 1.6rem;
+  }
+
+  .btn-guardar {
+    width: 100%;
+    justify-content: center;
   }
 }

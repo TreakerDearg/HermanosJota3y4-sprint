@@ -1,11 +1,11 @@
 /* ============================================================ */
-/* DESTACADOS - ESTILO TERMINAL INDUSTRIAL MEJORADO */
+/* DESTACADOS - ESTILO INDUSTRIAL MEJORADO */
 /* ============================================================ */
 
 .destacados-terminal {
   padding: 2rem 1rem;
-  background: #0d0d0d;
-  color: #e6e6e6;
+  background: #1c1c1c;
+  color: #e0e0e0;
   font-family: 'Courier New', Courier, monospace;
 }
 
@@ -16,15 +16,14 @@
 
 .destacados-title {
   font-size: 2rem;
-  color: #ffd700;
+  color: #d4af37; /* dorado metálico */
   margin: 0;
   letter-spacing: 1px;
-  text-shadow: 0 0 5px #ffd700;
 }
 
 .destacados-subtitle {
   font-size: 1rem;
-  color: #999;
+  color: #aaa;
   margin-top: 0.5rem;
 }
 
@@ -34,24 +33,21 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
-  max-height: 80vh; /* Para permitir scroll si hay muchas cards */
+  max-height: 80vh;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
 
-/* Scrollbar estilo terminal */
+/* Scrollbar industrial */
 .productos-grid-terminal::-webkit-scrollbar {
   width: 8px;
 }
 .productos-grid-terminal::-webkit-scrollbar-track {
-  background: #111;
+  background: #222;
 }
 .productos-grid-terminal::-webkit-scrollbar-thumb {
-  background: #444;
+  background: #555;
   border-radius: 4px;
-}
-.productos-grid-terminal::-webkit-scrollbar-thumb:hover {
-  background: #666;
 }
 
 /* Contenedor flip card */
@@ -59,24 +55,24 @@
   perspective: 1000px;
   width: 220px;
   height: 340px;
-  border: 2px solid #444;
-  border-radius: 12px;
+  border: 2px solid #555;
+  border-radius: 10px;
   overflow: hidden;
-  background: linear-gradient(145deg, #1a1a1a, #111);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .producto-card-terminal:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
 }
 
 .flip-card-inner-terminal {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.7s ease;
+  transition: transform 0.6s ease;
   transform-style: preserve-3d;
 }
 
@@ -91,7 +87,7 @@
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,7 +95,6 @@
 }
 
 .flip-card-front-terminal {
-  background: #1a1a1a;
   padding: 1rem;
 }
 
@@ -115,26 +110,24 @@
 .producto-imagen-terminal img {
   max-width: 100%;
   max-height: 100%;
-  border: 1px solid #444;
+  border: 1px solid #555;
   border-radius: 6px;
 }
 
-/* Información frontal */
 .producto-info-terminal {
   text-align: center;
 }
 
 .producto-nombre-terminal {
   font-size: 1.15rem;
-  color: #ffd700;
+  color: #d4af37;
   margin: 0.2rem 0;
-  text-shadow: 0 0 3px #ffd700;
 }
 
 /* Cara trasera */
 .flip-card-back-terminal {
-  background: #111;
-  color: #e6e6e6;
+  background: #1f1f1f;
+  color: #e0e0e0;
   transform: rotateY(180deg);
   padding: 0.8rem 0.5rem;
   display: flex;
@@ -143,7 +136,6 @@
   justify-content: flex-start;
 }
 
-/* Contenido trasero con scroll */
 .producto-detalle-terminal {
   display: flex;
   flex-direction: column;
@@ -155,79 +147,47 @@
   padding: 0 0.3rem;
 }
 
-/* Scrollbar trasera */
 .producto-detalle-terminal::-webkit-scrollbar {
   width: 6px;
 }
 .producto-detalle-terminal::-webkit-scrollbar-track {
-  background: #111;
+  background: #222;
 }
 .producto-detalle-terminal::-webkit-scrollbar-thumb {
-  background: #444;
+  background: #555;
   border-radius: 4px;
 }
-.producto-detalle-terminal::-webkit-scrollbar-thumb:hover {
-  background: #666;
-}
 
+/* Precio y descripción */
 .precio-terminal {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #ffd700;
+  color: #d4af37;
   margin: 0.3rem 0;
 }
 
 .mini-desc-terminal {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #ccc;
   margin-bottom: 0.8rem;
-  line-height: 1.2rem;
+  line-height: 1.3rem;
 }
 
-/* Beneficios */
-.benefits-icons-terminal {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 0.8rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.benefit-terminal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 0.75rem;
-  color: #ccc;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-
-.benefit-terminal i {
-  font-size: 1.2rem;
-  color: #ffd700;
-  margin-bottom: 2px;
-}
-
-.benefit-terminal:hover {
-  color: #ffcc00;
-  transform: scale(1.2);
-}
-
-/* Botones al fondo */
+/* Botones */
 .destacados-actions-terminal {
   display: flex;
   gap: 0.5rem;
-  margin-top: auto; /* Empuja al fondo */
+  margin-top: auto;
   padding-top: 0.5rem;
-  border-top: 1px solid #444;
+  border-top: 1px solid #555;
 }
 
 .btn-detalle-terminal,
 .btn-agregar-terminal {
   padding: 0.4rem 0.8rem;
-  border: 1px solid #ffd700;
+  border: 1px solid #d4af37;
   background: transparent;
-  color: #ffd700;
+  color: #d4af37;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   border-radius: 6px;
@@ -237,7 +197,7 @@
 
 .btn-detalle-terminal:hover,
 .btn-agregar-terminal:hover {
-  background: #ffd700;
+  background: #d4af37;
   color: #1a1a1a;
 }
 
@@ -260,8 +220,7 @@
     height: 120px;
   }
 
-  .benefits-icons-terminal {
-    flex-direction: column;
-    gap: 6px;
+  .destacados-subtitle {
+    font-size: 0.9rem;
   }
 }

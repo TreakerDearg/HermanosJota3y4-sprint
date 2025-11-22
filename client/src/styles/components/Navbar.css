@@ -1,46 +1,53 @@
 /* ==============================
-   🧭 NAVBAR TERMINAL INDUSTRIAL
+   🧭 NAVBAR TERMINAL INDUSTRIAL V2
    ============================== */
 
 .navbar-terminal {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(180deg, #0f0f0f 0%, #151515 100%);
+  background: linear-gradient(180deg, #0d0d0d 0%, #151515 100%);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.8rem 2rem;
-  border-bottom: 1.5px solid #2a2a2a;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.05);
+  border-bottom: 1.5px solid #2e2e2e;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.05);
+  backdrop-filter: blur(4px);
 }
 
 /* LOGO */
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.04);
 }
 
 .navbar-logo img {
-  height: 42px;
-  filter: brightness(1.1);
+  height: 44px;
+  filter: brightness(1.2) contrast(1.1);
 }
 
 .logo-text {
   font-family: "JetBrains Mono", monospace;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #f5f5f5;
-  letter-spacing: 1px;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.35);
+  letter-spacing: 1.8px;
 }
 
 /* LINKS */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.8rem;
   list-style: none;
   font-family: "JetBrains Mono", monospace;
   font-size: 0.95rem;
@@ -48,9 +55,10 @@
 }
 
 .nav-links li {
-  color: #e0e0e0;
+  color: #d1d1d1;
   cursor: pointer;
   position: relative;
+  padding: 4px 0;
   transition: color 0.3s ease;
 }
 
@@ -65,12 +73,13 @@
 .nav-links li.active::after {
   content: "";
   position: absolute;
-  bottom: -4px;
+  bottom: -3px;
   left: 0;
   width: 100%;
   height: 2px;
   background: #ffd700;
   border-radius: 4px;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
 }
 
 /* ADMIN DROPDOWN */
@@ -79,33 +88,68 @@
 }
 
 .dropdown-title {
-  color: #e0e0e0;
+  color: #d1d1d1;
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.dropdown-title:hover {
+  color: #d4af37;
 }
 
 .dropdown-menu {
   position: absolute;
   top: 130%;
   right: 0;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  background: #101010;
+  border: 1px solid #3a3a3a;
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.15);
   list-style: none;
-  padding: 0.5rem 0;
-  min-width: 180px;
+  padding: 0.6rem 0;
+  min-width: 200px;
+  animation: fadeIn 0.2s ease;
 }
 
 .dropdown-menu li {
-  padding: 0.6rem 1rem;
-  color: #ccc;
+  padding: 0.7rem 1.2rem;
+  color: #cfcfcf;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.25s ease, color 0.25s ease;
+  font-size: 0.9rem;
 }
 
 .dropdown-menu li:hover {
   background: #d4af37;
   color: #111;
+}
+
+/* ICON BUTTONS */
+.icon-btn {
+  background: none;
+  border: 1.5px solid #3a3a3a;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.25s ease;
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  color: #d4af37;
+  transition: color 0.25s ease;
+}
+
+.icon-btn:hover {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.icon-btn:hover svg {
+  color: #ffd700;
 }
 
 /* CARRITO */
@@ -118,7 +162,8 @@
   border-radius: 8px;
   padding: 6px 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .carrito-btn:hover {
@@ -133,10 +178,11 @@
   right: -6px;
   background: #ff5f56;
   color: white;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   border-radius: 50%;
-  padding: 2px 6px;
+  padding: 3px 6px;
+  box-shadow: 0 0 6px rgba(255, 80, 80, 0.4);
 }
 
 /* HAMBURGER */
@@ -154,6 +200,7 @@
   height: 2px;
   background: #d4af37;
   transition: all 0.3s ease;
+  border-radius: 2px;
 }
 
 .hamburger.active span:nth-child(1) {
@@ -174,12 +221,13 @@
     right: 0;
     flex-direction: column;
     align-items: flex-start;
-    background: #111;
-    padding: 1rem 2rem;
+    background: #0d0d0d;
+    padding: 1.2rem 2rem;
     border-left: 1px solid #2a2a2a;
     border-bottom: 1px solid #2a2a2a;
     transform: translateX(100%);
     transition: transform 0.3s ease;
+    width: 240px;
   }
 
   .nav-links.active {
@@ -188,5 +236,17 @@
 
   .hamburger {
     display: flex;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

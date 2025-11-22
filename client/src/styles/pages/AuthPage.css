@@ -1,0 +1,61 @@
+/* src/styles/pages/AuthPage.css */
+
+.auth-page-terminal {
+  background-color: #0b0b0b; /* fondo negro terminal */
+  color: #00ff7f; /* verde neón */
+  font-family: "Courier New", Courier, monospace;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-panel-terminal {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px #00ff7f80;
+  overflow: hidden;
+}
+
+.form-container-terminal {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.form-container-terminal.hidden {
+  opacity: 0;
+  z-index: 0;
+}
+
+.form-container-terminal.visible {
+  opacity: 1;
+  z-index: 10;
+}
+
+.auth-panel-terminal h1 {
+  font-family: "Courier New", Courier, monospace;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: 2px;
+  color: #00ff7f;
+}
+
+.auth-switch-text-terminal {
+  cursor: pointer;
+  color: #00ff7f;
+  font-size: 0.875rem;
+}
+
+.auth-switch-text-terminal:hover {
+  color: #66ff99;
+}
+
+.auth-switch-highlight {
+  font-weight: bold;
+  color: #00ff7f;
+}

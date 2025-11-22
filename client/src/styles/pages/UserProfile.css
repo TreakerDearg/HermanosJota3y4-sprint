@@ -1,0 +1,304 @@
+/* ============================================
+   USER PROFILE — INDUSTRIAL TERMINAL 2.0
+   Estética: panel militar / consola industrial
+   Paleta: acero oscuro, ámbar, grafito
+=============================================== */
+
+:root {
+  --bg-dark: #141414;
+  --bg-panel: #1d1d1d;
+  --bg-panel-2: #222;
+  --bg-border: #3b3b3b;
+  --accent-warn: #f0b13f;
+  --accent-warn-strong: #ffcc4d;
+  --accent-red: #ff5a5a;
+  --text-main: #e8e8e8;
+  --text-dim: #9a9a9a;
+  --font-mono: "Share Tech Mono", "JetBrains Mono", monospace;
+}
+
+/* ==============================================
+   CONTENEDOR PRINCIPAL
+============================================== */
+.up-container {
+  width: 90%;
+  max-width: 900px;
+  margin: 45px auto;
+  padding: 30px;
+  background: var(--bg-panel);
+  border: 2px solid var(--bg-border);
+  border-radius: 12px;
+
+  box-shadow:
+    0 0 25px #000 inset,
+    0 0 30px #0007;
+
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  position: relative;
+}
+
+/* Rayas industriales laterales */
+.up-container::before,
+.up-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 100%;
+
+  background: repeating-linear-gradient(
+    to bottom,
+    #555,
+    #555 12px,
+    #111 12px,
+    #111 24px
+  );
+
+  opacity: 0.65;
+  filter: drop-shadow(0 0 4px #000);
+}
+
+.up-container::before {
+  left: -14px;
+}
+
+.up-container::after {
+  right: -14px;
+}
+
+/* ==============================================
+   HEADER
+============================================== */
+.up-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bg-border);
+}
+
+.up-title {
+  font-size: 2.1rem;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 12px #000;
+}
+
+.up-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+}
+
+.up-role-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 14px;
+  background: #2b2b2b;
+  border: 1px solid var(--accent-warn);
+  color: var(--accent-warn);
+
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border-radius: 4px;
+
+  box-shadow: 0 0 10px #000, 0 0 12px var(--accent-warn) inset;
+}
+
+/* ==============================================
+   SECCIONES
+============================================== */
+.up-section {
+  margin-bottom: 50px;
+  padding-bottom: 22px;
+  border-bottom: 1px dashed #444;
+}
+
+.up-section-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  font-size: 1.45rem;
+  color: var(--accent-warn-strong);
+
+  text-shadow: 0 0 10px var(--accent-warn-strong), 0 0 4px #000;
+  margin-bottom: 25px;
+}
+
+/* ==============================================
+   TARJETAS / INFO GRID
+============================================== */
+.up-card {
+  background: var(--bg-panel-2);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid var(--bg-border);
+  box-shadow:
+    0 0 6px #000 inset,
+    0 0 8px #0005;
+}
+
+.up-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.up-info-item {
+  background: #171717;
+  padding: 14px 16px;
+  border-left: 4px solid var(--accent-warn);
+  border-radius: 8px;
+
+  box-shadow: 0 0 12px #000 inset;
+}
+
+.up-info-item .label {
+  display: block;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+
+.up-info-item .value {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+/* ==============================================
+   ACCESOS RÁPIDOS
+============================================== */
+.up-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.up-quick-item {
+  background: #181818;
+  padding: 18px;
+  border: 1px solid #333;
+  border-radius: 8px;
+
+  text-align: center;
+  cursor: pointer;
+
+  transition: 0.16s ease;
+  box-shadow: 0 0 8px #000 inset;
+}
+
+.up-quick-item:hover {
+  border-color: var(--accent-warn);
+  transform: translateY(-3px);
+  box-shadow: 0 0 12px var(--accent-warn-strong), 0 0 8px #000 inset;
+}
+
+.up-quick-item p {
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+/* ==============================================
+   BOTONES
+============================================== */
+.up-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 12px 22px;
+  font-weight: bold;
+  border-radius: 6px;
+
+  background: #262626;
+  border: 2px solid var(--bg-border);
+  color: var(--text-main);
+
+  cursor: pointer;
+  transition: 0.17s ease;
+  margin-top: 18px;
+
+  box-shadow: 0 0 10px #000 inset;
+}
+
+.up-btn:hover {
+  background: #303030;
+  border-color: var(--accent-warn-strong);
+  box-shadow: 0 0 14px var(--accent-warn-strong);
+  transform: translateY(-2px);
+}
+
+.up-btn-edit {
+  color: var(--accent-warn);
+  border-color: var(--accent-warn);
+}
+
+.up-btn-edit:hover {
+  background: var(--accent-warn-strong);
+  color: #000;
+}
+
+.up-btn-secondary {
+  color: var(--accent-warn);
+}
+
+.up-btn-logout {
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.up-btn-logout:hover {
+  background: var(--accent-red);
+  color: #000;
+}
+
+/* ==============================================
+   EMPTY STATE
+============================================== */
+.up-empty {
+  text-align: center;
+  opacity: 0.8;
+  padding: 45px 0;
+}
+
+.up-empty-icon {
+  opacity: 1;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 6px #000);
+}
+
+/* ==============================================
+   FOOTER
+============================================== */
+.up-footer {
+  text-align: center;
+  margin-top: 30px;
+}
+
+/* ==============================================
+   RESPONSIVE
+============================================== */
+@media (max-width: 700px) {
+  .up-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .up-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .up-title {
+    font-size: 1.7rem;
+  }
+}
+
+@media (max-width: 450px) {
+  .up-quick-grid {
+    grid-template-columns: 1fr;
+  }
+}

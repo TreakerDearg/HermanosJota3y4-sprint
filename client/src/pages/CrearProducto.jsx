@@ -1,214 +1,147 @@
-import { useState } from "react";
+// src/pages/CrearProducto.jsx
+import { useState, useEffect } from "react";
+import { useProducts } from "../context/ProductContext";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { 
+  IoAddCircleOutline,
+  IoPricetagOutline,
+  IoCubeOutline,
+  IoImageOutline,
+  IoCreateOutline,
+  IoAlertCircleOutline
+} from "react-icons/io5";
+
 import "../styles/pages/CrearProducto.css";
 
-const CrearProducto = ({ crearProducto }) => {
-  const [formData, setFormData] = useState({
+export default function CrearProducto() {
+  const { crearProducto } = useProducts();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
     precio: "",
-    stock: "",
     categoria: "",
+    stock: "",
     destacado: false,
   });
 
   const [imagen, setImagen] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [errores, setErrores] = useState({});
   const [mensaje, setMensaje] = useState("");
 
-  // ============================
-  // ✅ URL base dinámica (sin "/productos" duplicado)
-  // ============================
-  const API_BASE = (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
+  useEffect(() => {
+    if (!user || user.rol !== "admin") navigate("/");
+  }, [user, navigate]);
 
-  // ============================
-  // 🔹 Manejo de inputs
-  // ============================
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-
-    // Validación en tiempo real
-    if (["nombre", "precio", "stock", "categoria"].includes(name)) {
-      setErrores((prev) => ({
-        ...prev,
-        [name]: value.toString().trim() ? "" : "Campo obligatorio",
-      }));
-    }
+    setForm(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // ============================
-  // 🔹 Manejo de imagen
-  // ============================
-  const handleFileChange = (e) => {
+  const handleImage = (e) => {
     const file = e.target.files[0];
     setImagen(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
-      reader.readAsDataURL(file);
-    } else {
-      setPreview(null);
-    }
+    setPreview(file ? URL.createObjectURL(file) : null);
   };
 
-  // ============================
-  // 🔹 Envío del formulario
-  // ============================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje("");
-    const nuevosErrores = {};
+    const data = { ...form, imagen };
+    const res = await crearProducto(data);
 
-    // Validación de campos obligatorios
-    ["nombre", "precio", "stock", "categoria"].forEach((key) => {
-      if (!formData[key] || !formData[key].toString().trim()) {
-        nuevosErrores[key] = "Campo obligatorio";
-      }
-    });
-
-    if (Object.keys(nuevosErrores).length) {
-      setErrores(nuevosErrores);
-      setMensaje("❌ Completa todos los campos obligatorios");
-      return;
-    }
-
-    const precioNum = parseFloat(formData.precio);
-    const stockNum = parseInt(formData.stock, 10);
-
-    if (isNaN(precioNum) || precioNum < 0) return setMensaje("❌ Precio inválido");
-    if (isNaN(stockNum) || stockNum < 0) return setMensaje("❌ Stock inválido");
-
-    try {
-      setLoading(true);
-
-      const data = new FormData();
-      data.append("nombre", formData.nombre.trim());
-      data.append("descripcion", formData.descripcion.trim() || "");
-      data.append("precio", String(precioNum));
-      data.append("stock", String(stockNum));
-      data.append("categoria", formData.categoria.trim());
-      data.append("destacado", formData.destacado ? "true" : "false");
-      if (imagen) data.append("imagen", imagen);
-
-      // 🔹 Llamada a backend
-      await crearProducto(data, `${API_BASE}/productos`);
-
-      setMensaje("✅ Producto creado con éxito");
-      setFormData({
+    if (res?.estado === "success") {
+      setMensaje("✔ Producto creado correctamente");
+      setForm({
         nombre: "",
         descripcion: "",
         precio: "",
-        stock: "",
         categoria: "",
+        stock: "",
         destacado: false,
       });
       setImagen(null);
       setPreview(null);
-      setErrores({});
-    } catch (err) {
-      console.error("❌ Error al crear producto:", err);
-      setMensaje("❌ Error al crear producto: " + (err.message || "desconocido"));
-    } finally {
-      setLoading(false);
+      setTimeout(() => navigate("/admin/productos"), 1200);
+    } else {
+      setMensaje("❌ " + (res?.mensaje || "Error al crear producto"));
     }
   };
 
-  // ============================
-  // 🔹 Renderizado
-  // ============================
   return (
     <div className="crear-producto">
-      <h2>Crear Nuevo Producto</h2>
+
+      <h2 className="titulo-principal">
+        <IoAddCircleOutline size={28} /> Crear Producto
+      </h2>
 
       {mensaje && (
-        <p className={`mensaje ${mensaje.startsWith("✅") ? "exito" : "error"}`}>
-          {mensaje}
+        <p className={`mensaje ${mensaje.startsWith("✔") ? "exito" : "error"}`}>
+          <IoAlertCircleOutline /> {mensaje}
         </p>
       )}
 
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <div className="form-group">
-          <input
-            type="text"
-            name="nombre"
-            placeholder="Nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-          />
-          {errores.nombre && <small className="error">{errores.nombre}</small>}
+      <form onSubmit={handleSubmit} className="form-crear">
+
+        {/* DATOS BÁSICOS */}
+        <div className="card">
+          <h3><IoCreateOutline /> Datos Básicos</h3>
+          <div className="fila-doble">
+            <div className="campo">
+              <label><IoPricetagOutline /> Nombre</label>
+              <input type="text" name="nombre" value={form.nombre} onChange={handleChange} required />
+            </div>
+            <div className="campo">
+              <label><IoCubeOutline /> Categoría</label>
+              <input type="text" name="categoria" value={form.categoria} onChange={handleChange} required />
+            </div>
+          </div>
+          <div className="campo descripcion-field">
+            <label>Descripción</label>
+            <textarea name="descripcion" value={form.descripcion} onChange={handleChange} />
+          </div>
         </div>
 
-        <div className="form-group">
-          <textarea
-            name="descripcion"
-            placeholder="Descripción"
-            value={formData.descripcion}
-            onChange={handleChange}
-          />
+        {/* INVENTARIO Y PRECIO */}
+        <div className="card">
+          <h3><IoPricetagOutline /> Inventario y Precio</h3>
+          <div className="fila-doble">
+            <div className="campo">
+              <label>Precio ($)</label>
+              <input type="number" name="precio" min="1" value={form.precio} onChange={handleChange} required />
+            </div>
+            <div className="campo">
+              <label>Stock</label>
+              <input type="number" name="stock" min="0" value={form.stock} onChange={handleChange} required />
+            </div>
+          </div>
+          <label className="checkbox-field">
+            <input type="checkbox" name="destacado" checked={form.destacado} onChange={handleChange} />
+            Destacado
+          </label>
         </div>
 
-        <div className="form-group">
-          <input
-            type="number"
-            name="precio"
-            placeholder="Precio"
-            value={formData.precio}
-            onChange={handleChange}
-            min="0"
-            step="0.01"
-          />
-          {errores.precio && <small className="error">{errores.precio}</small>}
+        {/* IMÁGENES */}
+        <div className="card">
+          <h3><IoImageOutline /> Imágenes</h3>
+          <label>Subir imagen</label>
+          <input type="file" accept="image/*" onChange={handleImage} />
+          {preview && (
+            <>
+              <p>Vista previa:</p>
+              <img src={preview} alt="preview" className="preview-img" />
+            </>
+          )}
         </div>
 
-        <div className="form-group">
-          <input
-            type="number"
-            name="stock"
-            placeholder="Stock disponible"
-            value={formData.stock}
-            onChange={handleChange}
-            min="0"
-          />
-          {errores.stock && <small className="error">{errores.stock}</small>}
-        </div>
-
-        <div className="form-group">
-          <input
-            type="text"
-            name="categoria"
-            placeholder="Categoría"
-            value={formData.categoria}
-            onChange={handleChange}
-          />
-          {errores.categoria && <small className="error">{errores.categoria}</small>}
-        </div>
-
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            name="destacado"
-            checked={formData.destacado}
-            onChange={handleChange}
-          />
-          Producto destacado
-        </label>
-
-        <div className="form-group">
-          <input type="file" accept="image/*" onChange={handleFileChange} />
-          {preview && <img src={preview} alt="Preview" className="preview-img" />}
-        </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Creando..." : "Crear Producto"}
+        <button type="submit" className="btn-crear">
+          Crear Producto
         </button>
+
       </form>
     </div>
   );
-};
-
-export default CrearProducto;
+}

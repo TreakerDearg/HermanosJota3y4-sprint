@@ -1,66 +1,74 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext"; // ✅ nuevo
 import ProductList from "../components/ProductList";
 import ProductDetail from "../components/ProductDetail";
 
 // ============================
 // ✅ Configuración de API dinámica
 // ============================
-// Solo debe contener el dominio + /api (no /productos)
 const API_BASE = (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com/api").replace(/\/$/, "");
-
-// 🔧 Asegura que solo quite "/api" si realmente está al final
 const API_IMG = API_BASE.endsWith("/api") ? API_BASE.slice(0, -4) : API_BASE;
 
-const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
+const Catalogo = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // ✅ Contexto del carrito
+  const { agregarAlCarrito } = useCart();
+
+  // ============================
+  // 🔹 Estados locales
+  // ============================
   const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-  const [loading, setLoading] = useState(!initialProductos.length);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // ============================
   // 🔹 Helper para imagen URL segura
   // ============================
-  const addImagenUrl = (p) => ({
-    ...p,
-    imagenUrl: p.imagenUrl
-      ? p.imagenUrl.replace(/\\/g, "/").startsWith("/uploads")
-        ? `${API_IMG}${p.imagenUrl.replace(/\\/g, "/")}`
-        : p.imagenUrl
-      : "/images/placeholder.png",
-  });
+  const addImagenUrl = useCallback(
+    (p) => ({
+      ...p,
+      imagenUrl: p.imagenUrl
+        ? p.imagenUrl.replace(/\\/g, "/").startsWith("/uploads")
+          ? `${API_IMG}${p.imagenUrl.replace(/\\/g, "/")}`
+          : p.imagenUrl
+        : "/images/placeholder.png",
+    }),
+    []
+  );
 
   // ============================
-  // 🔹 Fetch de productos (listado)
+  // 🔹 Fetch productos (listado)
   // ============================
   useEffect(() => {
+    let isMounted = true;
     const fetchProductos = async () => {
-      setLoading(true);
-      setError(null);
       try {
+        setLoading(true);
         const res = await fetch(`${API_BASE}/productos`);
         if (!res.ok) throw new Error("No se pudieron cargar los productos");
 
         const data = await res.json();
         const productosRaw = data.data ?? data;
-        setProductos(productosRaw.map(addImagenUrl));
+        if (isMounted) setProductos(productosRaw.map(addImagenUrl));
       } catch (err) {
-        console.error("❌ Error fetchProductos:", err);
-        setError(err.message || "Error al cargar los productos");
+        if (isMounted) setError(err.message || "Error al cargar los productos");
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    if (!initialProductos.length) fetchProductos();
-    else setProductos(initialProductos.map(addImagenUrl));
-  }, [initialProductos]);
+    fetchProductos();
+    return () => {
+      isMounted = false;
+    };
+  }, [addImagenUrl]);
 
   // ============================
-  // 🔹 Fetch de producto individual
+  // 🔹 Fetch producto individual
   // ============================
   useEffect(() => {
     if (!id) {
@@ -74,35 +82,43 @@ const Catalogo = ({ productos: initialProductos = [], agregarAlCarrito }) => {
       return;
     }
 
+    let isMounted = true;
     const fetchProducto = async (prodId) => {
-      setLoading(true);
-      setError(null);
       try {
+        setLoading(true);
         const res = await fetch(`${API_BASE}/productos/${prodId}`);
         if (!res.ok) throw new Error("Producto no encontrado");
 
         const data = await res.json();
-        setProductoSeleccionado(addImagenUrl(data.data ?? data));
+        if (isMounted) setProductoSeleccionado(addImagenUrl(data.data ?? data));
       } catch (err) {
-        console.error("❌ Error fetchProducto:", err);
-        setError(err.message || "Error al cargar el producto");
-        setProductoSeleccionado(null);
+        if (isMounted) {
+          setError(err.message || "Error al cargar el producto");
+          setProductoSeleccionado(null);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchProducto(id);
-  }, [id, productos]);
+    return () => {
+      isMounted = false;
+    };
+  }, [id, productos, addImagenUrl]);
 
   // ============================
   // 🔹 Navegación
   // ============================
-  const verDetalle = (producto) => producto && navigate(`/productos/${producto._id}`);
-  const volverAlCatalogo = () => {
+  const verDetalle = useCallback(
+    (producto) => producto && navigate(`/productos/${producto._id}`),
+    [navigate]
+  );
+
+  const volverAlCatalogo = useCallback(() => {
     navigate("/productos");
     setProductoSeleccionado(null);
-  };
+  }, [navigate]);
 
   // ============================
   // 🔹 Renderizado

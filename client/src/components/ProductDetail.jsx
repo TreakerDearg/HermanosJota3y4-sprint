@@ -1,38 +1,61 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
+import { useCart } from "../context/CartContext";
 import "../styles/components/ProductDetail.css";
 
-// 🔹 URL base del backend (solo si es necesaria para normalizar imágenes locales)
-const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
+// ============================
+// ✅ Configuración de API dinámica
+// ============================
+const API_BASE = (process.env.REACT_APP_API_URL || "https://hermanosjota3y4-sprint.onrender.com").replace(/\/$/, "");
 
-function ProductDetail({ producto, agregarAlCarrito, volver }) {
+const ProductDetail = ({ producto, volver }) => {
   const [added, setAdded] = useState(false);
+  const { agregarAlCarrito } = useCart();
 
-  // 🔹 Normaliza la URL de imagen para que siempre apunte correctamente
-  const imagenUrl =
-    producto.imagen?.startsWith("/uploads")
-      ? `${API_BASE}${producto.imagen}`
-      : producto.imagen || producto.imagenUrl || "/images/placeholder.png";
+  // ============================
+  // 🔹 Normalización segura de la imagen
+  // ============================
+  const imagenUrl = useMemo(() => {
+    const src = producto.imagenUrl || producto.imagen || "";
+    if (!src) return "/images/placeholder.png"; // fallback
 
+    // Si es URL absoluta (Cloudinary u otra) → usar tal cual
+    if (src.startsWith("http")) return src;
+
+    // Si es ruta relativa local (uploads/xxx) → agregar API_BASE
+    const normalized = src.replace(/\\/g, "/").replace(/^\/?uploads/, "");
+    return `${API_BASE}/uploads/${normalized}`;
+  }, [producto]);
+
+  // ============================
+  // 🔹 Manejo del botón “Agregar al carrito”
+  // ============================
   const handleAgregar = () => {
-    if (agregarAlCarrito) agregarAlCarrito(producto);
+    agregarAlCarrito?.(producto);
     setAdded(true);
     setTimeout(() => setAdded(false), 1000);
   };
 
-  const beneficios = producto.beneficios || [
-    { icon: "fas fa-truck", text: "Envío gratis" },
-    { icon: "fas fa-credit-card", text: "3 cuotas sin interés" },
-    { icon: "fas fa-tools", text: "Garantía 1 año" },
-  ];
+  // ============================
+  // 🔹 Beneficios por defecto
+  // ============================
+  const beneficios = useMemo(
+    () =>
+      producto.beneficios || [
+        { icon: "fas fa-truck", text: "Envío gratis" },
+        { icon: "fas fa-credit-card", text: "3 cuotas sin interés" },
+        { icon: "fas fa-tools", text: "Garantía 1 año" },
+      ],
+    [producto]
+  );
 
+  // ============================
+  // 🔹 Renderizado
+  // ============================
   return (
-    <section
-      className="product-detail-terminal"
-      aria-label={`Detalle de ${producto.nombre || "Producto"}`}
-    >
+    <section className="product-detail-terminal" aria-label={`Detalle de ${producto.nombre || "Producto"}`}>
       <div className="detail-terminal-container">
-        {/* Imagen del producto */}
+        {/* Imagen */}
         <div className="detail-terminal-imagen">
           <img
             src={imagenUrl}
@@ -42,11 +65,9 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
           />
         </div>
 
-        {/* Información principal */}
+        {/* Info principal */}
         <div className="detail-terminal-info">
-          <h2 className="detail-terminal-title">
-            {producto.nombre || "Producto sin nombre"}
-          </h2>
+          <h2 className="detail-terminal-title">{producto.nombre || "Producto sin nombre"}</h2>
 
           <p className="detail-terminal-price">
             {new Intl.NumberFormat("es-AR", {
@@ -83,6 +104,7 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
             >
               {added ? "✔ Agregado" : "🛒 Añadir al Carrito"}
             </button>
+
             <button
               className="btn-terminal-volver"
               onClick={volver}
@@ -95,7 +117,7 @@ function ProductDetail({ producto, agregarAlCarrito, volver }) {
       </div>
     </section>
   );
-}
+};
 
 ProductDetail.propTypes = {
   producto: PropTypes.shape({
@@ -106,10 +128,12 @@ ProductDetail.propTypes = {
     imagen: PropTypes.string,
     imagenUrl: PropTypes.string,
     beneficios: PropTypes.arrayOf(
-      PropTypes.shape({ icon: PropTypes.string, text: PropTypes.string })
+      PropTypes.shape({
+        icon: PropTypes.string,
+        text: PropTypes.string,
+      })
     ),
   }).isRequired,
-  agregarAlCarrito: PropTypes.func,
   volver: PropTypes.func.isRequired,
 };
 

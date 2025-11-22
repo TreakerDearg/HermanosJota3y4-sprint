@@ -1,9 +1,11 @@
 // src/pages/CheckoutPage.jsx
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import Checkout from "../components/Checkout";
 import "../styles/pages/CheckoutPage.css";
 
-const CheckoutPage = ({ carrito = [], vaciarCarrito, finalizarCompra }) => {
+export default function CheckoutPage() {
+  const { carrito } = useCart();
   const navigate = useNavigate();
 
   const handleVolverCatalogo = () => navigate("/productos");
@@ -34,13 +36,7 @@ const CheckoutPage = ({ carrito = [], vaciarCarrito, finalizarCompra }) => {
         </p>
       </header>
 
-      <Checkout
-        carrito={carrito}
-        vaciarCarrito={vaciarCarrito}
-        finalizarCompra={finalizarCompra}
-      />
+      <Checkout />
     </section>
   );
-};
-
-export default CheckoutPage;
+}

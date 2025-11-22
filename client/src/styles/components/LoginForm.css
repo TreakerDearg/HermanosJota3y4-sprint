@@ -1,0 +1,65 @@
+/* src/styles/components/LoginForm.css */
+
+.login-terminal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.login-terminal-title {
+  text-align: center;
+  color: #00ff7f;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.input-terminal {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00ff7f;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: #00ff7f;
+  font-family: "Courier New", Courier, monospace;
+  transition: all 0.2s;
+}
+
+.input-terminal:focus {
+  outline: none;
+  border-color: #66ff99;
+  box-shadow: 0 0 5px #00ff7f;
+}
+
+.password-input-container {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #00ff7f;
+  transition: color 0.2s;
+}
+
+.password-toggle:hover {
+  color: #66ff99;
+}
+
+.btn-terminal-login {
+  background-color: #00ff7f;
+  color: #000;
+  font-weight: bold;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.btn-terminal-login:hover {
+  background-color: #66ff99;
+}

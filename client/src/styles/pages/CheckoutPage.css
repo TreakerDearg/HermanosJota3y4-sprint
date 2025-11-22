@@ -1,5 +1,3 @@
-/* src/styles/pages/CheckoutPage.css */
-
 /* ===== CheckoutPage General ===== */
 .checkout-page {
   max-width: 1200px;
@@ -29,6 +27,7 @@
   border-radius: 12px;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
   padding: 2rem;
+  transition: all 0.3s ease;
 }
 
 .checkout-list {
@@ -90,6 +89,8 @@
   font-size: 1rem;
   font-weight: bold;
   color: #ffd700;
+  min-width: 80px;
+  text-align: right;
 }
 
 /* ===== Footer Actions ===== */
@@ -145,7 +146,7 @@
   box-shadow: 0 0 10px rgba(255, 76, 76, 0.6);
 }
 
-/* ===== Empty Cart ===== */
+/* ===== Empty Cart Page ===== */
 .checkout-empty-page {
   text-align: center;
   padding: 4rem 1rem;

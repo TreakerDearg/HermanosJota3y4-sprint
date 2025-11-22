@@ -1,140 +1,88 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import ProductCard from "./ProductCard";
+import { getImagenUrl } from "../utils/getImagenUrl";
 import "../styles/components/ProductList.css";
 
-// eslint-disable-next-line no-unused-vars
-const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debounced;
+}
 
-
-function ProductList({
-  productos = [],
-  agregarAlCarrito = () => {},
-  verDetalle = () => {},
-  titulo = "Nuestros Productos",
-}) {
+function ProductList({ productos = [], agregarAlCarrito, verDetalle, titulo = "Nuestros Productos" }) {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
   const [precioSeleccionado, setPrecioSeleccionado] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
+  const debouncedBusqueda = useDebounce(busqueda, 300);
 
-  // 🔹 Categorías dinámicas
-  const categorias = useMemo(
-    () => ["Todos", ...new Set(productos.map((p) => p.categoria).filter(Boolean))],
-    [productos]
-  );
+  const productosConImagen = useMemo(() => {
+    return productos.map(p => ({
+      ...p,
+      imagenUrl: getImagenUrl(p)
+    }));
+  }, [productos]);
 
-  // 🔹 Rangos de precio fijos
+  const categorias = useMemo(() => ["Todos", ...new Set(productos.map(p => p.categoria).filter(Boolean))], [productos]);
   const rangosPrecio = ["Todos", "Hasta $10.000", "$10.000 - $20.000", "Más de $20.000"];
 
-  // 🔹 Filtrado inteligente
   const productosFiltrados = useMemo(() => {
-    return productos.filter((p) => {
+    return productosConImagen.filter(p => {
       const nombre = p.nombre?.toLowerCase() || "";
       const categoria = p.categoria?.toLowerCase() || "";
       const precio = p.precio || 0;
 
-      const matchCategoria =
-        categoriaSeleccionada === "Todos" ||
-        categoria === categoriaSeleccionada.toLowerCase();
-
+      const matchCategoria = categoriaSeleccionada === "Todos" || categoria === categoriaSeleccionada.toLowerCase();
       let matchPrecio = true;
       switch (precioSeleccionado) {
-        case "Hasta $10.000":
-          matchPrecio = precio <= 10000;
-          break;
-        case "$10.000 - $20.000":
-          matchPrecio = precio > 10000 && precio <= 20000;
-          break;
-        case "Más de $20.000":
-          matchPrecio = precio > 20000;
-          break;
-        default:
-          matchPrecio = true;
+        case "Hasta $10.000": matchPrecio = precio <= 10000; break;
+        case "$10.000 - $20.000": matchPrecio = precio > 10000 && precio <= 20000; break;
+        case "Más de $20.000": matchPrecio = precio > 20000; break;
+        default: matchPrecio = true; break;
       }
-
-      const matchBusqueda = nombre.includes(busqueda.toLowerCase());
+      const matchBusqueda = nombre.includes(debouncedBusqueda.toLowerCase());
       return matchCategoria && matchPrecio && matchBusqueda;
     });
-  }, [productos, categoriaSeleccionada, precioSeleccionado, busqueda]);
+  }, [productosConImagen, categoriaSeleccionada, precioSeleccionado, debouncedBusqueda]);
 
   return (
     <section className="product-list-section">
-      {/* Encabezado */}
       <header className="section-header">
         <h2 className="product-list-title">{titulo}</h2>
-        <p className="product-count">
-          {productosFiltrados.length} producto
-          {productosFiltrados.length !== 1 && "s"} disponible
-          {productosFiltrados.length !== 1 && "s"}
-        </p>
+        <p className="product-count">{productosFiltrados.length} producto{productosFiltrados.length !== 1 ? "s disponibles" : " disponible"}</p>
       </header>
 
-      {/* Barra de búsqueda */}
       <div className="search-bar">
-        <input
-          type="text"
-          placeholder="🔍 Buscar por nombre..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
-        {busqueda && (
-          <button className="clear-btn" onClick={() => setBusqueda("")}>
-            ✖
-          </button>
-        )}
+        <input type="text" placeholder="🔍 Buscar por nombre..." value={busqueda} onChange={e => setBusqueda(e.target.value)} />
+        {busqueda && <button className="clear-btn" onClick={() => setBusqueda("")}>✖</button>}
       </div>
 
-      {/* Filtros */}
       <div className="filters-container">
         <div className="category-filters">
-          {categorias.map((c) => (
-            <button
-              key={c}
-              className={`category-btn ${c === categoriaSeleccionada ? "active" : ""}`}
-              onClick={() => setCategoriaSeleccionada(c)}
-            >
+          {categorias.map(c => (
+            <button key={c} className={`category-btn ${c === categoriaSeleccionada ? "active" : ""}`} onClick={() => setCategoriaSeleccionada(c)}>
               {c}
             </button>
           ))}
         </div>
-
         <div className="price-filters">
           <label htmlFor="precio">💰 Precio:</label>
-          <select
-            id="precio"
-            value={precioSeleccionado}
-            onChange={(e) => setPrecioSeleccionado(e.target.value)}
-          >
-            {rangosPrecio.map((rango) => (
-              <option key={rango} value={rango}>
-                {rango}
-              </option>
-            ))}
+          <select id="precio" value={precioSeleccionado} onChange={e => setPrecioSeleccionado(e.target.value)}>
+            {rangosPrecio.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
       </div>
 
-      {/* Grid de productos */}
       {productosFiltrados.length === 0 ? (
         <p className="no-products">No hay productos que coincidan con tu búsqueda.</p>
       ) : (
         <div className="product-list-grid">
-          {productosFiltrados.map((producto) => {
-            // 🔹 Imagen segura con fallback
-            const imagenUrl =
-              producto.imagenUrl ||
-              producto.imagen ||
-              "/images/placeholder.png";
-
-            return (
-              <ProductCard
-                key={producto._id}
-                producto={{ ...producto, imagenUrl }}
-                agregarAlCarrito={agregarAlCarrito}
-                verDetalle={verDetalle}
-              />
-            );
-          })}
+          {productosFiltrados.map(producto => (
+            <ProductCard key={producto._id} producto={producto} agregarAlCarrito={agregarAlCarrito} verDetalle={verDetalle} />
+          ))}
         </div>
       )}
     </section>
