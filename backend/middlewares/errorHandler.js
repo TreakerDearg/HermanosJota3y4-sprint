@@ -1,10 +1,17 @@
+// middlewares/errorHandler.js
 export const errorHandler = (err, req, res, next) => {
   const timestamp = new Date().toISOString();
   const env = process.env.NODE_ENV || "development";
 
+  // 🔥 Fix crítico: evitar doble respuesta
+  if (res.headersSent) {
+    return next(err);
+  }
+
   let statusCode = err.statusCode || 500;
   let tipo = "ErrorServidor";
 
+  // Normalización de tipos de error
   if (err.name === "ValidationError") {
     statusCode = 400;
     tipo = "ErrorValidacion";
@@ -19,9 +26,9 @@ export const errorHandler = (err, req, res, next) => {
     tipo = "ErrorCliente";
   }
 
-  const mensaje =
-    err.customMessage || err.message || "Error interno del servidor.";
+  const mensaje = err.customMessage || err.message || "Error interno del servidor";
 
+  // Logging estructurado
   if (env !== "production") {
     console.error("=".repeat(80));
     console.error(`[${timestamp}] ❌ ${tipo}`);
@@ -31,21 +38,24 @@ export const errorHandler = (err, req, res, next) => {
     console.error(`📦 Body: ${JSON.stringify(req.body || {}, null, 2)}`);
     console.error(`🔗 Params: ${JSON.stringify(req.params || {}, null, 2)}`);
     console.error(`💡 Query: ${JSON.stringify(req.query || {}, null, 2)}`);
-    console.error(`🧩 Stack:\n${err.stack}`);
+    if (err.stack) console.error(`🧩 Stack:\n${err.stack}`);
+    if (err.meta) console.error(`⚙️ Meta: ${JSON.stringify(err.meta, null, 2)}`);
     console.error("=".repeat(80));
   } else {
     console.error(`[${timestamp}] [${tipo}] ${req.method} ${req.originalUrl} - ${mensaje}`);
   }
 
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     estado: "error",
     mensaje,
-    data: {},                 // uniforme con successResponse
+    data: {},
     path: req.originalUrl,
     metodo: req.method,
     timestamp,
     statusCode,
+    tipo,
     ...(env !== "production" && { stack: err.stack }),
+    ...(err.meta && { meta: err.meta }),
   });
 };
 

@@ -5,7 +5,7 @@ const productoSchema = new mongoose.Schema(
     nombre: { type: String, required: true },
     descripcion: { type: String },
     precio: { type: Number, required: true },
-    imagenUrl: { type: String }, // usamos imagenUrl para mantener consistencia con frontend
+    imagenUrl: { type: String },
     destacado: { type: Boolean, default: false },
     categoria: { type: String, required: true },
     stock: { type: Number, required: true, min: 0 }
@@ -13,4 +13,6 @@ const productoSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Producto", productoSchema);
+// Evita OverwriteModelError cuando ya existe
+export default mongoose.models.Producto ||
+  mongoose.model("Producto", productoSchema);

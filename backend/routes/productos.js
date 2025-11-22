@@ -1,4 +1,3 @@
-// routes/productos.js
 import express from "express";
 import {
   getProductos,
@@ -7,35 +6,72 @@ import {
   updateProducto,
   deleteProducto,
 } from "../controllers/productController.js";
-import { upload, handleUploadErrors } from "../middlewares/upload.js";
+
+import { upload } from "../middlewares/uploadCloudinary.js"; // ← Nuevo middleware
+import { authGuard } from "../middlewares/authGuard.js";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
 
 const router = express.Router();
 
 // ==============================
-// LOGGING DE REQUESTS
+// 🔹 Ruta de prueba
 // ==============================
-router.use((req, res, next) => {
-  console.log(`[API Productos] ${req.method} ${req.originalUrl}`);
+router.get("/health", (req, res) =>
+  res.status(200).json({
+    estado: "ok",
+    mensaje: "Ruta /api/productos operativa ✅",
+    metodo: req.method,
+    timestamp: new Date().toISOString(),
+  })
+);
+
+// ==============================
+// 🛒 CRUD PRODUCTOS
+// ==============================
+
+// GET: Todos los productos → abierto a todos
+router.get("/", asyncHandler(getProductos));
+
+// GET: Producto por ID → abierto a todos
+router.get("/:id", asyncHandler(getProducto));
+
+// ==============================
+// Middleware para verificar rol admin
+// ==============================
+const requireAdmin = (req, res, next) => {
+  if (req.user?.rol !== "admin") {
+    return res.status(403).json({
+      estado: "error",
+      mensaje: "Solo los administradores pueden realizar esta acción",
+    });
+  }
   next();
-});
+};
 
-// ==============================
-// RUTAS CRUD PRODUCTOS
-// ==============================
+// POST: Crear producto → solo admin
+router.post(
+  "/",
+  authGuard,
+  requireAdmin,
+  upload.single("imagen"), // ← Cloudinary
+  asyncHandler(createProducto)
+);
 
-// GET: Todos los productos
-router.get("/", getProductos);
+// PUT: Actualizar producto → solo admin
+router.put(
+  "/:id",
+  authGuard,
+  requireAdmin,
+  upload.single("imagen"), // ← Cloudinary
+  asyncHandler(updateProducto)
+);
 
-// GET: Producto por ID
-router.get("/:id", getProducto);
-
-// POST: Crear producto (imagen opcional)
-router.post("/", upload.single("imagen"), handleUploadErrors, createProducto);
-
-// PUT: Actualizar producto (imagen opcional)
-router.put("/:id", upload.single("imagen"), handleUploadErrors, updateProducto);
-
-// DELETE: Eliminar producto
-router.delete("/:id", deleteProducto);
+// DELETE: Eliminar producto → solo admin
+router.delete(
+  "/:id",
+  authGuard,
+  requireAdmin,
+  asyncHandler(deleteProducto)
+);
 
 export default router;

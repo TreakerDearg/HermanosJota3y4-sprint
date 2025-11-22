@@ -1,159 +1,150 @@
-// controllers/productController.js
-import fs from "fs";
-import path from "path";
-import os from "os";
 import Product from "../models/Product.js";
-import { fileURLToPath } from "url";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
+import {
+  successResponse,
+  createdResponse,
+  deletedResponse,
+} from "../middlewares/responseHandler.js";
+import { uploadFromBuffer, deleteImage } from "../utils/cloudinary.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+/**
+ * ==========================================
+ * GET /productos — Obtener todos
+ * ==========================================
+ */
+export const getProductos = asyncHandler(async (req, res) => {
+  const productos = await Product.find().lean();
+  successResponse(res, productos, "Productos cargados correctamente", req);
+});
 
-// 📂 Directorio de uploads
-const UPLOAD_DIR =
-  process.env.NODE_ENV === "production"
-    ? path.join(os.tmpdir(), "uploads")
-    : path.join(process.cwd(), "uploads");
+/**
+ * ==========================================
+ * GET /productos/:id — Obtener uno
+ * ==========================================
+ */
+export const getProducto = asyncHandler(async (req, res) => {
+  const id = req.params.id?.trim();
+  if (!id) throw new Error("ID inválido");
 
-// 🌐 Base URL dinámica según entorno
-const RAW_BASE_URL =
-  process.env.BASE_URL ||
-  process.env.RENDER_EXTERNAL_URL ||
-  `http://localhost:${process.env.PORT || 5000}`;
+  const producto = await Product.findById(id).lean();
+  if (!producto) throw new Error("Producto no encontrado");
 
-// 🔹 Elimina "/api" del final si lo tiene (evita rutas inválidas tipo /api/uploads)
-const BASE_URL = RAW_BASE_URL.replace(/\/api$/, "");
+  successResponse(res, producto, "Producto cargado correctamente", req);
+});
 
-// Crear carpeta si no existe
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-  console.log(`[Storage] Carpeta de uploads creada en: ${UPLOAD_DIR}`);
-}
+/**
+ * ==========================================
+ * POST /productos — Crear
+ * ==========================================
+ */
+export const createProducto = asyncHandler(async (req, res) => {
+  const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
 
-// ======================================================
-// 🔹 GET /productos - Obtener todos
-// ======================================================
-export const getProductos = async (req, res) => {
-  try {
-    const productos = await Product.find();
-
-    const productosConImagen = productos.map((p) => ({
-      ...p._doc,
-      imagenUrl: p.imagen ? `${BASE_URL}${p.imagen}` : null,
-    }));
-
-    res.json({ success: true, data: productosConImagen });
-  } catch (err) {
-    console.error("❌ Error al obtener productos:", err);
-    res.status(500).json({ success: false, message: err.message });
+  if (!nombre || !precio || !categoria || stock === undefined) {
+    throw new Error("Faltan campos obligatorios");
   }
-};
 
-// ======================================================
-// 🔹 GET /productos/:id - Obtener uno
-// ======================================================
-export const getProducto = async (req, res) => {
-  try {
-    const producto = await Product.findById(req.params.id);
-    if (!producto) return res.status(404).json({ message: "Producto no encontrado" });
+  let imagenUrl = "";
 
-    const productoConImagen = {
-      ...producto._doc,
-      imagenUrl: producto.imagen ? `${BASE_URL}${producto.imagen}` : null,
-    };
-
-    res.json({ success: true, data: productoConImagen });
-  } catch (err) {
-    res.status(400).json({ message: "ID inválido" });
+  if (req.file?.buffer) {
+    try {
+      const result = await uploadFromBuffer(req.file.buffer);
+      imagenUrl = result.secure_url;
+    } catch (err) {
+      console.error("❌ Error al subir imagen a Cloudinary:", err.message);
+      // ⚠️ Se crea el producto aunque falle la subida
+    }
   }
-};
 
-// ======================================================
-// 🔹 POST /productos - Crear nuevo producto
-// ======================================================
-export const createProducto = async (req, res) => {
-  try {
-    const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
+  const nuevo = await Product.create({
+    nombre,
+    descripcion,
+    precio: Number(precio),
+    categoria,
+    stock: Number(stock),
+    destacado: ["true", true, "on", "1", 1].includes(destacado),
+    imagenUrl,
+  });
 
-    let imagenPath = null;
-    if (req.file) imagenPath = `/uploads/${req.file.filename}`;
+  createdResponse(res, nuevo, "Producto creado correctamente", req);
+});
 
-    const nuevo = new Product({
-      nombre,
-      descripcion,
-      precio,
-      categoria,
-      stock,
-      destacado,
-      imagen: imagenPath,
-    });
+/**
+ * ==========================================
+ * PUT /productos/:id — Actualizar
+ * ==========================================
+ */
+export const updateProducto = asyncHandler(async (req, res) => {
+  const id = req.params.id?.trim();
+  if (!id) throw new Error("ID inválido");
 
-    const guardado = await nuevo.save();
+  const producto = await Product.findById(id);
+  if (!producto) throw new Error("Producto no encontrado");
 
-    res.status(201).json({
-      success: true,
-      data: {
-        ...guardado._doc,
-        imagenUrl: imagenPath ? `${BASE_URL}${imagenPath}` : null,
-      },
-    });
-  } catch (err) {
-    console.error("❌ Error al crear producto:", err);
-    res.status(400).json({ success: false, message: err.message });
-  }
-};
+  const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
 
-// ======================================================
-// 🔹 PUT /productos/:id - Actualizar producto
-// ======================================================
-export const updateProducto = async (req, res) => {
-  try {
-    const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
-    const productoActual = await Product.findById(req.params.id);
+  const updateData = {
+    nombre: nombre ?? producto.nombre,
+    descripcion: descripcion ?? producto.descripcion,
+    precio: precio !== undefined ? Number(precio) : producto.precio,
+    categoria: categoria ?? producto.categoria,
+    stock: stock !== undefined ? Number(stock) : producto.stock,
+    destacado:
+      destacado !== undefined
+        ? ["true", true, "on", "1", 1].includes(destacado)
+        : producto.destacado,
+  };
 
-    if (!productoActual) return res.status(404).json({ message: "Producto no encontrado" });
-
-    let updateData = { nombre, descripcion, precio, categoria, stock, destacado };
-
-    if (req.file) {
-      // Eliminar imagen anterior si existía
-      if (productoActual.imagen) {
-        const oldPath = path.join(process.cwd(), productoActual.imagen);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+  if (req.file?.buffer) {
+    // Borrar imagen antigua
+    if (producto.imagenUrl) {
+      try {
+        const segments = producto.imagenUrl.split("/");
+        const public_id = `hermanos-jota/${segments.slice(-1)[0].split(".")[0]}`;
+        await deleteImage(public_id);
+      } catch (err) {
+        console.warn("⚠️ No se pudo eliminar imagen antigua:", err.message);
       }
-      updateData.imagen = `/uploads/${req.file.filename}`;
     }
 
-    const actualizado = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
-
-    res.json({
-      success: true,
-      data: {
-        ...actualizado._doc,
-        imagenUrl: actualizado.imagen ? `${BASE_URL}${actualizado.imagen}` : null,
-      },
-    });
-  } catch (err) {
-    console.error("❌ Error al actualizar producto:", err);
-    res.status(400).json({ success: false, message: err.message });
-  }
-};
-
-// ======================================================
-// 🔹 DELETE /productos/:id - Eliminar producto
-// ======================================================
-export const deleteProducto = async (req, res) => {
-  try {
-    const producto = await Product.findById(req.params.id);
-    if (!producto) return res.status(404).json({ message: "Producto no encontrado" });
-
-    if (producto.imagen) {
-      const filePath = path.join(process.cwd(), producto.imagen);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    // Subir nueva imagen
+    try {
+      const result = await uploadFromBuffer(req.file.buffer);
+      updateData.imagenUrl = result.secure_url;
+    } catch (err) {
+      console.error("❌ Error al subir nueva imagen a Cloudinary:", err.message);
     }
-
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Producto eliminado correctamente" });
-  } catch (err) {
-    console.error("❌ Error al eliminar producto:", err);
-    res.status(400).json({ success: false, message: err.message });
   }
-};
+
+  const actualizado = await Product.findByIdAndUpdate(id, updateData, { new: true }).lean();
+
+  successResponse(res, actualizado, "Producto actualizado correctamente", req);
+});
+
+/**
+ * ==========================================
+ * DELETE /productos/:id — Eliminar
+ * ==========================================
+ */
+export const deleteProducto = asyncHandler(async (req, res) => {
+  const id = req.params.id?.trim();
+  if (!id) throw new Error("ID inválido");
+
+  const producto = await Product.findById(id);
+  if (!producto) throw new Error("Producto no encontrado");
+
+  // Borrar imagen en Cloudinary
+  if (producto.imagenUrl) {
+    try {
+      const segments = producto.imagenUrl.split("/");
+      const public_id = `hermanos-jota/${segments.slice(-1)[0].split(".")[0]}`;
+      await deleteImage(public_id);
+    } catch (err) {
+      console.warn("⚠️ No se pudo eliminar imagen de Cloudinary:", err.message);
+    }
+  }
+
+  await Product.findByIdAndDelete(id);
+
+  deletedResponse(res, "Producto eliminado correctamente", req);
+});

@@ -1,12 +1,21 @@
-// middlewares/responseHandler.js
 const buildResponse = (res, statusCode, data = {}, mensaje = "Operación exitosa", req = null) => {
+  const env = process.env.NODE_ENV || "development";
   const payload = {
     estado: "success",
     mensaje,
     data,
+    statusCode,
     timestamp: new Date().toISOString(),
+    requestId: req?.requestId || undefined,
+    path: req?.originalUrl || undefined,
+    metodo: req?.method || undefined,
   };
-  if (req) payload.path = req.originalUrl;
+
+  if (env !== "production" && req) {
+    payload.body = req.body || undefined;
+    payload.query = req.query || undefined;
+    payload.params = req.params || undefined;
+  }
 
   res.status(statusCode).json(payload);
 };

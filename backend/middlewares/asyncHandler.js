@@ -1,59 +1,57 @@
 // middlewares/asyncHandler.js
 
 /**
- * Middleware de manejo asíncrono de controladores.
- * Captura errores en funciones async sin necesidad de try/catch repetitivos.
- * Integra trazabilidad contextual, detección de entorno y logging estructurado.
- *
- * Beneficios:
- *  - Centraliza la gestión de excepciones async.
- *  - Mejora la trazabilidad de errores sin contaminar controladores.
- *  - Aporta visibilidad detallada del contexto HTTP y payload.
+ * Middleware universal para manejar funciones async sin try/catch repetidos.
+ * Captura errores, asigna códigos correctos, registra logs avanzados
+ * y centraliza el comportamiento según entorno.
  */
 
 export const asyncHandler = (fn) => {
   return async (req, res, next) => {
     const timestamp = new Date().toISOString();
-    const context = `[${timestamp}] [${req.method}] ${req.originalUrl}`;
     const env = process.env.NODE_ENV || "development";
 
     try {
       await fn(req, res, next);
     } catch (err) {
-      // Definir código de error por tipo (fallback 500)
-      const statusCode =
-        err.statusCode ||
-        (err.name === "ValidationError"
-          ? 400
-          : err.name === "CastError"
-          ? 400
-          : 500);
+      // Determinar status code según tipo de error
+      let statusCode = 500;
 
-      // Logging estructurado para entornos no productivos
+      if (err.statusCode) statusCode = err.statusCode;
+      else if (err.name === "ValidationError") statusCode = 400;
+      else if (err.name === "CastError") statusCode = 400;
+      else if (err.name === "MongoServerError" && err.code === 11000)
+        statusCode = 409; // duplicado
+
+      // Log estructurado
+      const log = {
+        timestamp,
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+        statusCode,
+        error: {
+          name: err.name,
+          message: err.message,
+          stack: env !== "production" ? err.stack : undefined,
+          code: err.code || null,
+        },
+        body: req.body,
+        params: req.params,
+        query: req.query,
+      };
+
       if (env !== "production") {
-        console.error("=".repeat(80));
-        console.error(`${context}`);
-        console.error(`🔍 Contexto: ${req.ip} - ${req.headers["user-agent"]}`);
-        console.error(`❌ Error: ${err.message}`);
-        console.error(`📦 Tipo: ${err.name}`);
-        if (err.code) console.error(`🧩 Código interno: ${err.code}`);
-        if (Object.keys(req.body || {}).length > 0) {
-          console.error("📨 Request Body:", JSON.stringify(req.body, null, 2));
-        }
-        if (Object.keys(req.params || {}).length > 0) {
-          console.error("🔗 Params:", JSON.stringify(req.params, null, 2));
-        }
-        if (Object.keys(req.query || {}).length > 0) {
-          console.error("💡 Query:", JSON.stringify(req.query, null, 2));
-        }
-        console.error(`🧠 Stack Trace:\n${err.stack}`);
-        console.error("=".repeat(80));
+        console.error("❌ ERROR CAPTURADO (DEV):");
+        console.error(JSON.stringify(log, null, 2));
       } else {
-        // En producción, log limpio y resumido
-        console.error(`${context} - ❌ ${err.message} (${err.name})`);
+        console.error(
+          `[${timestamp}] [${req.method}] ${req.originalUrl} - ❌ ${err.message}`
+        );
       }
 
-      // Normalizar respuesta si aún no fue enviada
+      // Evitar doble envío de headers
       if (!res.headersSent) {
         res.status(statusCode).json({
           estado: "error",
@@ -65,8 +63,7 @@ export const asyncHandler = (fn) => {
         });
       }
 
-      // Pasar error al middleware global (si existe)
-      next(err);
+      return next(err);
     }
   };
 };
