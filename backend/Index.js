@@ -86,7 +86,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // ==============================
-// Rutas del API
+// Health check
 // ==============================
 app.get("/api/health", (req, res) => {
   res.status(200).json({
@@ -97,9 +97,52 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// ==============================
+// Función para listar rutas de un router
+// ==============================
+function listarRutas(router, prefijo = "") {
+  const rutas = [];
+
+  router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      const metodos = Object.keys(middleware.route.methods).map(m => m.toUpperCase());
+      rutas.push({
+        ruta: prefijo + middleware.route.path,
+        metodos,
+      });
+    } else if (middleware.name === "router") {
+      rutas.push(...listarRutas(middleware.handle, prefijo));
+    }
+  });
+
+  return rutas;
+}
+
+// ==============================
+// Montar routers
+// ==============================
 app.use("/api/productos", productosRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+
+// ==============================
+// Endpoint automático /api
+// ==============================
+app.get("/api", (req, res) => {
+  const rutas = [
+    { ruta: "/api/health", metodos: ["GET"] },
+    ...listarRutas(productosRoutes, "/api/productos"),
+    ...listarRutas(authRoutes, "/api/auth"),
+    ...listarRutas(userRoutes, "/api/users"),
+  ];
+
+  res.status(200).json({
+    estado: "success",
+    mensaje: "API Hermanos Jota activa",
+    rutas_disponibles: rutas,
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // ==============================
 // Manejo de errores
