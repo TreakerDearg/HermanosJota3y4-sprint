@@ -1,26 +1,20 @@
 // src/utils/getImagenUrl.js
 export function getImagenUrl(producto) {
-  // Imagen por defecto si no hay producto o imagen
+  // 1️⃣ Si no existe el producto, devolvemos placeholder
   if (!producto) return "/images/placeholder.png";
 
-  const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000")
-    .replace(/\/api$/, "")
-    .replace(/\/$/, "");
+  // 2️⃣ Imagen desde Cloudinary (nueva)
+  if (producto.imagenUrl && producto.imagenUrl.startsWith("http")) {
+    return producto.imagenUrl;
+  }
 
-  // Intentamos obtener la URL de varias propiedades
-  const rawUrl = producto.imagenUrl || producto.imagen || "";
+  // 3️⃣ Imagen del backend antiguo (por si aún queda alguna)
+  if (producto.imagen && typeof producto.imagen === "string") {
+    return producto.imagen.startsWith("/")
+      ? producto.imagen
+      : `/${producto.imagen}`;
+  }
 
-  if (!rawUrl) return "/images/placeholder.png";
-
-  // Normalizamos la ruta
-  let normalized = rawUrl.replace(/\\/g, "/").trim();
-
-  // Si ya es URL absoluta
-  if (/^https?:\/\//i.test(normalized)) return normalized;
-
-  // Evitamos doble /uploads
-  normalized = normalized.replace(/^\/?uploads\/?/, "");
-
-  // Retornamos la URL completa
-  return `${API_BASE}/uploads/${normalized}`;
+  // 4️⃣ Si no encontramos imagen → placeholder
+  return "/images/placeholder.png";
 }
