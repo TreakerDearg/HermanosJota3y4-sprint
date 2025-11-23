@@ -1,3 +1,4 @@
+// routes/productos.js
 import express from "express";
 import {
   getProductos,
@@ -7,15 +8,15 @@ import {
   deleteProducto,
 } from "../controllers/productController.js";
 
-import { upload } from "../middlewares/uploadCloudinary.js"; // ← Nuevo middleware
+import { upload, handleUploadErrors } from "../middlewares/uploadCloudinary.js";
 import { authGuard } from "../middlewares/authGuard.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 
 const router = express.Router();
 
-// ==============================
-// 🔹 Ruta de prueba
-// ==============================
+/* =======================================================
+   🔹 Health Check
+======================================================= */
 router.get("/health", (req, res) =>
   res.status(200).json({
     estado: "ok",
@@ -25,19 +26,15 @@ router.get("/health", (req, res) =>
   })
 );
 
-// ==============================
-// 🛒 CRUD PRODUCTOS
-// ==============================
-
-// GET: Todos los productos → abierto a todos
+/* =======================================================
+   🔹 Productos públicos (sin auth)
+======================================================= */
 router.get("/", asyncHandler(getProductos));
-
-// GET: Producto por ID → abierto a todos
 router.get("/:id", asyncHandler(getProducto));
 
-// ==============================
-// Middleware para verificar rol admin
-// ==============================
+/* =======================================================
+   🔹 Middleware para rol admin
+======================================================= */
 const requireAdmin = (req, res, next) => {
   if (req.user?.rol !== "admin") {
     return res.status(403).json({
@@ -48,25 +45,34 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-// POST: Crear producto → solo admin
+/* =======================================================
+   🔹 Crear producto (solo admin)
+   🔹 NOTA: multer maneja FormData y `req.body` correctamente
+======================================================= */
 router.post(
   "/",
   authGuard,
   requireAdmin,
-  upload.single("imagen"), // ← Cloudinary
+  upload.single("imagen"),   // 📸 multer captura la imagen en memoria
+  handleUploadErrors,        // ⚠️ manejo seguro de errores Multer
   asyncHandler(createProducto)
 );
 
-// PUT: Actualizar producto → solo admin
+/* =======================================================
+   🔹 Actualizar producto (solo admin)
+======================================================= */
 router.put(
   "/:id",
   authGuard,
   requireAdmin,
-  upload.single("imagen"), // ← Cloudinary
+  upload.single("imagen"),
+  handleUploadErrors,
   asyncHandler(updateProducto)
 );
 
-// DELETE: Eliminar producto → solo admin
+/* =======================================================
+   🔹 Eliminar producto (solo admin)
+======================================================= */
 router.delete(
   "/:id",
   authGuard,

@@ -1,150 +1,122 @@
+// controllers/productController.js
 import Product from "../models/Product.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
-import {
-  successResponse,
-  createdResponse,
-  deletedResponse,
-} from "../middlewares/responseHandler.js";
-import { uploadFromBuffer, deleteImage } from "../utils/cloudinary.js";
+import { uploadFromBuffer, deleteImage } from "../middlewares/cloudinary.js";
 
-/**
- * ==========================================
- * GET /productos — Obtener todos
- * ==========================================
- */
+/* =======================================================
+   📌 Obtener todos los productos
+======================================================= */
 export const getProductos = asyncHandler(async (req, res) => {
-  const productos = await Product.find().lean();
-  successResponse(res, productos, "Productos cargados correctamente", req);
+  try {
+    const productos = await Product.find().sort({ createdAt: -1 });
+    return res.status(200).json({ estado: "success", data: productos });
+  } catch (err) {
+    return res.status(500).json({ estado: "error", mensaje: "Error obteniendo productos", detalle: err.message });
+  }
 });
 
-/**
- * ==========================================
- * GET /productos/:id — Obtener uno
- * ==========================================
- */
+/* =======================================================
+   📌 Obtener producto por ID
+======================================================= */
 export const getProducto = asyncHandler(async (req, res) => {
-  const id = req.params.id?.trim();
-  if (!id) throw new Error("ID inválido");
-
-  const producto = await Product.findById(id).lean();
-  if (!producto) throw new Error("Producto no encontrado");
-
-  successResponse(res, producto, "Producto cargado correctamente", req);
+  try {
+    const producto = await Product.findById(req.params.id);
+    if (!producto) return res.status(404).json({ estado: "error", mensaje: "Producto no encontrado" });
+    return res.status(200).json({ estado: "success", data: producto });
+  } catch (err) {
+    return res.status(500).json({ estado: "error", mensaje: "Error obteniendo producto", detalle: err.message });
+  }
 });
 
-/**
- * ==========================================
- * POST /productos — Crear
- * ==========================================
- */
+/* =======================================================
+   📌 Crear producto con manejo de Cloudinary
+======================================================= */
 export const createProducto = asyncHandler(async (req, res) => {
-  const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
+  try {
+    // Normalizar y parsear campos
+    const nombre = req.body.nombre?.toString().trim();
+    const descripcion = req.body.descripcion?.toString().trim() || "";
+    const categoria = req.body.categoria?.toString().trim();
+    const precio = Number(req.body.precio);
+    const stock = Number(req.body.stock);
+    const destacado = req.body.destacado === "true" || req.body.destacado === true;
 
-  if (!nombre || !precio || !categoria || stock === undefined) {
-    throw new Error("Faltan campos obligatorios");
-  }
+    // Validación estricta de campos obligatorios
+    if (!nombre) return res.status(400).json({ estado: "error", mensaje: "Nombre es obligatorio" });
+    if (!categoria) return res.status(400).json({ estado: "error", mensaje: "Categoría es obligatoria" });
+    if (isNaN(precio) || precio <= 0) return res.status(400).json({ estado: "error", mensaje: "Precio inválido" });
+    if (isNaN(stock) || stock < 0) return res.status(400).json({ estado: "error", mensaje: "Stock inválido" });
 
-  let imagenUrl = "";
+    // Preparar objeto de producto
+    const nuevoProductoData = { nombre, descripcion, categoria, precio, stock, destacado };
 
-  if (req.file?.buffer) {
-    try {
-      const result = await uploadFromBuffer(req.file.buffer);
-      imagenUrl = result.secure_url;
-    } catch (err) {
-      console.error("❌ Error al subir imagen a Cloudinary:", err.message);
-      // ⚠️ Se crea el producto aunque falle la subida
-    }
-  }
-
-  const nuevo = await Product.create({
-    nombre,
-    descripcion,
-    precio: Number(precio),
-    categoria,
-    stock: Number(stock),
-    destacado: ["true", true, "on", "1", 1].includes(destacado),
-    imagenUrl,
-  });
-
-  createdResponse(res, nuevo, "Producto creado correctamente", req);
-});
-
-/**
- * ==========================================
- * PUT /productos/:id — Actualizar
- * ==========================================
- */
-export const updateProducto = asyncHandler(async (req, res) => {
-  const id = req.params.id?.trim();
-  if (!id) throw new Error("ID inválido");
-
-  const producto = await Product.findById(id);
-  if (!producto) throw new Error("Producto no encontrado");
-
-  const { nombre, descripcion, precio, categoria, stock, destacado } = req.body;
-
-  const updateData = {
-    nombre: nombre ?? producto.nombre,
-    descripcion: descripcion ?? producto.descripcion,
-    precio: precio !== undefined ? Number(precio) : producto.precio,
-    categoria: categoria ?? producto.categoria,
-    stock: stock !== undefined ? Number(stock) : producto.stock,
-    destacado:
-      destacado !== undefined
-        ? ["true", true, "on", "1", 1].includes(destacado)
-        : producto.destacado,
-  };
-
-  if (req.file?.buffer) {
-    // Borrar imagen antigua
-    if (producto.imagenUrl) {
+    // Manejo de imagen
+    if (req.file) {
       try {
-        const segments = producto.imagenUrl.split("/");
-        const public_id = `hermanos-jota/${segments.slice(-1)[0].split(".")[0]}`;
-        await deleteImage(public_id);
+        const result = await uploadFromBuffer(req.file.buffer);
+        nuevoProductoData.imagenUrl = result.secure_url;
+        nuevoProductoData.imagenPublicId = result.public_id;
       } catch (err) {
-        console.warn("⚠️ No se pudo eliminar imagen antigua:", err.message);
+        return res.status(500).json({ estado: "error", mensaje: "Error subiendo imagen", detalle: err.message });
       }
     }
 
-    // Subir nueva imagen
-    try {
-      const result = await uploadFromBuffer(req.file.buffer);
-      updateData.imagenUrl = result.secure_url;
-    } catch (err) {
-      console.error("❌ Error al subir nueva imagen a Cloudinary:", err.message);
-    }
+    const nuevoProducto = await Product.create(nuevoProductoData);
+    return res.status(201).json({ estado: "success", mensaje: "Producto creado correctamente", data: nuevoProducto });
+  } catch (err) {
+    return res.status(500).json({ estado: "error", mensaje: "Error creando producto", detalle: err.message });
   }
-
-  const actualizado = await Product.findByIdAndUpdate(id, updateData, { new: true }).lean();
-
-  successResponse(res, actualizado, "Producto actualizado correctamente", req);
 });
 
-/**
- * ==========================================
- * DELETE /productos/:id — Eliminar
- * ==========================================
- */
-export const deleteProducto = asyncHandler(async (req, res) => {
-  const id = req.params.id?.trim();
-  if (!id) throw new Error("ID inválido");
+/* =======================================================
+   📌 Actualizar producto con manejo de Cloudinary
+======================================================= */
+export const updateProducto = asyncHandler(async (req, res) => {
+  try {
+    const producto = await Product.findById(req.params.id);
+    if (!producto) return res.status(404).json({ estado: "error", mensaje: "Producto no encontrado" });
 
-  const producto = await Product.findById(id);
-  if (!producto) throw new Error("Producto no encontrado");
+    // Normalizar y parsear campos entrantes
+    const nombre = req.body.nombre?.toString().trim() ?? producto.nombre;
+    const descripcion = req.body.descripcion?.toString().trim() ?? producto.descripcion;
+    const categoria = req.body.categoria?.toString().trim() ?? producto.categoria;
+    const precio = req.body.precio !== undefined ? Number(req.body.precio) : producto.precio;
+    const stock = req.body.stock !== undefined ? Number(req.body.stock) : producto.stock;
+    const destacado = req.body.destacado !== undefined ? (req.body.destacado === "true" || req.body.destacado === true) : producto.destacado;
 
-  // Borrar imagen en Cloudinary
-  if (producto.imagenUrl) {
-    try {
-      const segments = producto.imagenUrl.split("/");
-      const public_id = `hermanos-jota/${segments.slice(-1)[0].split(".")[0]}`;
-      await deleteImage(public_id);
-    } catch (err) {
-      console.warn("⚠️ No se pudo eliminar imagen de Cloudinary:", err.message);
+    if (isNaN(precio) || precio <= 0) return res.status(400).json({ estado: "error", mensaje: "Precio inválido" });
+    if (isNaN(stock) || stock < 0) return res.status(400).json({ estado: "error", mensaje: "Stock inválido" });
+
+    const actualizadoData = { nombre, descripcion, categoria, precio, stock, destacado, imagenUrl: producto.imagenUrl, imagenPublicId: producto.imagenPublicId };
+
+    // Reemplazar imagen si viene nueva
+    if (req.file) {
+      if (producto.imagenPublicId) await deleteImage(producto.imagenPublicId);
+      const result = await uploadFromBuffer(req.file.buffer);
+      actualizadoData.imagenUrl = result.secure_url;
+      actualizadoData.imagenPublicId = result.public_id;
     }
+
+    const actualizado = await Product.findByIdAndUpdate(req.params.id, actualizadoData, { new: true, runValidators: true });
+    return res.status(200).json({ estado: "success", mensaje: "Producto actualizado correctamente", data: actualizado });
+  } catch (err) {
+    return res.status(500).json({ estado: "error", mensaje: "Error actualizando producto", detalle: err.message });
   }
+});
 
-  await Product.findByIdAndDelete(id);
+/* =======================================================
+   📌 Eliminar producto y su imagen de Cloudinary
+======================================================= */
+export const deleteProducto = asyncHandler(async (req, res) => {
+  try {
+    const producto = await Product.findById(req.params.id);
+    if (!producto) return res.status(404).json({ estado: "error", mensaje: "Producto no encontrado" });
 
-  deletedResponse(res, "Producto eliminado correctamente", req);
+    if (producto.imagenPublicId) await deleteImage(producto.imagenPublicId);
+    await producto.deleteOne();
+
+    return res.status(200).json({ estado: "success", mensaje: "Producto eliminado correctamente" });
+  } catch (err) {
+    return res.status(500).json({ estado: "error", mensaje: "Error eliminando producto", detalle: err.message });
+  }
 });

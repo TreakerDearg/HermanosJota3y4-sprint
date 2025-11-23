@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
-import os from "os";
 import fs from "fs";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -32,18 +31,14 @@ const app = express();
 // Seguridad
 // ==============================
 app.disable("x-powered-by");
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-  })
-);
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
 // ==============================
-// RATE LIMIT — Solo rutas críticas
+// Rate limit
 // ==============================
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 min
+  windowMs: 15 * 60 * 1000, // 15 minutos
   max: 300,
   message: { estado: "error", mensaje: "Demasiadas peticiones. Intenta más tarde." },
 });
@@ -87,8 +82,6 @@ if (process.env.NODE_ENV !== "production") {
 if (process.env.NODE_ENV !== "production") {
   const UPLOAD_DIR = path.join(__dirname, "uploads");
   if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-  // Servir imágenes locales
   app.use("/uploads", express.static(UPLOAD_DIR));
 }
 
@@ -100,6 +93,7 @@ app.get("/api/health", (req, res) => {
     estado: "success",
     mensaje: "API Hermanos Jota activa",
     entorno: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
   });
 });
 

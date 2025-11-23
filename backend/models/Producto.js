@@ -21,15 +21,10 @@ const productoSchema = new mongoose.Schema(
       min: [0, "El precio no puede ser negativo"],
     },
 
+    // 🔥 AQUI: Compatibilidad Cloudinary REAL
     imagen: {
-      type: String,
-      default: "", // Nombre del archivo o URL
-    },
-
-    // 🔹 URL pública de Cloudinary
-    imagenUrl: {
-      type: String,
-      default: "",
+      url: { type: String, default: "" },
+      public_id: { type: String, default: "" },
     },
 
     destacado: {
