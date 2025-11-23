@@ -14,7 +14,6 @@ export const ProductProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchedOnce = useRef(false);
   const abortController = useRef(null);
 
   // ============================
@@ -23,6 +22,7 @@ export const ProductProvider = ({ children }) => {
   const fetchProductos = useCallback(async () => {
     if (abortController.current) abortController.current.abort();
     abortController.current = new AbortController();
+
     setLoading(true);
     setError(null);
 
@@ -40,7 +40,11 @@ export const ProductProvider = ({ children }) => {
       const data = await res.json();
       setProductos(
         Array.isArray(data.data)
-          ? data.data.map((p) => ({ ...p, imagenUrl: p.imagenUrl || "/images/placeholder.png" }))
+          ? data.data.map((p) => ({
+              ...p,
+              imagenUrl: p.imagenUrl || "/images/placeholder.png",
+              destacado: !!p.destacado,
+            }))
           : []
       );
     } catch (err) {
@@ -50,14 +54,14 @@ export const ProductProvider = ({ children }) => {
     }
   }, [token]);
 
-  useEffect(() => {
-    if (!fetchedOnce.current) {
-      fetchedOnce.current = true;
-      fetchProductos();
-    }
-    return () => abortController.current?.abort();
-  }, [fetchProductos]);
-
+  // ============================
+  // AUTO-REFRESH ON USER CHANGE
+  // ============================
+useEffect(() => {
+  // Siempre fetch de productos, sin importar si hay usuario
+  fetchProductos();
+  return () => abortController.current?.abort();
+}, [fetchProductos]);
   // ============================
   // GET PRODUCT BY ID
   // ============================
@@ -70,7 +74,7 @@ export const ProductProvider = ({ children }) => {
   );
 
   // ============================
-  // HELPER: Build FormData
+  // BUILD FORM DATA
   // ============================
   const buildFormData = useCallback((producto) => {
     const fd = new FormData();
@@ -103,7 +107,7 @@ export const ProductProvider = ({ children }) => {
         });
 
         const data = await res.json();
-        if (res.ok && data.estado === "success") await fetchProductos();
+        if (res.ok && data.estado === "success") fetchProductos();
         return data;
       } catch (err) {
         return { estado: "error", mensaje: err.message || "Error creando producto" };
@@ -125,7 +129,7 @@ export const ProductProvider = ({ children }) => {
         });
 
         const data = await res.json();
-        if (res.ok && data.estado === "success") await fetchProductos();
+        if (res.ok && data.estado === "success") fetchProductos();
         return data;
       } catch (err) {
         return { estado: "error", mensaje: err.message || "Error actualizando producto" };
@@ -146,7 +150,7 @@ export const ProductProvider = ({ children }) => {
         });
 
         const data = await res.json();
-        if (res.ok && data.estado === "success") await fetchProductos();
+        if (res.ok && data.estado === "success") fetchProductos();
         return data;
       } catch (err) {
         return { estado: "error", mensaje: err.message || "Error eliminando producto" };

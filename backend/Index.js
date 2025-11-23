@@ -48,23 +48,34 @@ app.use("/api/users", apiLimiter);
 app.use("/api/productos", apiLimiter);
 
 // ==============================
-// CORS dinámico
+// CORS dinámico y seguro
 // ==============================
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 const vercelPreviewPattern = /^https:\/\/hermanos-jota3y4-sprint-[a-z0-9-]+-treakerdeargs-projects\.vercel\.app$/;
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || origin === FRONTEND_URL || origin === "null" || vercelPreviewPattern.test(origin)) {
-        return callback(null, true);
-      }
-      console.error("❌ CORS bloqueado desde:", origin);
-      return callback(new Error("CORS no permitido: " + origin));
-    },
-    credentials: true,
-  })
-);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  console.log("🌐 Origin de la petición:", origin);
+
+  if (
+    !origin || // peticiones directas (Postman, curl)
+    origin === FRONTEND_URL ||
+    vercelPreviewPattern.test(origin) ||
+    origin === "null" // móviles a veces envían null
+  ) {
+    res.header("Access-Control-Allow-Origin", origin || "*");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+
+    // Preflight request
+    if (req.method === "OPTIONS") return res.sendStatus(200);
+    return next();
+  } else {
+    console.error("❌ CORS bloqueado desde:", origin);
+    return res.status(403).json({ estado: "error", mensaje: "CORS no permitido: " + origin });
+  }
+});
 
 // ==============================
 // Middlewares base
@@ -105,7 +116,7 @@ function listarRutas(router, prefijo = "") {
 
   router.stack.forEach((middleware) => {
     if (middleware.route) {
-      const metodos = Object.keys(middleware.route.methods).map(m => m.toUpperCase());
+      const metodos = Object.keys(middleware.route.methods).map((m) => m.toUpperCase());
       rutas.push({
         ruta: prefijo + middleware.route.path,
         metodos,

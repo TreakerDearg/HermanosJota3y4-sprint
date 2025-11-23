@@ -1,11 +1,13 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { useProducts } from "../context/ProductContext";
 import "../styles/components/Destacados.css";
 
-const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
-
-export default function Destacados({ productos = [] }) {
+export default function Destacados() {
   const navigate = useNavigate();
+  const { productos, loading } = useProducts();
+
+  if (loading) return <p className="no-productos-terminal">Cargando productos destacados...</p>;
 
   const productosDestacados = Array.isArray(productos)
     ? productos.filter((p) => p.destacado)
@@ -23,22 +25,18 @@ export default function Destacados({ productos = [] }) {
     let rawUrl = producto.imagenUrl || producto.imagen || "";
     rawUrl = rawUrl.trim().replace(/\\/g, "/");
 
-    // Si ya es URL absoluta, usarla tal cual
-    if (/^https?:\/\//i.test(rawUrl)) {
-      return rawUrl;
-    }
+    if (/^https?:\/\//i.test(rawUrl)) return rawUrl;
 
-    // Limpiar /images/ al inicio si existe
     rawUrl = rawUrl.replace(/^\/?images\/?/, "");
-
-    // Si no hay imagen, usar placeholder local
     if (!rawUrl) return "/images/placeholder.png";
-
-    // Evitar doble /uploads
     rawUrl = rawUrl.replace(/^\/?uploads\/?/, "");
 
-    return `${API_BASE.replace(/\/api$/, "")}/uploads/${rawUrl}`;
+    return `${(process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/api$/, "")}/uploads/${rawUrl}`;
   };
+
+  if (!productosDestacados.length) {
+    return <p className="no-productos-terminal">No hay productos destacados disponibles.</p>;
+  }
 
   return (
     <section className="destacados-terminal" aria-labelledby="destacados-titulo">
@@ -52,59 +50,53 @@ export default function Destacados({ productos = [] }) {
       </header>
 
       <div className="productos-grid-terminal">
-        {productosDestacados.length > 0 ? (
-          productosDestacados.map((producto) => {
-            const { _id, nombre = "Producto", descripcion = "", precio = 0 } = producto;
-            const imagenSrc = construirImagenSrc(producto);
+        {productosDestacados.map((producto) => {
+          const { _id, nombre = "Producto", descripcion = "", precio = 0 } = producto;
+          const imagenSrc = construirImagenSrc(producto);
 
-            return (
-              <article
-                key={_id}
-                className="producto-card-terminal"
-                tabIndex={0}
-                role="button"
-                aria-label={`Producto destacado: ${nombre}`}
-                onClick={() => handleVerDetalle(producto)}
-                onKeyDown={(e) => handleKeyDown(e, producto)}
-              >
-                <div className="flip-card-inner-terminal">
-                  <div className="flip-card-front-terminal">
-                    <figure className="producto-imagen-terminal">
-                      <img
-                        src={imagenSrc}
-                        alt={`Imagen de ${nombre}`}
-                        loading="lazy"
-                        draggable={false}
-                        onError={(e) => {
-                          e.target.src = "/images/placeholder.png";
-                        }}
-                      />
-                    </figure>
-                    <div className="producto-info-terminal">
-                      <h3 className="producto-nombre-terminal">{nombre}</h3>
-                    </div>
-                  </div>
-
-                  <div className="flip-card-back-terminal">
-                    <div className="producto-detalle-terminal">
-                      <h4 className="precio-terminal">
-                        {precio.toLocaleString("es-AR", {
-                          style: "currency",
-                          currency: "ARS",
-                          minimumFractionDigits: 0,
-                        })}
-                      </h4>
-                      <p className="mini-desc-terminal">{descripcion}</p>
-                      <p className="click-detalle">Haz click para ver detalle 🡆</p>
-                    </div>
+          return (
+            <article
+              key={_id}
+              className="producto-card-terminal"
+              tabIndex={0}
+              role="button"
+              aria-label={`Producto destacado: ${nombre}`}
+              onClick={() => handleVerDetalle(producto)}
+              onKeyDown={(e) => handleKeyDown(e, producto)}
+            >
+              <div className="flip-card-inner-terminal">
+                <div className="flip-card-front-terminal">
+                  <figure className="producto-imagen-terminal">
+                    <img
+                      src={imagenSrc}
+                      alt={`Imagen de ${nombre}`}
+                      loading="lazy"
+                      draggable={false}
+                      onError={(e) => { e.target.src = "/images/placeholder.png"; }}
+                    />
+                  </figure>
+                  <div className="producto-info-terminal">
+                    <h3 className="producto-nombre-terminal">{nombre}</h3>
                   </div>
                 </div>
-              </article>
-            );
-          })
-        ) : (
-          <p className="no-productos-terminal">No hay productos destacados disponibles.</p>
-        )}
+
+                <div className="flip-card-back-terminal">
+                  <div className="producto-detalle-terminal">
+                    <h4 className="precio-terminal">
+                      {precio.toLocaleString("es-AR", {
+                        style: "currency",
+                        currency: "ARS",
+                        minimumFractionDigits: 0,
+                      })}
+                    </h4>
+                    <p className="mini-desc-terminal">{descripcion}</p>
+                    <p className="click-detalle">Haz click para ver detalle 🡆</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -122,8 +114,4 @@ Destacados.propTypes = {
       destacado: PropTypes.bool,
     })
   ),
-};
-
-Destacados.defaultProps = {
-  productos: [],
 };
