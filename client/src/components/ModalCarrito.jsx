@@ -4,7 +4,8 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useUI } from "../context/UIContext";
-import { useAuth } from "../context/AuthContext"; // ✅ nuevo
+import { useAuth } from "../context/AuthContext"; 
+import { FiTrash2, FiMinus, FiPlus, FiXCircle, FiShoppingCart } from "react-icons/fi";
 import "../styles/components/ModalCarrito.css";
 
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000").replace(/\/$/, "");
@@ -17,9 +18,9 @@ const modalRoot = document.getElementById("modal-root") || (() => {
 })();
 
 export default function ModalCarrito() {
-  const { carrito, eliminarProducto, total } = useCart();
+  const { carrito, eliminarUnidad, eliminarProducto, vaciarCarrito, total, actualizarCantidad } = useCart();
   const { modalCarrito, toggleModalCarrito } = useUI();
-  const { user } = useAuth(); // ✅ obtener usuario
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [toast, setToast] = useState("");
 
@@ -58,9 +59,9 @@ export default function ModalCarrito() {
     <div className="modal-overlay" onClick={toggleModalCarrito}>
       <div className="modal-carrito" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>🛒 Tu Carrito</h2>
+          <h2><FiShoppingCart /> Tu Carrito</h2>
           <button className="cerrar-btn" onClick={toggleModalCarrito} aria-label="Cerrar carrito">
-            ✖
+            <FiXCircle />
           </button>
         </div>
 
@@ -78,6 +79,11 @@ export default function ModalCarrito() {
                   </div>
                   <div className="info">
                     <p>{item.nombre}</p>
+                    <div className="cantidad-control">
+                      <button onClick={() => eliminarUnidad(item._id)} aria-label="Disminuir cantidad"><FiMinus /></button>
+                      <span>{item.cantidad || 1}</span>
+                      <button onClick={() => actualizarCantidad(item._id, (item.cantidad || 1) + 1)} aria-label="Aumentar cantidad"><FiPlus /></button>
+                    </div>
                     <p className="precio">
                       {new Intl.NumberFormat("es-AR", {
                         style: "currency",
@@ -91,7 +97,7 @@ export default function ModalCarrito() {
                     onClick={() => eliminarProducto(item._id)}
                     aria-label={`Eliminar ${item.nombre} del carrito`}
                   >
-                    ❌
+                    <FiTrash2 />
                   </button>
                 </div>
               ))}
@@ -110,17 +116,23 @@ export default function ModalCarrito() {
 
             <div className="modal-actions">
               <button
+                className="vaciar-btn"
+                onClick={vaciarCarrito}
+                disabled={productosList.length === 0}
+              >
+                Vaciar Carrito
+              </button>
+              <button
                 className="finalizar-btn"
                 onClick={handleFinalizarCompra}
                 disabled={productosList.length === 0}
               >
-                🏁 Finalizar Compra
+                Finalizar Compra
               </button>
             </div>
           </>
         )}
 
-        {/* Toast */}
         {toast && <div className="toast">{toast}</div>}
       </div>
     </div>

@@ -1,0 +1,70 @@
+.actividad-page {
+  padding: 2rem;
+  font-family: 'Courier New', Courier, monospace;
+  background: #1c1c1c;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+.actividad-header h1 {
+  color: #d4af37;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 4px #d4af37;
+}
+
+.actividad-header p {
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+.actividad-vacia {
+  text-align: center;
+  font-style: italic;
+  color: #999;
+  margin-top: 3rem;
+}
+
+.historial-compras {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.compra-card {
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #222;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.compra-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 0.5rem;
+}
+
+.icono-compra {
+  color: #d4af37;
+}
+
+.productos-compra {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+}
+
+.productos-compra li {
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed #555;
+}
+
+.total-compra {
+  text-align: right;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: #d4af37;
+}

@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { FaUser, FaEnvelope, FaComment, FaPaperPlane, FaCheckCircle } from "react-icons/fa";
 import "../styles/components/ContactForm.css";
 
-function ContactForm() {
+export default function ContactForm() {
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -18,33 +19,28 @@ function ContactForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validación básica adicional
     if (!formData.nombre || !formData.email || !formData.mensaje) {
       alert("Por favor completa todos los campos.");
       return;
     }
 
-    // Simula envío
     console.log("Datos enviados:", formData);
     setEnviado(true);
-
-    // Limpiar formulario
     setFormData({ nombre: "", email: "", mensaje: "" });
 
-    // Ocultar mensaje después de 4 segundos
     setTimeout(() => setEnviado(false), 4000);
   };
 
   return (
     <section className="contact-form">
       <h2 className="form-title">
-        <i className="fa-solid fa-envelope"></i> Contáctanos
+        <FaEnvelope style={{ marginRight: "0.5rem" }} /> Contáctanos
       </h2>
 
       <form onSubmit={handleSubmit} className="form-content">
         <div className="input-group">
           <label htmlFor="nombre">
-            <i className="fa-solid fa-user"></i> Nombre
+            <FaUser style={{ marginRight: "0.3rem" }} /> Nombre
           </label>
           <input
             id="nombre"
@@ -59,7 +55,7 @@ function ContactForm() {
 
         <div className="input-group">
           <label htmlFor="email">
-            <i className="fa-solid fa-envelope-open-text"></i> Email
+            <FaEnvelope style={{ marginRight: "0.3rem" }} /> Email
           </label>
           <input
             id="email"
@@ -74,7 +70,7 @@ function ContactForm() {
 
         <div className="input-group">
           <label htmlFor="mensaje">
-            <i className="fa-solid fa-comment"></i> Mensaje
+            <FaComment style={{ marginRight: "0.3rem" }} /> Mensaje
           </label>
           <textarea
             id="mensaje"
@@ -87,17 +83,15 @@ function ContactForm() {
         </div>
 
         <button type="submit" className="submit-btn">
-          <i className="fa-solid fa-paper-plane"></i> Enviar
+          <FaPaperPlane style={{ marginRight: "0.5rem" }} /> Enviar
         </button>
       </form>
 
       {enviado && (
-        <p className="mensaje-exito">
-          <i className="fa-solid fa-circle-check"></i> ¡Tu mensaje fue enviado con éxito!
-        </p>
+        <div className="mensaje-exito">
+          <FaCheckCircle style={{ marginRight: "0.3rem" }} /> ¡Tu mensaje fue enviado con éxito!
+        </div>
       )}
     </section>
   );
 }
-
-export default ContactForm;

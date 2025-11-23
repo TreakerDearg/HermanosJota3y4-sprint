@@ -1,90 +1,136 @@
 .contact-form {
-  background: #1a1a1a;
-  color: #f5f5f5;
+  max-width: 500px;
+  width: 90%;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #1c1c1c;
   border: 2px solid #ffd700;
   border-radius: 12px;
-  padding: 2rem;
-  max-width: 600px;
-  margin: 2rem auto;
-  font-family: 'Courier New', Courier, monospace;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  color: #f5f5f5;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  overflow: hidden;
 }
 
 .form-title {
+  text-align: center;
   font-size: 1.8rem;
   color: #ffd700;
-  text-align: center;
   margin-bottom: 1.5rem;
   text-shadow: 0 0 4px #ffd700;
+  animation: blink 1.2s infinite;
 }
 
-.form-content .input-group {
+/* Parpadeo tipo terminal */
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.6; }
+}
+
+.form-content {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.3rem;
 }
 
+/* Inputs */
 .input-group label {
+  display: flex;
+  align-items: center;
   font-weight: bold;
   margin-bottom: 0.3rem;
   color: #ffd700;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .input-group input,
 .input-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ffd700;
+  border-radius: 6px;
   background: #262626;
-  border: 2px solid #ffd700;
-  border-radius: 8px;
   color: #f5f5f5;
-  padding: 0.5rem 0.8rem;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.95rem;
+  font-family: 'Courier New', monospace;
   transition: all 0.3s ease;
 }
 
 .input-group input:focus,
 .input-group textarea:focus {
-  outline: none;
   border-color: #ffda44;
-  box-shadow: 0 0 6px #ffd700;
+  box-shadow: 0 0 8px #ffd700;
+  outline: none;
 }
 
-.input-group textarea {
-  min-height: 100px;
+textarea {
   resize: vertical;
+  min-height: 100px;
 }
 
+/* Botón enviar */
 .submit-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #ffd700, #e6c200);
-  color: #1a1a1a;
+  padding: 0.6rem 1.2rem;
   font-weight: bold;
+  color: #1a1a1a;
+  background: linear-gradient(135deg, #ffd700, #e6c200);
   border: none;
   border-radius: 10px;
-  padding: 0.7rem 1.5rem;
   cursor: pointer;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 1rem;
-  margin-top: 1rem;
   transition: all 0.3s ease;
 }
 
 .submit-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  box-shadow: 0 6px 12px rgba(255, 215, 0, 0.4);
 }
 
+/* Mensaje de éxito */
 .mensaje-exito {
-  text-align: center;
   margin-top: 1rem;
-  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ffd700;
+  border-radius: 6px;
+  text-align: center;
+  background: #262626;
   color: #ffd700;
-  font-size: 1rem;
-  text-shadow: 0 0 4px #ffd700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar invisible */
+.form-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-content::-webkit-scrollbar-track {
+  background: #1c1c1c;
+}
+
+.form-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .contact-form {
+    padding: 1rem;
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+  }
 }

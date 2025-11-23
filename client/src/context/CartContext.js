@@ -7,10 +7,9 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
-
   const [carrito, setCarrito] = useState([]);
 
-  // 🔄 Cargar carrito del usuario desde localStorage
+  // 🔄 Cargar carrito desde localStorage
   useEffect(() => {
     if (user) {
       const saved = localStorage.getItem(`carrito_${user._id}`);
@@ -20,84 +19,110 @@ export const CartProvider = ({ children }) => {
     }
   }, [user]);
 
-  // 🔄 Guardar carrito en localStorage por usuario
-  const persistCart = (newCart) => {
+  // 🔄 Guardar carrito en localStorage
+  const persistCart = useCallback((newCart) => {
     if (user) {
       localStorage.setItem(`carrito_${user._id}`, JSON.stringify(newCart));
     }
-  };
+  }, [user]);
 
-  const agregarAlCarrito = useCallback(
-    (producto) => {
-      if (!user) {
-        alert("Debes iniciar sesión para agregar productos al carrito");
-        return;
+  // ================================
+  // Agregar producto al carrito
+  // ================================
+  const agregarAlCarrito = useCallback((producto, cantidad = 1) => {
+    if (!user) {
+      alert("Debes iniciar sesión para agregar productos al carrito");
+      return;
+    }
+    setCarrito(prev => {
+      const existente = prev.find(p => p._id === producto._id);
+      let updated;
+      if (existente) {
+        updated = prev.map(p =>
+          p._id === producto._id ? { ...p, cantidad: (p.cantidad || 1) + cantidad } : p
+        );
+      } else {
+        updated = [...prev, { ...producto, cantidad }];
       }
-      setCarrito((prev) => {
-        const existente = prev.find((p) => p._id === producto._id);
-        let updated;
-        if (existente) {
-          updated = prev.map((p) =>
-            p._id === producto._id ? { ...p, cantidad: (p.cantidad || 1) + 1 } : p
-          );
-        } else {
-          updated = [...prev, { ...producto, cantidad: 1 }];
+      persistCart(updated);
+      return updated;
+    });
+  }, [user, persistCart]);
+
+  // ================================
+  // Eliminar 1 unidad de un producto
+  // ================================
+  const eliminarUnidad = useCallback((id) => {
+    if (!user) {
+      alert("Debes iniciar sesión para eliminar productos del carrito");
+      return;
+    }
+    setCarrito(prev => {
+      const updated = prev.map(p => {
+        if (p._id === id) {
+          const nuevaCantidad = (p.cantidad || 1) - 1;
+          return { ...p, cantidad: nuevaCantidad };
         }
-        persistCart(updated);
-        return updated;
-      });
-    },
-    [user]
-  );
+        return p;
+      }).filter(p => p.cantidad > 0); // Eliminar si cantidad <= 0
+      persistCart(updated);
+      return updated;
+    });
+  }, [user, persistCart]);
 
-  const eliminarProducto = useCallback(
-    (id) => {
-      if (!user) {
-        alert("Debes iniciar sesión para eliminar productos del carrito");
-        return;
-      }
-      setCarrito((prev) => {
-        const updated = prev.filter((item) => item._id !== id);
-        persistCart(updated);
-        return updated;
-      });
-    },
-    [user]
-  );
+  // ================================
+  // Eliminar producto completo
+  // ================================
+  const eliminarProducto = useCallback((id) => {
+    if (!user) {
+      alert("Debes iniciar sesión para eliminar productos del carrito");
+      return;
+    }
+    setCarrito(prev => {
+      const updated = prev.filter(p => p._id !== id);
+      persistCart(updated);
+      return updated;
+    });
+  }, [user, persistCart]);
 
-  const actualizarCantidad = useCallback(
-    (id, cantidad) => {
-      if (!user) {
-        alert("Debes iniciar sesión para actualizar el carrito");
-        return;
-      }
-      setCarrito((prev) => {
-        const updated = prev.map((p) => (p._id === id ? { ...p, cantidad } : p));
-        persistCart(updated);
-        return updated;
-      });
-    },
-    [user]
-  );
-
+  // ================================
+  // Vaciar todo el carrito
+  // ================================
   const vaciarCarrito = useCallback(() => {
     if (!user) {
       alert("Debes iniciar sesión para vaciar el carrito");
       return;
     }
     setCarrito([]);
-    if (user) localStorage.removeItem(`carrito_${user._id}`);
+    localStorage.removeItem(`carrito_${user._id}`);
   }, [user]);
 
-  const total = useMemo(
-    () => carrito.reduce((acc, p) => acc + (p.precio || 0) * (p.cantidad || 1), 0),
-    [carrito]
-  );
+  // ================================
+  // Actualizar cantidad
+  // ================================
+  const actualizarCantidad = useCallback((id, cantidad) => {
+    if (!user) {
+      alert("Debes iniciar sesión para actualizar el carrito");
+      return;
+    }
+    setCarrito(prev => {
+      const updated = prev.map(p => p._id === id ? { ...p, cantidad } : p)
+        .filter(p => p.cantidad > 0);
+      persistCart(updated);
+      return updated;
+    });
+  }, [user, persistCart]);
 
-  const cantidadTotal = useMemo(
-    () => carrito.reduce((acc, p) => acc + (p.cantidad || 1), 0),
-    [carrito]
-  );
+  // ================================
+  // Totales y cantidad total
+  // ================================
+  const total = useMemo(() =>
+    carrito.reduce((acc, p) => acc + (p.precio || 0) * (p.cantidad || 1), 0)
+  , [carrito]);
+
+  const cantidadTotal = useMemo(() =>
+    carrito.reduce((acc, p) => acc + (p.cantidad || 1), 0)
+  , [carrito]);
 
   const hasItems = carrito.length > 0;
 
@@ -106,6 +131,7 @@ export const CartProvider = ({ children }) => {
       value={{
         carrito,
         agregarAlCarrito,
+        eliminarUnidad,
         eliminarProducto,
         actualizarCantidad,
         vaciarCarrito,
