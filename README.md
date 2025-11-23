@@ -1,204 +1,149 @@
 
 ---
 
-# 🪑 **Mueblería Hermanos Jota**
+# 🪑 **Mueblería Hermanos Jota - README Técnico Avanzado**
 
 [![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js\&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-61DAFB?logo=react\&logoColor=black)](https://reactjs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb\&logoColor=white)](https://www.mongodb.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
-> **Proyecto Full Stack de e-commerce** desarrollado para la empresa ficticia **Mueblería Hermanos Jota**, especializado en la gestión integral de catálogo, carrito, checkout y contacto.
-> Incluye **CRUD completo de productos con imágenes**, **diseño responsive**, **carrito persistente**, y **panel administrativo mejorado**.
+> Proyecto Full Stack de e-commerce con **CRUD completo de productos**, **carrito persistente**, **checkout**, **panel administrativo**, **Cloudinary**, **JWT**, **Bcrypt** y diseño industrial profesional.
 
 ---
 
-## 🚀 **Stack Tecnológico**
+## 🌐 **Arquitectura General**
 
-| Área              | Tecnologías                                                                       |
-| ----------------- | --------------------------------------------------------------------------------- |
-| **Frontend**      | React, Hooks (`useState`, `useEffect`, `useContext`), CSS3 modular, Responsive UI |
-| **Backend**       | Node.js, Express, MongoDB, Mongoose, Multer, dotenv, CORS                         |
-| **Herramientas**  | Nodemon, Git, VSCode, MongoDB Compass, Postman                                    |
-| **Estilo Visual** | UI limpia tipo dashboard, estética industrial con acentos dorados                 |
-
----
-
-## 🧩 **Estructura del Proyecto**
-
-```
-muebleria-hermanos-jota/
-├── backend/
-│   ├── controllers/        # Lógica de negocio
-│   ├── data/               # Datos mock (modo sin MongoDB)
-│   ├── middleware/         # Configuración de Multer, CORS, validaciones
-│   ├── models/             # Modelos Mongoose (Producto, Contacto)
-│   ├── public/images/      # Imágenes subidas por usuarios
-│   ├── routes/             # Endpoints API
-│   ├── .env                # Variables de entorno
-│   ├── index.js            # Servidor principal
-│   └── package.json
-├── client/
-│   ├── public/images/      # Recursos estáticos
-│   ├── src/
-│   │   ├── assets/         # Íconos, backgrounds, logos
-│   │   ├── components/     # Componentes reutilizables
-│   │   ├── pages/          # Vistas (Inicio, Checkout, Contacto, Admin, etc.)
-│   │   ├── styles/         # Estilos CSS optimizados por módulo
-│   │   ├── App.jsx         # Root del frontend
-│   │   └── index.js
-│   └── package.json
-└── README.md
+```mermaid
+graph TD
+A[Frontend React] -->|Fetch API| B[Backend Express]
+B -->|Mongoose| C[MongoDB]
+B -->|Cloudinary API| D[Cloudinary]
+A -->|Context API| E[AuthContext / CartContext / ProductContext]
 ```
 
----
-
-## 🧠 **Arquitectura General**
-
-El sistema se compone de **dos capas desacopladas**:
-
-* 🖥️ **Frontend React**: interfaz dinámica, 100% responsive, conectada vía Fetch API.
-* ⚙️ **Backend Express + MongoDB**: API REST con validaciones, persistencia y manejo de archivos (Multer).
-
-Comunicación mediante **HTTP (RESTful)** con CORS habilitado.
+* **Frontend React:** Interfaz dinámica, responsive, modales, checkout y panel admin.
+* **Backend Express:** Endpoints REST, validaciones, autenticación y subida de imágenes.
+* **MongoDB:** Persistencia de productos, usuarios y mensajes de contacto.
+* **Cloudinary:** Almacenamiento de imágenes de productos.
 
 ---
 
-## ⚡ **Backend**
-
-### 🔧 Dependencias Principales
+## 🧰 **Librerías Instaladas (Backend)**
 
 ```bash
-npm install express cors dotenv mongoose multer nodemon
+npm install express mongoose cors dotenv multer cloudinary bcryptjs jsonwebtoken nodemon
 ```
 
-### 🧭 Scripts (`backend/package.json`)
+* **Express:** Servidor HTTP y rutas.
+* **Mongoose:** Modelos y CRUD en MongoDB.
+* **Multer + Cloudinary:** Subida y almacenamiento de imágenes.
+* **Bcryptjs:** Hash de contraseñas.
+* **JSON Web Token (JWT):** Autenticación segura.
+* **Dotenv + CORS:** Configuración de entorno y seguridad.
 
-```json
-"scripts": {
-  "dev": "nodemon index.js",
-  "start": "node index.js"
-}
+---
+
+## 🔧 **Estructura Backend**
+
 ```
-
-### 🌐 Endpoints Principales
-
-| Método | Ruta                 | Descripción                                  |
-| ------ | -------------------- | -------------------------------------------- |
-| GET    | `/`                  | Mensaje de bienvenida                        |
-| GET    | `/api/productos`     | Listar todos los productos                   |
-| GET    | `/api/productos/:id` | Obtener producto por ID                      |
-| POST   | `/api/productos`     | Crear nuevo producto (con imagen via Multer) |
-| PUT    | `/api/productos/:id` | Editar producto existente                    |
-| DELETE | `/api/productos/:id` | Eliminar producto                            |
-| POST   | `/api/contacto`      | Enviar mensaje de contacto                   |
-
-### ⚙️ Variables de Entorno de Ejemplo (`.env`)
-
-```env
-PORT=5000
-CORS_ORIGIN=http://localhost:3000
-MONGO_URI=mongodb://localhost:27017/muebleria
+backend/
+├── controllers/   # Logica: auth, productos, usuarios, contacto
+├── middleware/    # Multer, Cloudinary, auth JWT, validaciones
+├── models/        # Schemas: Producto, Usuario, Contacto
+├── routes/        # Endpoints API
+├── public/images/ # Imágenes locales
+├── index.js       # Servidor principal
+└── .env           # Variables de entorno
 ```
 
 ---
 
-## 🎨 **Frontend React**
+## 🔑 **Flujo de Autenticación**
 
-### 💻 Dependencias
-
-```bash
-npm install react-router-dom
-npm install
+```mermaid
+flowchart TD
+A[Usuario envía login/register] --> B[Controller Auth]
+B --> C[Validación con Bcrypt]
+C --> D[Generación de JWT]
+D --> E[Token enviado al Frontend]
+E --> F[AuthContext guarda token y usuario]
 ```
 
-### 🧭 Scripts (`client/package.json`)
+* El token se envía en cada request protegido.
+* Roles: `admin` y `usuario`.
+* Middleware verifica rol y token para proteger rutas.
 
-```bash
-npm start   # Ejecuta el proyecto en modo desarrollo
-npm build   # Genera build optimizado para producción
+---
+
+## 📦 **Flujo de Carrito y Checkout**
+
+```mermaid
+flowchart TD
+A[Usuario añade productos] --> B[CartContext]
+B --> C[ModalCarrito] --> D[Actualizar cantidad / eliminar]
+D --> E[CheckoutPage genera recibo]
+E --> F[Vaciar Carrito]
+F --> G[Resumen final y registro de compra]
 ```
 
----
-
-## 🧱 **Componentes Clave**
-
-| Componente      | Descripción                                              |
-| --------------- | -------------------------------------------------------- |
-| `Navbar`        | Barra superior con logo, enlaces y contador del carrito  |
-| `HeroBanner`    | Sección principal con presentación visual del catálogo   |
-| `Destacados`    | Muestra productos destacados dinámicamente               |
-| `ProductList`   | Lista completa de productos                              |
-| `ProductCard`   | Card visual con nombre, imagen, precio y botón de compra |
-| `ProductDetail` | Detalle completo del producto con descripción e imagen   |
-| `ModalCarrito`  | Modal interactivo para gestionar productos agregados     |
-| `CheckoutPage`  | Resumen de compra y confirmación                         |
-| `ContactForm`   | Formulario con validaciones y feedback visual            |
-| `AdminPanel`    | CRUD completo: crear, editar y eliminar productos        |
-| `Footer`        | Información institucional y contacto                     |
+* Carrito se persiste en `localStorage` por usuario.
+* Checkout genera un recibo temporal y vacía carrito al finalizar.
 
 ---
 
-## 💾 **CRUD de Productos (Panel Admin)**
+## 🖥️ **Flujo CRUD Admin (Productos)**
 
-Se implementó un sistema administrativo completo con interfaces optimizadas:
-
-* **Crear Producto:** formulario validado, vista previa de imagen y subida con Multer.
-* **Editar Producto:** precarga automática de datos, previsualización de imagen, validación dinámica.
-* **Eliminar Producto:** listado con diseño claro, animaciones hover y alertas visuales.
-
-✅ Todos los formularios incluyen *transiciones suaves, sombras, bordes redondeados y coherencia visual*.
-✅ Totalmente *responsive* para escritorio y móvil.
-
----
-
-## 🎨 **Diseño y Estilos (UI/UX)**
-
-* Paleta principal: `#121212` (fondo) + `#FFD700` (acento dorado)
-* Tipografía: `Segoe UI` / `Poppins`
-* Cards con **glassmorphism ligero**
-* Transiciones suaves, sin scrollbars invasivas
-* CSS modular, mantenible y coherente entre vistas
-
-Ejemplo de mejora aplicada:
-
-```css
-.producto-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 18px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-  backdrop-filter: blur(6px);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.producto-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-}
+```mermaid
+flowchart TD
+A[Admin Panel] --> B[Crear / Editar / Eliminar Producto]
+B --> C[Controller Productos]
+C --> D[Model Producto (MongoDB)]
+D --> E[Respuesta JSON al Frontend]
 ```
 
----
-
-## 🧰 **Funcionalidades Completas**
-
-✔️ Listado dinámico de productos
-✔️ Detalle individual
-✔️ Carrito con persistencia en `localStorage`
-✔️ Modal interactivo de carrito
-✔️ Checkout con resumen de total
-✔️ CRUD administrativo con imágenes
-✔️ Validaciones en frontend y backend
-✔️ Diseño adaptable a dispositivos móviles
-✔️ Integración con MongoDB para datos reales
+* **Crear Producto:** Formulario + subida de imagen a Cloudinary.
+* **Editar Producto:** Precarga datos, editar imagen y validaciones.
+* **Eliminar Producto:** Confirmación en página separada.
+* Tabla de productos con filtros, destacados y stock bajo resaltado.
 
 ---
 
-## 🧪 **Modo de Ejecución**
+## 🖼️ **Flujo de Subida de Imágenes (Cloudinary)**
 
-1️⃣ **Levantar Backend**
+```mermaid
+flowchart TD
+A[Frontend Form] --> B[Multer]
+B --> C[Cloudinary API]
+C --> D[URL de imagen guardada en MongoDB]
+D --> E[Frontend muestra la imagen actualizada]
+```
+
+* Optimiza almacenamiento y reduce peso en servidor.
+* Soporta múltiples formatos y previsualización antes de guardar.
+
+---
+
+## 💻 **Frontend - Context API**
+
+* **AuthContext:** Manejo de sesión, roles y token JWT.
+* **CartContext:** Manejo de carrito persistente con métodos: agregar, eliminar, vaciar, actualizar cantidad.
+* **ProductContext:** Manejo de productos, destacados y filtros.
+* **UIContext:** Gestión de modales y estado visual global.
+
+---
+
+## 🎨 **UI/UX**
+
+* Paleta: Fondo oscuro `#121212`, acento dorado `#FFD700`.
+* Tipografía: `Segoe UI` / `Poppins`.
+* Cards: Glassmorphism, bordes redondeados, transiciones suaves.
+* Responsive para escritorio, tablet y móvil.
+
+---
+
+## 🚀 **Ejecución del Proyecto**
+
+### Backend
 
 ```bash
 cd backend
@@ -206,7 +151,7 @@ npm install
 npm run dev
 ```
 
-2️⃣ **Levantar Frontend**
+### Frontend
 
 ```bash
 cd client
@@ -214,37 +159,27 @@ npm install
 npm start
 ```
 
-Abrir en navegador: [http://localhost:3000](http://localhost:3000)
-
 ---
 
-## 🌍 **Despliegue (Opcional)**
+## 🌍 **Despliegue**
 
-**GitHub Pages / Render / Vercel**
-
-* Generar build con:
-
-  ```bash
-  cd client
-  npm run build
-  ```
-* Subir carpeta `build` al servidor o configurar GitHub Pages.
-* Asegurar conexión con backend desplegado (ajustar URL de API en `.env` o configuración global).
+* Generar build optimizado: `npm run build`
+* Subir carpeta `build` a servidor o configurar GitHub Pages / Vercel / Render
+* Ajustar URL de backend en `.env`
 
 ---
 
 ## 👨‍💻 **Autores**
 
-| Nombre               
-| -------------------- 
-| **Alexis Coronel**   
-| **Leandro Ferreira** 
+| Nombre           | Rol                |
+| ---------------- | ------------------ |
+| Alexis Coronel   | Frontend & Backend |
+| Leandro Ferreira | Frontend & UI/UX   |
 
 ---
 
 ## 🧾 **Licencia**
 
-Este proyecto se distribuye bajo licencia [MIT](LICENSE).
-Puedes usarlo, modificarlo y adaptarlo libremente para fines educativos o comerciales.
+MIT License – libre uso, modificación y adaptación.
 
 ---
