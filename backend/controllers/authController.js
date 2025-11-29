@@ -6,7 +6,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { successResponse, createdResponse } from "../middlewares/responseHandler.js";
 
 // ==================================================
-// 🔐 Generate JWT
+//  Generate JWT
 // ==================================================
 const generateToken = (user) => {
   return jwt.sign(
@@ -17,12 +17,12 @@ const generateToken = (user) => {
 };
 
 // ==================================================
-// 📧 Email validation
+//  Email validation
 // ==================================================
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 // ==================================================
-// 📝 REGISTER
+//  REGISTER
 // ==================================================
 export const registerUser = asyncHandler(async (req, res) => {
   const { nombre, email, password, rol } = req.body;
@@ -60,7 +60,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 // ==================================================
-// 🔑 LOGIN
+//  LOGIN
 // ==================================================
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -97,7 +97,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 });
 
 // ==================================================
-// 👤 GET AUTH USER PROFILE
+// GET AUTH USER PROFILE
 // ==================================================
 export const getMe = asyncHandler(async (req, res) => {
   if (!req.user?.id) throw new Error("No autorizado");
@@ -109,7 +109,7 @@ export const getMe = asyncHandler(async (req, res) => {
 });
 
 // ==================================================
-// ✏️ UPDATE PROFILE (nombre, email, tel, direccion)
+//  UPDATE PROFILE (nombre, email, tel, direccion)
 // ==================================================
 export const updateProfile = asyncHandler(async (req, res) => {
   const userId = req.user.id;
@@ -153,7 +153,7 @@ export const updateProfile = asyncHandler(async (req, res) => {
 });
 
 // ==================================================
-// 🔐 CHANGE PASSWORD
+//  CHANGE PASSWORD
 // ==================================================
 export const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
